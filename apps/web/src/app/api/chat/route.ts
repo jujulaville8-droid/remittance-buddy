@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs/server'
 import { streamText, convertToModelMessages, tool } from 'ai'
 import { gateway } from '@ai-sdk/gateway'
-import { db, users, transfers } from '@remit/db'
-import { eq, desc } from 'drizzle-orm'
+import { db, users, transfers, recipients } from '@remit/db'
+import { eq, desc, ilike, or, and } from 'drizzle-orm'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import type { UIMessage } from 'ai'
@@ -64,18 +64,115 @@ Your onboarding flow:
 3. If KYC is "in_review", explain it's being processed and they will be notified
 4. If KYC is "approved", help them make a transfer:
    a. Ask who they want to send money to, how much, and in what currency
-   b. Use get_quote to show the live exchange rate and fees before asking for bank details
-   c. Confirm the quote details with the user
-   d. Ask for the recipient's bank account details (type like "iban", "sort_code", "aba", or "philippines", plus the required fields)
-   e. Call initiate_transfer to create the transfer and generate a payment link
-   f. Share the payment link and let the user know they can check status with check_transfer_status
+   b. If the user says "send to Mom" or names a saved recipient, call resolve_recipient to look them up — if found, use their details automatically
+   c. If no saved recipient matches, ask for the recipient's full name, country, and bank account details (type like "iban", "sort_code", "aba", or "philippines", plus the required fields)
+   d. Use get_quote to show the live exchange rate and fees
+   e. Confirm the quote details with the user
+   f. Call initiate_transfer to create the transfer and generate a payment link
+   g. Share the payment link and let the user know they can check status with check_transfer_status
+   h. Optionally offer to save the recipient for future transfers using save_recipient
 5. Use check_transfer_status to update the user on an in-progress transfer
 
 Be concise, warm, and speak in plain English. You can use Taglish (English + Tagalog) if the user does too.
 Never fabricate exchange rates — always call get_quote for real rates.
-Always confirm all transfer details with the user before calling initiate_transfer.`,
+Always confirm all transfer details with the user before calling initiate_transfer.
+When a user says "send to [name/nickname]", always try resolve_recipient first before asking for bank details.`,
     messages: await convertToModelMessages(messages),
     tools: {
+      resolve_recipient: tool({
+        description:
+          'Look up a saved recipient by name or nickname. Use when the user says "send to Mom", "send to John", etc. Returns matching recipients with their bank details.',
+        inputSchema: z.object({
+          query: z.string().describe('Name or nickname to search for, e.g. "Mom" or "Maria"'),
+        }),
+        execute: async ({ query }) => {
+          const rows = await db.query.recipients.findMany({
+            where: or(
+              ilike(recipients.name, `%${query}%`),
+              ilike(recipients.nickname, `%${query}%`),
+            ),
+          })
+          const userRows = rows.filter((r) => r.userId === userId)
+          if (userRows.length === 0) {
+            return { found: false, message: `No saved recipient matching "${query}".` }
+          }
+          return {
+            found: true,
+            recipients: userRows.map((r) => ({
+              id: r.id,
+              name: r.name,
+              nickname: r.nickname,
+              country: r.country,
+              bankAccount: r.bankAccount,
+              isDefault: r.isDefault,
+            })),
+          }
+        },
+      }),
+
+      save_recipient: tool({
+        description:
+          'Save a new recipient for future transfers. Offer this after a successful transfer when the user may want to reuse the recipient.',
+        inputSchema: z.object({
+          name: z.string().describe('Full legal name of the recipient'),
+          nickname: z.string().optional().describe('Optional friendly alias, e.g. "Mom"'),
+          country: z.string().length(2).describe('ISO 3166-1 alpha-2 country code'),
+          recipientAccountType: z.string().describe('Wise account type, e.g. "philippines", "iban"'),
+          recipientAccountDetails: z.record(z.string()).describe('Account fields as key-value pairs'),
+          isDefault: z.boolean().optional().describe('Whether to set as the default recipient'),
+        }),
+        execute: async ({ name, nickname, country, recipientAccountType, recipientAccountDetails, isDefault }) => {
+          try {
+            if (isDefault) {
+              await db
+                .update(recipients)
+                .set({ isDefault: false })
+                .where(and(eq(recipients.userId, userId), eq(recipients.isDefault, true)))
+            }
+            const inserted = await db
+              .insert(recipients)
+              .values({
+                userId,
+                name,
+                nickname: nickname ?? null,
+                country,
+                bankAccount: { type: recipientAccountType, details: recipientAccountDetails },
+                isDefault: isDefault ?? false,
+              })
+              .returning()
+            const record = inserted[0]
+            if (!record) return { success: false, error: 'Failed to save recipient.' }
+            return { success: true, recipientId: record.id, name: record.name }
+          } catch {
+            return { success: false, error: 'Failed to save recipient.' }
+          }
+        },
+      }),
+
+      list_recipients: tool({
+        description: "List all of the user's saved recipients.",
+        inputSchema: z.object({}),
+        execute: async () => {
+          const rows = await db.query.recipients.findMany({
+            where: eq(recipients.userId, userId),
+            orderBy: (r, { desc: d }) => [d(r.createdAt)],
+          })
+          if (rows.length === 0) {
+            return { count: 0, recipients: [], message: 'No saved recipients yet.' }
+          }
+          return {
+            count: rows.length,
+            recipients: rows.map((r) => ({
+              id: r.id,
+              name: r.name,
+              nickname: r.nickname,
+              country: r.country,
+              isDefault: r.isDefault,
+            })),
+          }
+        },
+      }),
+
       check_kyc_status: tool({
         description: 'Check the current KYC (identity verification) status for the user.',
         inputSchema: z.object({}),

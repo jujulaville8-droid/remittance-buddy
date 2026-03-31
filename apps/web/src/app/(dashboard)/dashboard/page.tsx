@@ -63,6 +63,22 @@ export default async function DashboardPage() {
         )}
       </div>
 
+      {/* Saved recipients */}
+      <div className="mt-4 flex items-center justify-between rounded-lg border p-4">
+        <div>
+          <p className="text-sm font-medium">Saved recipients</p>
+          <p className="text-muted-foreground mt-0.5 text-xs">
+            Manage your saved recipients for faster transfers
+          </p>
+        </div>
+        <Link
+          href="/recipients"
+          className="rounded px-3 py-1.5 text-xs font-medium border hover:bg-muted transition-colors"
+        >
+          Manage
+        </Link>
+      </div>
+
       {/* AI onboarding assistant */}
       <div className="mt-4 flex items-center justify-between rounded-lg border p-4">
         <div>
