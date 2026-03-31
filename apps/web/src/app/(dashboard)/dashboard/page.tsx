@@ -81,7 +81,14 @@ export default async function DashboardPage() {
 
       {/* Transfer history */}
       <div className="mt-8">
-        <h2 className="text-base font-semibold">Transfer history</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold">Transfer history</h2>
+          {recentTransfers.length > 0 && (
+            <Link href="/transfers" className="text-xs text-primary hover:underline">
+              View all →
+            </Link>
+          )}
+        </div>
 
         {recentTransfers.length === 0 ? (
           <div className="mt-3 rounded-lg border border-dashed p-8 text-center">
@@ -118,12 +125,19 @@ export default async function DashboardPage() {
                     >
                       {statusMeta.label}
                     </span>
-                    {transfer.status === 'quote' && (
+                    {transfer.status === 'quote' ? (
                       <Link
                         href="/onboard"
                         className="text-xs text-primary hover:underline"
                       >
                         Complete
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/transfers/${transfer.id}`}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Details →
                       </Link>
                     )}
                   </div>
