@@ -2,11 +2,18 @@ import { auth } from '@clerk/nextjs/server'
 import { db, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
 import { createInquiry } from '@/lib/persona'
+import { kycRateLimiter } from '@/lib/rate-limit'
+import { logAuditEvent, getClientIp } from '@/lib/audit'
 
-export async function POST() {
+export async function POST(req: Request) {
   const { userId } = await auth()
   if (!userId) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { success } = await kycRateLimiter.limit(userId)
+  if (!success) {
+    return Response.json({ error: 'Too many KYC requests. Please try again later.' }, { status: 429 })
   }
 
   const templateId = process.env.PERSONA_TEMPLATE_ID
@@ -32,6 +39,15 @@ export async function POST() {
       nameLast: user.fullName.split(' ').slice(1).join(' ') || undefined,
       emailAddress: user.email,
     },
+  })
+
+  await logAuditEvent({
+    userId,
+    action: 'kyc.inquiry_created',
+    entityType: 'kyc',
+    entityId: inquiry.id,
+    metadata: { previousStatus: user.kycStatus },
+    ipAddress: getClientIp(req),
   })
 
   return Response.json({

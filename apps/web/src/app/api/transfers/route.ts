@@ -3,6 +3,8 @@ import { db, transfers, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { createQuote, createRecipient, createTransfer } from '@/lib/wise'
+import { transferRateLimiter } from '@/lib/rate-limit'
+import { logAuditEvent, getClientIp } from '@/lib/audit'
 
 export async function GET() {
   const { userId } = await auth()
@@ -37,6 +39,11 @@ export async function POST(req: Request) {
   const { userId } = await auth()
   if (!userId) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { success } = await transferRateLimiter.limit(userId)
+  if (!success) {
+    return Response.json({ error: 'Too many transfer requests. Please slow down.' }, { status: 429 })
   }
 
   // KYC gate
@@ -123,6 +130,21 @@ export async function POST(req: Request) {
       idempotencyKey: input.idempotencyKey,
     })
     .returning()
+
+  await logAuditEvent({
+    userId,
+    action: 'transfer.created',
+    entityType: 'transfer',
+    entityId: record?.id,
+    metadata: {
+      sourceCurrency: input.sourceCurrency,
+      sourceAmountCents: input.sourceAmountCents,
+      targetCurrency: input.targetCurrency,
+      recipientCountry: input.recipientCountry,
+      provider: 'wise',
+    },
+    ipAddress: getClientIp(req),
+  })
 
   return Response.json(record, { status: 201 })
 }

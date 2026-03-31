@@ -3,6 +3,7 @@ import { db, transfers } from '@remit/db'
 import { eq } from 'drizzle-orm'
 import { constructStripeEvent } from '@/lib/stripe'
 import { createQuote, createRecipient, createTransfer, fundTransfer } from '@/lib/wise'
+import { logAuditEvent } from '@/lib/audit'
 import type Stripe from 'stripe'
 
 export async function POST(req: Request) {
@@ -102,6 +103,14 @@ export async function POST(req: Request) {
           updatedAt: new Date(),
         })
         .where(eq(transfers.id, transferId))
+
+      await logAuditEvent({
+        userId: transfer.senderId,
+        action: 'transfer.payment_completed',
+        entityType: 'transfer',
+        entityId: transferId,
+        metadata: { wiseTransferId: wiseTransfer.id, status: 'processing' },
+      })
 
       console.info(
         `[stripe webhook] checkout succeeded → Wise transfer ${wiseTransfer.id} created and funded for transfer ${transferId}`,

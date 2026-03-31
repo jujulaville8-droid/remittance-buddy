@@ -3,6 +3,8 @@ import { db, transfers, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { getOrCreateCustomer, createPaymentIntent } from '@/lib/stripe'
+import { paymentRateLimiter } from '@/lib/rate-limit'
+import { logAuditEvent, getClientIp } from '@/lib/audit'
 
 const Schema = z.object({
   transferId: z.string().uuid(),
@@ -12,6 +14,11 @@ export async function POST(req: Request) {
   const { userId } = await auth()
   if (!userId) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { success } = await paymentRateLimiter.limit(userId)
+  if (!success) {
+    return Response.json({ error: 'Too many payment requests. Please slow down.' }, { status: 429 })
   }
 
   const body = await req.json()
@@ -57,6 +64,19 @@ export async function POST(req: Request) {
     .update(transfers)
     .set({ status: 'pending', updatedAt: new Date() })
     .where(eq(transfers.id, transferId))
+
+  await logAuditEvent({
+    userId,
+    action: 'payment.intent_created',
+    entityType: 'transfer',
+    entityId: transferId,
+    metadata: {
+      paymentIntentId,
+      amountCents: transfer.sourceAmountCents + transfer.feeCents,
+      currency: transfer.sourceCurrency,
+    },
+    ipAddress: getClientIp(req),
+  })
 
   return Response.json({ clientSecret, paymentIntentId })
 }
