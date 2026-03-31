@@ -3,6 +3,7 @@ import { Webhook } from 'svix'
 import type { WebhookEvent } from '@clerk/nextjs/server'
 import { db, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
+import { logAuditEvent } from '@/lib/audit'
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
@@ -19,8 +20,9 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Missing svix headers' }, { status: 400 })
   }
 
-  const payload = await req.json()
-  const body = JSON.stringify(payload)
+  // Use raw body text for signature verification — re-stringifying parsed JSON
+  // can alter whitespace/key order and break the HMAC check.
+  const body = await req.text()
 
   const wh = new Webhook(WEBHOOK_SECRET)
   let event: WebhookEvent
@@ -45,6 +47,13 @@ export async function POST(req: Request) {
         fullName: `${first_name ?? ''} ${last_name ?? ''}`.trim() || 'Unknown',
         countryOfResidence: 'US', // updated during onboarding
       })
+      await logAuditEvent({
+        userId: id,
+        action: 'user.created',
+        entityType: 'user',
+        entityId: id,
+        metadata: { email: primaryEmail.email_address },
+      })
     }
   }
 
@@ -52,6 +61,13 @@ export async function POST(req: Request) {
     const { id } = event.data
     if (id) {
       await db.delete(users).where(eq(users.id, id))
+      await logAuditEvent({
+        userId: id,
+        action: 'user.deleted',
+        entityType: 'user',
+        entityId: id,
+        metadata: {},
+      })
     }
   }
 

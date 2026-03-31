@@ -8,7 +8,8 @@ import { randomUUID } from 'crypto'
 import type { UIMessage } from 'ai'
 import { createQuote } from '@/lib/wise'
 import { getOrCreateCustomer, createCheckoutSession } from '@/lib/stripe'
-import { rateLimiter } from '@/lib/rate-limit'
+import { chatRateLimiter } from '@/lib/rate-limit'
+import { logAuditEvent } from '@/lib/audit'
 
 export const maxDuration = 30
 
@@ -27,8 +28,8 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Rate limit: 20 chat requests per 10 seconds per user
-  const { success } = await rateLimiter.limit(userId)
+  // Rate limit: 10 chat requests per minute per user (AI calls are expensive)
+  const { success } = await chatRateLimiter.limit(userId)
   if (!success) {
     return Response.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
   }
@@ -275,6 +276,20 @@ Always confirm all transfer details with the user before calling initiate_transf
               recipientName,
               successUrl: `${appUrl}/pay/${record.id}/success`,
               cancelUrl: `${appUrl}/onboard`,
+            })
+
+            await logAuditEvent({
+              userId,
+              action: 'transfer.initiated_via_chat',
+              entityType: 'transfer',
+              entityId: record.id,
+              metadata: {
+                sourceCurrency,
+                sourceAmountCents,
+                targetCurrency,
+                recipientCountry,
+                provider: 'wise',
+              },
             })
 
             return {
