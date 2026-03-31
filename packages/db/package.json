@@ -16,7 +16,7 @@
     "drizzle-orm": "^0.38.3"
   },
   "devDependencies": {
-    "@remit/typescript-config": "*",
+    "@remit/typescript-config": "workspace:*",
     "drizzle-kit": "^0.30.1",
     "typescript": "^5.7.2"
   }

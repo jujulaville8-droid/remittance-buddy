@@ -12,16 +12,20 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@ai-sdk/gateway": "^3.0.83",
     "@ai-sdk/react": "^1.2.0",
     "@clerk/nextjs": "^7.0.0",
     "@neondatabase/serverless": "^0.10.4",
-    "@remit/db": "*",
+    "@remit/db": "workspace:*",
+    "drizzle-orm": "^0.38.3",
+    "geist": "^1.3.1",
+    "svix": "^1.45.1",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.34.3",
     "@vercel/analytics": "^1.5.0",
     "@vercel/blob": "^0.27.0",
     "@vercel/speed-insights": "^1.2.0",
-    "ai": "^4.3.0",
+    "ai": "^6.0.141",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.475.0",
@@ -32,7 +36,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@remit/typescript-config": "*",
+    "@remit/typescript-config": "workspace:*",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
