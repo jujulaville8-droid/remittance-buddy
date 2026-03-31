@@ -1,6 +1,8 @@
 import { auth } from '@clerk/nextjs/server'
 import { db, transfers, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
+import { createQuote, createRecipient, createTransfer } from '@/lib/wise'
 
 export async function GET() {
   const { userId } = await auth()
@@ -17,13 +19,27 @@ export async function GET() {
   return Response.json(rows)
 }
 
-export async function POST() {
+const CreateTransferSchema = z.object({
+  sourceCurrency: z.string().length(3),
+  targetCurrency: z.string().length(3),
+  sourceAmountCents: z.number().int().positive(),
+  recipientName: z.string().min(1),
+  recipientCountry: z.string().length(2),
+  recipientBankAccount: z.object({
+    type: z.string(),
+    details: z.record(z.string()),
+  }),
+  idempotencyKey: z.string().uuid(),
+  reference: z.string().max(100).optional(),
+})
+
+export async function POST(req: Request) {
   const { userId } = await auth()
   if (!userId) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // KYC gate — user must be approved before initiating transfers
+  // KYC gate
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) })
   if (!user) {
     return Response.json({ error: 'User not found' }, { status: 404 })
@@ -39,6 +55,74 @@ export async function POST() {
     )
   }
 
-  // Full transfer creation implemented in REM-5 (Wise integration)
-  return Response.json({ error: 'Not implemented' }, { status: 501 })
+  const body = await req.json()
+  const parsed = CreateTransferSchema.safeParse(body)
+  if (!parsed.success) {
+    return Response.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
+  }
+
+  const input = parsed.data
+  const profileId = process.env.WISE_PROFILE_ID
+  if (!profileId) {
+    return Response.json({ error: 'Wise profile not configured' }, { status: 500 })
+  }
+
+  // Idempotency check — return existing transfer if key already used
+  const existing = await db.query.transfers.findFirst({
+    where: eq(transfers.idempotencyKey, input.idempotencyKey),
+  })
+  if (existing) {
+    return Response.json(existing)
+  }
+
+  // 1. Get quote
+  const quote = await createQuote({
+    profileId,
+    sourceCurrency: input.sourceCurrency,
+    targetCurrency: input.targetCurrency,
+    sourceAmount: input.sourceAmountCents / 100,
+  })
+
+  // 2. Create recipient
+  const recipient = await createRecipient({
+    profileId,
+    currency: input.targetCurrency,
+    type: input.recipientBankAccount.type,
+    accountHolderName: input.recipientName,
+    details: input.recipientBankAccount.details,
+  })
+
+  // 3. Create transfer
+  const wiseTransfer = await createTransfer({
+    targetAccountId: recipient.id,
+    quoteUuid: quote.id,
+    customerTransactionId: input.idempotencyKey,
+    details: { reference: input.reference },
+  })
+
+  const feeCents = Math.round((quote.fee?.total ?? 0) * 100)
+  const targetAmountCents = Math.round(quote.targetAmount * 100)
+
+  // 4. Persist transfer record
+  const [record] = await db
+    .insert(transfers)
+    .values({
+      senderId: userId,
+      sourceCurrency: input.sourceCurrency,
+      sourceAmountCents: input.sourceAmountCents,
+      targetCurrency: input.targetCurrency,
+      targetAmountCents,
+      fxRate: String(quote.rate),
+      feeCents,
+      recipientName: input.recipientName,
+      recipientCountry: input.recipientCountry,
+      recipientBankAccount: input.recipientBankAccount,
+      status: 'processing',
+      provider: 'wise',
+      providerTransferId: String(wiseTransfer.id),
+      idempotencyKey: input.idempotencyKey,
+    })
+    .returning()
+
+  return Response.json(record, { status: 201 })
 }
