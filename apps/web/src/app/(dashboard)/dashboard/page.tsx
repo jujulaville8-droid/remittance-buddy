@@ -39,7 +39,21 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      {/* Transfer history, quick send, and AI assistant will be added in subsequent tasks */}
+      {/* AI onboarding assistant */}
+      <div className="mt-4 flex items-center justify-between rounded-lg border p-4">
+        <div>
+          <p className="text-sm font-medium">AI onboarding assistant</p>
+          <p className="text-muted-foreground mt-0.5 text-xs">
+            Get personalised help setting up your account and making your first transfer
+          </p>
+        </div>
+        <Link
+          href="/onboard"
+          className="bg-primary text-primary-foreground rounded px-3 py-1.5 text-xs font-medium"
+        >
+          Get started
+        </Link>
+      </div>
     </main>
   )
 }
