@@ -207,24 +207,6 @@ export function App() {
               </div>
             </div>
 
-            {/* Slider */}
-            <div>
-              <input
-                type="range"
-                min="50"
-                max="2000"
-                step="50"
-                value={amount || '500'}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full h-1.5 rounded-full cursor-pointer"
-              />
-              <div className="flex justify-between text-[9px] font-medium text-[hsl(var(--muted-foreground))] mt-0.5 px-0.5">
-                <span>$50</span>
-                <span>$500</span>
-                <span>$1,000</span>
-                <span>$2,000</span>
-              </div>
-            </div>
           </div>
         </div>
 
