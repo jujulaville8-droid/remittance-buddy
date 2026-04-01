@@ -252,7 +252,7 @@ export function App() {
           </div>
         ) : (
           <div className="relative bg-white rounded-3xl p-3.5 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up overflow-hidden" style={{ animationDelay: '100ms' }}>
-            <img src={philippinesMap} alt="" className="absolute inset-0 w-full h-full object-contain opacity-[0.08] pointer-events-none" />
+            <img src={philippinesMap} alt="" className="absolute inset-0 w-full h-full object-contain opacity-[0.2] pointer-events-none" />
             <div className="relative">
               <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-1 px-1">{t('recent')}</h2>
               <TransferItem amount={200} currency="USD" receiveCurrency="PHP" status="completed" date="Mar 28" />
