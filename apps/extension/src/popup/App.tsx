@@ -157,7 +157,6 @@ export function App() {
         {/* Rate Check Card */}
         <div className="relative bg-white rounded-3xl p-4 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up overflow-hidden">
           <img src={philippinesMap} alt="" className="absolute top-1 right-0 w-28 h-auto opacity-[0.07] pointer-events-none" />
-          <img src={airplanePerson} alt="" className="absolute -bottom-2 -left-2 w-40 h-auto opacity-[0.12] pointer-events-none" />
           <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-3">{t('compareRates')}</h2>
           <div className="space-y-2.5">
             <div className="flex gap-2 items-end">
@@ -252,10 +251,13 @@ export function App() {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-3xl p-3.5 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up" style={{ animationDelay: '100ms' }}>
-            <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-1 px-1">{t('recent')}</h2>
-            <TransferItem amount={200} currency="USD" receiveCurrency="PHP" status="completed" date="Mar 28" />
-            <TransferItem amount={500} currency="USD" receiveCurrency="INR" status="pending" date="Mar 30" />
+          <div className="relative bg-white rounded-3xl p-3.5 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up overflow-hidden" style={{ animationDelay: '100ms' }}>
+            <img src={airplanePerson} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] pointer-events-none" />
+            <div className="relative">
+              <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-1 px-1">{t('recent')}</h2>
+              <TransferItem amount={200} currency="USD" receiveCurrency="PHP" status="completed" date="Mar 28" />
+              <TransferItem amount={500} currency="USD" receiveCurrency="INR" status="pending" date="Mar 30" />
+            </div>
           </div>
         )}
 
