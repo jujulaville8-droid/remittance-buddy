@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useChat, type UIMessage } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Send, LogOut, Clock } from 'lucide-react';
+import { SendHorizontal, LogOut, Clock, MessageCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { LoadingDots } from '../components/LoadingDots';
 import { LanguageToggle } from '../components/LanguageToggle';
@@ -92,7 +92,7 @@ export function ChatView({ onSignOut }: { readonly onSignOut: () => void }) {
                   className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-2xl bg-white border border-[hsl(var(--border))] text-left shadow-sm hover:shadow-md hover:border-[hsl(var(--coral))]/30 transition-all duration-200"
                 >
                   <div className="w-8 h-8 rounded-xl bg-[hsl(var(--coral-light))] flex items-center justify-center shrink-0">
-                    <Send className="h-3.5 w-3.5 text-[hsl(var(--coral))]" />
+                    <MessageCircle className="h-3.5 w-3.5 text-[hsl(var(--coral))]" />
                   </div>
                   <div>
                     <div className="text-xs font-semibold text-[hsl(var(--foreground))]">{item.text}</div>
@@ -125,8 +125,8 @@ export function ChatView({ onSignOut }: { readonly onSignOut: () => void }) {
             className="flex-1 resize-none rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-3.5 py-2.5 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--coral))] focus-visible:border-transparent focus-visible:bg-white min-h-[40px] max-h-[120px] transition-all duration-200"
             rows={1}
           />
-          <Button onClick={handleSubmit} disabled={isLoading || !inputValue.trim()} size="sm" className="rounded-full w-9 h-9 p-0 shrink-0">
-            <Send className="h-4 w-4" />
+          <Button onClick={handleSubmit} disabled={isLoading || !inputValue.trim()} size="sm" className="rounded-full w-10 h-10 p-0 shrink-0">
+            <SendHorizontal className="h-5 w-5" />
           </Button>
         </div>
       </div>
