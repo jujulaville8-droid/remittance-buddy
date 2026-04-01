@@ -47,7 +47,11 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/api/recipients') ||
     pathname.startsWith('/api/payments')
 
-  if (!user && isProtected) {
+  // If the request has a Bearer token (from Chrome extension), let it through
+  // — the route handler will validate the token via auth-helper
+  const hasBearer = request.headers.get('Authorization')?.startsWith('Bearer ')
+
+  if (!user && isProtected && !hasBearer) {
     // For API routes, return 401
     if (pathname.startsWith('/api/')) {
       return NextResponse.json(
