@@ -13,8 +13,8 @@ export const users = pgTable('users', {
   id: text('id').primaryKey(), // Clerk user ID
   email: text('email').notNull().unique(),
   phone: text('phone'),
-  fullName: text('full_name').notNull(),
-  countryOfResidence: text('country_of_residence').notNull(),
+  fullName: text('full_name'),
+  countryOfResidence: text('country_of_residence'),
   kycStatus: kycStatusEnum('kyc_status').notNull().default('pending'),
   kycProviderRef: text('kyc_provider_ref'),
   riskLevel: riskLevelEnum('risk_level').notNull().default('low'),
