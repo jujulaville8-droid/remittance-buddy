@@ -67,7 +67,7 @@ export function App() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Remittance Buddy" className="w-16 h-16 shrink-0 -my-2" />
+          <img src={logo} alt="Remittance Buddy" className="w-16 h-16 shrink-0 mt-1" />
           <div>
             <h1 className="text-base font-bold text-[hsl(var(--foreground))] leading-tight" style={{ fontFamily: "'Varela Round', sans-serif" }}>{t('appName')}</h1>
             <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
