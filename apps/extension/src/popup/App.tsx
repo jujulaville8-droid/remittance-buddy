@@ -123,7 +123,7 @@ export function App() {
               <span className="text-white font-bold text-sm" style={{ fontFamily: 'Fredoka, sans-serif' }}>RB</span>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight">{t('appName')}</h1>
+              <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight tracking-tight" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>{t('appName')}</h1>
               <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
             </div>
           </div>

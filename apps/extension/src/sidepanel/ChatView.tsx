@@ -48,7 +48,7 @@ export function ChatView() {
             <span className="text-white font-bold text-xs" style={{ fontFamily: 'Fredoka, sans-serif' }}>RB</span>
           </div>
           <div>
-            <h1 className="text-sm font-bold text-[hsl(var(--foreground))]">{t('appName')}</h1>
+            <h1 className="text-sm font-bold text-[hsl(var(--foreground))] tracking-tight" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>{t('appName')}</h1>
             <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('chatTagline')}</p>
           </div>
         </div>
