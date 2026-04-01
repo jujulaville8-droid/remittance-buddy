@@ -6,7 +6,7 @@ import { CurrencySelect } from '../components/CurrencySelect';
 import { RateCard } from '../components/RateCard';
 import { TransferItem } from '../components/TransferItem';
 import { LanguageToggle } from '../components/LanguageToggle';
-import { PaperAirplaneSmall, WavyLine, SparklesBurst } from '../components/Doodles';
+import { PaperAirplane } from '../components/Doodles';
 import { useI18n } from '../lib/i18n';
 
 interface Quote {
@@ -117,7 +117,10 @@ export function App() {
       <div className="relative px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <PaperAirplaneSmall className="w-10 h-7 text-[hsl(var(--coral))] animate-float" />
+            {/* Logo placeholder — replace with actual logo */}
+            <div className="w-8 h-8 rounded-xl bg-[hsl(var(--coral))] flex items-center justify-center shrink-0 shadow-sm shadow-[hsla(var(--coral),0.25)]">
+              <span className="text-white font-bold text-sm" style={{ fontFamily: 'Fredoka, sans-serif' }}>RB</span>
+            </div>
             <div>
               <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight">{t('appName')}</h1>
               <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
@@ -125,7 +128,6 @@ export function App() {
           </div>
           <LanguageToggle />
         </div>
-        <SparklesBurst className="absolute top-3 right-16 w-4 h-4 text-[hsl(var(--gold))] opacity-50" />
       </div>
 
       {/* Scrollable content */}
@@ -213,11 +215,13 @@ export function App() {
         )}
 
         {/* Chat CTA */}
-        <WavyLine className="w-full text-[hsl(var(--coral))] mb-2 opacity-40" />
         <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2 animate-fade-up" style={{ animationDelay: '200ms' }}>
           <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
           {t('chatWithAi')}
         </Button>
+
+        {/* Airplane illustration at bottom */}
+        <PaperAirplane className="w-full h-16 text-[hsl(var(--coral))] opacity-20 mt-2" />
       </div>
     </div>
   );
