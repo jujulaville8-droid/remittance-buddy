@@ -125,8 +125,8 @@ export function ChatView({ onSignOut }: { readonly onSignOut: () => void }) {
             className="flex-1 resize-none rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-3.5 py-2.5 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--coral))] focus-visible:border-transparent focus-visible:bg-white min-h-[40px] max-h-[120px] transition-all duration-200"
             rows={1}
           />
-          <Button onClick={handleSubmit} disabled={isLoading || !inputValue.trim()} size="sm" className="rounded-full w-10 h-10 p-0 shrink-0">
-            <SendHorizontal className="h-5 w-5" />
+          <Button onClick={handleSubmit} disabled={isLoading || !inputValue.trim()} size="lg" className="rounded-full w-12 h-12 p-0 shrink-0">
+            <SendHorizontal className="h-6 w-6" />
           </Button>
         </div>
       </div>
