@@ -1,6 +1,6 @@
 import { getAuthUser } from '@/lib/supabase/auth-helper'
 import { streamText, convertToModelMessages, tool } from 'ai'
-import { gateway } from '@ai-sdk/gateway'
+import { anthropic } from '@ai-sdk/anthropic'
 import { db, users, transfers, recipients } from '@remit/db'
 import { eq, desc, ilike, or, and } from 'drizzle-orm'
 import { z } from 'zod'
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
   }
 
   const result = streamText({
-    model: gateway('anthropic/claude-sonnet-4.6'),
+    model: anthropic('claude-sonnet-4-20250514'),
     system: `You are the Remittance Buddy onboarding assistant — a friendly guide helping ${userName} get set up to send money internationally.
 
 Current user state:
