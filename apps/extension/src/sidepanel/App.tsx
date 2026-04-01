@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ChatView } from './ChatView';
 import { OnboardingView } from './OnboardingView';
 import { isAuthenticated } from '../lib/auth';
@@ -6,17 +6,13 @@ import { isAuthenticated } from '../lib/auth';
 export function App() {
   const [authed, setAuthed] = useState<boolean | null>(null);
 
-  useEffect(() => {
+  const checkAuth = useCallback(() => {
     isAuthenticated().then(setAuthed);
-
-    const listener = (message: { type: string }) => {
-      if (message.type === 'AUTH_STATE_CHANGED') {
-        isAuthenticated().then(setAuthed);
-      }
-    };
-    chrome.runtime.onMessage.addListener(listener);
-    return () => chrome.runtime.onMessage.removeListener(listener);
   }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   if (authed === null) {
     return (
@@ -26,5 +22,5 @@ export function App() {
     );
   }
 
-  return authed ? <ChatView /> : <OnboardingView />;
+  return authed ? <ChatView /> : <OnboardingView onAuth={checkAuth} />;
 }

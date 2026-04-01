@@ -16,21 +16,12 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     });
     return true;
   }
-
-  if (message.type === 'AUTH_CALLBACK') {
-    import('../lib/auth').then(({ handleAuthCallback }) => {
-      handleAuthCallback(message.tokens, message.profile).then(() => {
-        sendResponse({ success: true });
-      });
-    });
-    return true;
-  }
 });
 
 chrome.alarms.create('refresh-rates', { periodInMinutes: 30 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'refresh-rates') {
-    console.log('[RemitBuddy] Rate refresh alarm fired');
+    // TODO: Refresh cached rates for user's default corridor
   }
 });

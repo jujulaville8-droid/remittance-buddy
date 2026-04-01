@@ -12,8 +12,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
-    "drizzle-orm": "^0.38.3"
+    "drizzle-orm": "^0.38.3",
+    "postgres": "^3.4.8"
   },
   "devDependencies": {
     "@remit/typescript-config": "workspace:*",

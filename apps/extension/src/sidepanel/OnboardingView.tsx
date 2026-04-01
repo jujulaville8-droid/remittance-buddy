@@ -1,60 +1,93 @@
+import { useState } from 'react';
 import { Button } from '../components/ui/button';
-import { LanguageToggle } from '../components/LanguageToggle';
-import { getOAuthUrl } from '../lib/auth';
+import { Input } from '../components/ui/input';
+import { signIn, signUp } from '../lib/auth';
 import { useI18n } from '../lib/i18n';
-import { Heart, Globe, Zap } from 'lucide-react';
+// Icons available for future feature list
+
 import { SparklesBurst, WavyLine } from '../components/Doodles';
 import logo from '../assets/logo.png';
 
-export function OnboardingView() {
+export function OnboardingView({ onAuth }: { readonly onAuth: () => void }) {
   const { t } = useI18n();
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  function handleSignIn() {
-    chrome.tabs.create({ url: getOAuthUrl() });
+  async function handleSubmit() {
+    setError('');
+    setLoading(true);
+    try {
+      if (mode === 'signin') {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password, fullName || undefined);
+      }
+      onAuth();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="relative flex flex-col items-center justify-center h-screen px-6 text-center bg-[hsl(var(--background))] overflow-hidden">
-      <div className="absolute top-4 right-4">
-        <LanguageToggle />
-      </div>
-
-      {/* Decorative background doodles */}
+      {/* Decorative */}
       <SparklesBurst className="absolute top-12 left-6 w-6 h-6 text-[hsl(var(--gold))] opacity-30" />
       <SparklesBurst className="absolute bottom-20 right-8 w-5 h-5 text-[hsl(var(--teal))] opacity-20" />
 
       <img src={logo} alt="Remittance Buddy" className="w-20 h-20 mb-3 animate-fade-up" />
       <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1 animate-fade-up" style={{ animationDelay: '80ms' }}>{t('appName')}</h1>
       <WavyLine className="w-28 text-[hsl(var(--coral))] mb-3 animate-fade-up" style={{ animationDelay: '120ms' }} />
-      <p className="text-[hsl(var(--muted-foreground))] text-sm mb-8 max-w-[280px] leading-relaxed animate-fade-up" style={{ animationDelay: '160ms' }}>
+      <p className="text-[hsl(var(--muted-foreground))] text-sm mb-6 max-w-[280px] leading-relaxed animate-fade-up" style={{ animationDelay: '160ms' }}>
         {t('onboardingDescription')}
       </p>
 
-      <div className="w-full max-w-[280px] space-y-3 mb-8 stagger-children">
-        <div className="flex items-center gap-3 text-left bg-white rounded-2xl px-3.5 py-2.5 shadow-sm border border-[hsl(var(--border))]">
-          <div className="p-2 rounded-xl bg-[hsl(var(--coral-light))]">
-            <Globe className="h-4 w-4 text-[hsl(var(--coral))]" />
-          </div>
-          <span className="text-sm text-[hsl(var(--foreground))]">{t('onboardingFeature1')}</span>
-        </div>
-        <div className="flex items-center gap-3 text-left bg-white rounded-2xl px-3.5 py-2.5 shadow-sm border border-[hsl(var(--border))]">
-          <div className="p-2 rounded-xl bg-[hsl(var(--teal-light))]">
-            <Zap className="h-4 w-4 text-[hsl(var(--teal))]" />
-          </div>
-          <span className="text-sm text-[hsl(var(--foreground))]">{t('onboardingFeature2')}</span>
-        </div>
-        <div className="flex items-center gap-3 text-left bg-white rounded-2xl px-3.5 py-2.5 shadow-sm border border-[hsl(var(--border))]">
-          <div className="p-2 rounded-xl bg-[hsl(var(--gold-light))]">
-            <Heart className="h-4 w-4 text-[hsl(var(--gold))]" />
-          </div>
-          <span className="text-sm text-[hsl(var(--foreground))]">{t('onboardingFeature3')}</span>
-        </div>
+      {/* Auth form */}
+      <div className="w-full max-w-[280px] space-y-3 animate-fade-up" style={{ animationDelay: '200ms' }}>
+        {mode === 'signup' && (
+          <Input
+            type="text"
+            placeholder="Full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
+        )}
+        <Input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+        />
+
+        {error && (
+          <p className="text-xs text-red-500 text-left">{error}</p>
+        )}
+
+        <Button onClick={handleSubmit} disabled={loading || !email || !password} size="lg" className="w-full">
+          {loading ? '...' : mode === 'signin' ? 'Sign in' : 'Create account'}
+        </Button>
+
+        <button
+          onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}
+          className="text-xs text-[hsl(var(--coral))] hover:underline"
+        >
+          {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+        </button>
       </div>
 
-      <Button onClick={handleSignIn} size="lg" className="w-full max-w-[280px] animate-fade-up" style={{ animationDelay: '400ms' }}>
-        {t('getStarted')}
-      </Button>
-      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-3 animate-fade-up" style={{ animationDelay: '450ms' }}>
+      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-4">
         {t('noFees')}
       </p>
     </div>

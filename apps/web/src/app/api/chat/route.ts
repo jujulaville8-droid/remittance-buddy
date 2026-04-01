@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/auth-helper'
 import { streamText, convertToModelMessages, tool } from 'ai'
 import { gateway } from '@ai-sdk/gateway'
 import { db, users, transfers, recipients } from '@remit/db'
@@ -37,8 +37,7 @@ const messagesSchema = z.array(
 )
 
 export async function POST(req: Request) {
-  const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const authUser = await getAuthUser(req)
   if (!authUser) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
