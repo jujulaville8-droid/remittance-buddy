@@ -22,9 +22,8 @@ export function OnboardingView() {
       <SparklesBurst className="absolute top-12 left-6 w-6 h-6 text-[hsl(var(--gold))] opacity-30" />
       <SparklesBurst className="absolute bottom-20 right-8 w-5 h-5 text-[hsl(var(--teal))] opacity-20" />
 
-      <div className="relative mb-5 animate-fade-up">
-        <PaperAirplane className="w-24 h-24 text-[hsl(var(--coral))] animate-float" />
-        <SparklesBurst className="absolute -top-2 -right-3 w-7 h-7 text-[hsl(var(--gold))]" />
+      <div className="relative mb-3 animate-fade-up">
+        <PaperAirplane className="w-52 h-32 text-[hsl(var(--coral))]" />
       </div>
 
       <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1 animate-fade-up" style={{ animationDelay: '80ms' }}>{t('appName')}</h1>

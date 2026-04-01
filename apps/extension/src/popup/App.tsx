@@ -6,7 +6,7 @@ import { CurrencySelect } from '../components/CurrencySelect';
 import { RateCard } from '../components/RateCard';
 import { TransferItem } from '../components/TransferItem';
 import { LanguageToggle } from '../components/LanguageToggle';
-import { PaperAirplane, WavyLine, SparklesBurst } from '../components/Doodles';
+import { PaperAirplaneSmall, WavyLine, SparklesBurst } from '../components/Doodles';
 import { useI18n } from '../lib/i18n';
 
 interface Quote {
@@ -117,7 +117,7 @@ export function App() {
       <div className="relative px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <PaperAirplane className="w-9 h-9 text-[hsl(var(--coral))] animate-float" />
+            <PaperAirplaneSmall className="w-10 h-7 text-[hsl(var(--coral))] animate-float" />
             <div>
               <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight">{t('appName')}</h1>
               <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>

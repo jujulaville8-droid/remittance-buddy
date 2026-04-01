@@ -5,31 +5,97 @@ interface DoodleProps {
   readonly style?: CSSProperties;
 }
 
-/** Hand-drawn paper airplane being thrown */
+/** Continuous line art — person throwing a paper airplane with flight trail */
 export function PaperAirplane({ className = '', style }: DoodleProps) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className={className} style={style} xmlns="http://www.w3.org/2000/svg">
-      {/* airplane body */}
+    <svg viewBox="0 0 200 120" fill="none" className={className} style={style} xmlns="http://www.w3.org/2000/svg">
+      {/* Person — continuous line from feet up through throwing arm */}
       <path
-        d="M8 32L54 10L38 54L30 36L8 32Z"
+        d="M32 115 C32 115 30 108 33 100 C36 92 34 85 36 80 C38 75 35 70 37 65 C39 60 36 55 40 50 C42 47 40 44 42 40 C44 36 48 34 46 30 C44 26 46 22 50 20 C54 18 56 20 56 24 C56 26 54 28 52 28 C50 28 49 26 50 24"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill="currentColor"
-        fillOpacity="0.08"
       />
-      {/* fold line */}
+      {/* Head */}
       <path
-        d="M30 36L54 10"
+        d="M50 24 C50 18 54 14 58 16 C62 18 60 24 56 26 C54 27 52 27 52 28"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      {/* Throwing arm extended upward */}
+      <path
+        d="M46 38 C50 34 54 28 60 24 C64 22 68 18 74 14 C78 12 80 10 84 10"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      {/* Other arm */}
+      <path
+        d="M44 42 C42 46 38 50 36 52 C34 54 34 56 36 56"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      {/* Flight trail — sweeping curve from hand to airplane */}
+      <path
+        d="M84 10 C90 8 100 12 110 8 C120 4 130 10 140 6 C148 3 155 8 162 5 C168 3 172 6 176 4"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
-      {/* motion trail lines */}
-      <path d="M4 28C6 27 8 28 6 30" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
-      <path d="M2 35C4 34 7 35 4 37" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
-      <path d="M6 22C8 21 9 23 7 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+      {/* Paper airplane at end of trail */}
+      <path
+        d="M176 4 L188 8 L178 12 L176 4 Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="currentColor"
+        fillOpacity="0.1"
+      />
+      {/* Airplane fold line */}
+      <path
+        d="M176 4 L180 9"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeLinecap="round"
+      />
+      {/* Ground line */}
+      <path
+        d="M10 116 C18 115 26 116 40 115 C50 114 55 116 65 115"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        opacity="0.3"
+      />
+    </svg>
+  );
+}
+
+/** Small paper airplane only (for headers) */
+export function PaperAirplaneSmall({ className = '', style }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 48 32" fill="none" className={className} style={style} xmlns="http://www.w3.org/2000/svg">
+      {/* Trail */}
+      <path
+        d="M2 20 C8 18 14 22 20 18 C26 14 30 18 36 14"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      {/* Airplane */}
+      <path
+        d="M36 14 L46 10 L40 18 L36 14 Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="currentColor"
+        fillOpacity="0.1"
+      />
+      <path d="M36 14 L42 13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
     </svg>
   );
 }

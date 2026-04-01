@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { RateCard } from '../components/RateCard';
 import { LoadingDots } from '../components/LoadingDots';
 import { LanguageToggle } from '../components/LanguageToggle';
-import { PaperAirplane, GlobeHeart, SparklesBurst } from '../components/Doodles';
+import { PaperAirplaneSmall, GlobeHeart, SparklesBurst } from '../components/Doodles';
 import { useI18n } from '../lib/i18n';
 import { API_BASE_URL } from '../lib/constants';
 import { getAccessToken } from '../lib/auth';
@@ -44,7 +44,7 @@ export function ChatView() {
       {/* Header */}
       <div className="relative flex items-center justify-between px-4 py-3 bg-white border-b border-[hsl(var(--border))]">
         <div className="flex items-center gap-2.5">
-          <PaperAirplane className="w-7 h-7 text-[hsl(var(--coral))] animate-float" />
+          <PaperAirplaneSmall className="w-10 h-7 text-[hsl(var(--coral))] animate-float" />
           <div>
             <h1 className="text-sm font-bold text-[hsl(var(--foreground))]">{t('appName')}</h1>
             <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('chatTagline')}</p>
