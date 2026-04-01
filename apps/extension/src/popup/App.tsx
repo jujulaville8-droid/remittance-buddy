@@ -144,13 +144,17 @@ export function App() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder={t('amount')}
-                min="1"
-              />
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-[hsl(var(--muted-foreground))]">$</span>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder={t('amount')}
+                  min="1"
+                  className="pl-7"
+                />
+              </div>
               <Button onClick={handleCheck} disabled={loading || !amount}>
                 {loading ? '...' : t('compare')}
               </Button>

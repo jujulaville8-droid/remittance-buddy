@@ -1,4 +1,5 @@
 import { useI18n } from '../lib/i18n';
+import { Languages } from 'lucide-react';
 
 export function LanguageToggle() {
   const { locale, setLocale } = useI18n();
@@ -6,13 +7,11 @@ export function LanguageToggle() {
   return (
     <button
       onClick={() => setLocale(locale === 'en' ? 'tl' : 'en')}
-      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[hsl(var(--muted))] hover:bg-[hsl(var(--border))] text-xs font-medium text-[hsl(var(--foreground))] transition-colors"
+      className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] transition-colors"
       title={locale === 'en' ? 'Switch to Tagalog' : 'Switch to English'}
     >
-      <span className="text-sm">{locale === 'en' ? 'PH' : 'EN'}</span>
-      <span className="text-[hsl(var(--muted-foreground))]">
-        {locale === 'en' ? 'Tagalog' : 'English'}
-      </span>
+      <Languages className="h-3.5 w-3.5" />
+      <span className="font-medium">{locale === 'en' ? 'TL' : 'EN'}</span>
     </button>
   );
 }
