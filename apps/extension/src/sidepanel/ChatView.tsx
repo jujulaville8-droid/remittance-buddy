@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useChat, type UIMessage } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Send } from 'lucide-react';
+import { Send, LogOut } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { RateCard } from '../components/RateCard';
 import { LoadingDots } from '../components/LoadingDots';
@@ -10,9 +10,9 @@ import { GlobeHeart, SparklesBurst } from '../components/Doodles';
 import logo from '../assets/logo.png';
 import { useI18n } from '../lib/i18n';
 import { API_BASE_URL } from '../lib/constants';
-import { getAccessToken } from '../lib/auth';
+import { getAccessToken, signOut } from '../lib/auth';
 
-export function ChatView() {
+export function ChatView({ onSignOut }: { readonly onSignOut: () => void }) {
   const { t } = useI18n();
   const [inputValue, setInputValue] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -51,8 +51,16 @@ export function ChatView() {
             <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('chatTagline')}</p>
           </div>
         </div>
-        <LanguageToggle />
-        <SparklesBurst className="absolute top-2 right-20 w-3 h-3 text-[hsl(var(--gold))] opacity-40" />
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <button
+            onClick={async () => { await signOut(); onSignOut(); }}
+            className="p-1.5 rounded-lg text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] transition-colors"
+            title="Sign out"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* Messages */}

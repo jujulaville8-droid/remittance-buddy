@@ -22,5 +22,5 @@ export function App() {
     );
   }
 
-  return authed ? <ChatView /> : <OnboardingView onAuth={checkAuth} />;
+  return authed ? <ChatView onSignOut={checkAuth} /> : <OnboardingView onAuth={checkAuth} />;
 }
