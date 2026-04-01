@@ -214,14 +214,16 @@ export function App() {
           </div>
         )}
 
-        {/* Chat CTA */}
-        <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2 animate-fade-up" style={{ animationDelay: '200ms' }}>
-          <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
-          {t('chatWithAi')}
-        </Button>
-
-        {/* Airplane illustration at bottom */}
-        <img src={airplanePerson} alt="" className="w-full h-auto opacity-15 mt-2" />
+        {/* Chat CTA overlapping illustration */}
+        <div className="relative mt-1">
+          <img src={airplanePerson} alt="" className="w-full h-auto opacity-10" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Button variant="secondary" onClick={openSidePanel} className="gap-2 px-6 shadow-md bg-white/90 backdrop-blur-sm">
+              <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
+              {t('chatWithAi')}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
