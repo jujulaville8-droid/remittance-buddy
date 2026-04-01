@@ -125,16 +125,14 @@ export function App() {
   return (
     <div className="flex flex-col h-full bg-[hsl(var(--background))]">
       {/* Header */}
-      <div className="relative px-4 pt-4 pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img src={logo} alt="Remittance Buddy" className="w-28 h-28 shrink-0" />
-            <div>
-              <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight tracking-tight" style={{ fontFamily: "'Varela Round', sans-serif" }}>{t('appName')}</h1>
-              <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
-            </div>
-          </div>
+      <div className="relative px-4 pt-3 pb-1">
+        <div className="flex justify-end mb-1">
           <LanguageToggle />
+        </div>
+        <div className="flex flex-col items-center text-center -mt-1">
+          <img src={logo} alt="Remittance Buddy" className="w-20 h-20" />
+          <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight tracking-tight -mt-1" style={{ fontFamily: "'Varela Round', sans-serif" }}>{t('appName')}</h1>
+          <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
         </div>
       </div>
 
