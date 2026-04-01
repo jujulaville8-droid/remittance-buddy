@@ -3,6 +3,7 @@ import { LanguageToggle } from '../components/LanguageToggle';
 import { getOAuthUrl } from '../lib/auth';
 import { useI18n } from '../lib/i18n';
 import { Heart, Globe, Zap } from 'lucide-react';
+import { PaperAirplane, SparklesBurst, WavyLine } from '../components/Doodles';
 
 export function OnboardingView() {
   const { t } = useI18n();
@@ -17,10 +18,12 @@ export function OnboardingView() {
         <LanguageToggle />
       </div>
 
-      <div className="w-16 h-16 rounded-full bg-[hsl(var(--accent))] flex items-center justify-center mb-5">
-        <Globe className="h-8 w-8 text-white" />
+      <div className="relative mb-5">
+        <PaperAirplane className="w-20 h-20 text-[hsl(var(--accent))] -rotate-12" />
+        <SparklesBurst className="w-6 h-6 text-[hsl(var(--warning))] absolute -top-1 -right-2" />
       </div>
-      <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2">{t('appName')}</h1>
+      <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1">{t('appName')}</h1>
+      <WavyLine className="w-32 text-[hsl(var(--accent))] mb-2" />
       <p className="text-[hsl(var(--muted-foreground))] text-sm mb-8 max-w-[280px] leading-relaxed">
         {t('onboardingDescription')}
       </p>

@@ -1,11 +1,12 @@
 import { useRef, useEffect, useState } from 'react';
 import { useChat, type UIMessage } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Send, Sparkles } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { RateCard } from '../components/RateCard';
 import { LoadingDots } from '../components/LoadingDots';
 import { LanguageToggle } from '../components/LanguageToggle';
+import { PaperAirplane, GlobeHeart } from '../components/Doodles';
 import { useI18n } from '../lib/i18n';
 import { API_BASE_URL } from '../lib/constants';
 import { getAccessToken } from '../lib/auth';
@@ -43,9 +44,7 @@ export function ChatView() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-[hsl(var(--border))]">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-[hsl(var(--accent))] flex items-center justify-center">
-            <Sparkles className="h-3.5 w-3.5 text-white" />
-          </div>
+          <PaperAirplane className="w-7 h-7 text-[hsl(var(--accent))] -rotate-12" />
           <div>
             <h1 className="text-sm font-bold text-[hsl(var(--foreground))]">{t('appName')}</h1>
             <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('chatTagline')}</p>
@@ -58,9 +57,7 @@ export function ChatView() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {messages.length === 0 && (
           <div className="text-center mt-12">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[hsl(var(--accent-light))] mb-4">
-              <Sparkles className="h-7 w-7 text-[hsl(var(--accent))]" />
-            </div>
+            <GlobeHeart className="w-16 h-16 text-[hsl(var(--accent))] mx-auto mb-4" />
             <p className="text-lg font-bold text-[hsl(var(--foreground))] mb-1">{t('chatWelcome')}</p>
             <p className="text-sm text-[hsl(var(--muted-foreground))] max-w-[250px] mx-auto">
               {t('chatSubtext')}

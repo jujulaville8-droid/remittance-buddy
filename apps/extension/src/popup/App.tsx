@@ -6,6 +6,7 @@ import { CurrencySelect } from '../components/CurrencySelect';
 import { RateCard } from '../components/RateCard';
 import { TransferItem } from '../components/TransferItem';
 import { LanguageToggle } from '../components/LanguageToggle';
+import { PaperAirplane, WavyLine } from '../components/Doodles';
 import { useI18n } from '../lib/i18n';
 
 interface Quote {
@@ -115,9 +116,7 @@ export function App() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 pb-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[hsl(var(--accent))] flex items-center justify-center shrink-0">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
+          <PaperAirplane className="w-8 h-8 text-[hsl(var(--accent))] shrink-0 -rotate-12" />
           <div>
             <h1 className="text-base font-bold text-[hsl(var(--foreground))]">{t('appName')}</h1>
             <p className="text-xs text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
@@ -208,6 +207,7 @@ export function App() {
         )}
 
         {/* Chat CTA */}
+        <WavyLine className="w-full text-[hsl(var(--accent))] mb-2" />
         <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2">
           <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
           {t('chatWithAi')}
