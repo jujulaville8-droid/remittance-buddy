@@ -60,7 +60,7 @@ export function App() {
   }
 
   return (
-    <div className="flex flex-col h-full p-4 bg-[hsl(var(--background))]">
+    <div className="flex flex-col p-4 bg-[hsl(var(--background))] overflow-y-auto" style={{ maxHeight: '520px' }}>
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <div className="w-8 h-8 rounded-full bg-[hsl(var(--accent))] flex items-center justify-center">
