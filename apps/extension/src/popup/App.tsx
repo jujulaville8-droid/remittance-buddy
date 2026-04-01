@@ -157,6 +157,7 @@ export function App() {
         {/* Rate Check Card */}
         <div className="relative bg-white rounded-3xl p-4 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up overflow-hidden">
           <img src={philippinesMap} alt="" className="absolute top-1 right-0 w-28 h-auto opacity-[0.07] pointer-events-none" />
+          <img src={airplanePerson} alt="" className="absolute bottom-0 left-0 w-36 h-auto opacity-[0.06] pointer-events-none" />
           <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-3">{t('compareRates')}</h2>
           <div className="space-y-2.5">
             <div className="flex gap-2 items-end">
@@ -259,13 +260,10 @@ export function App() {
         )}
 
         {/* Chat CTA */}
-        <div className="relative">
-          <img src={airplanePerson} alt="" className="absolute inset-0 w-full h-full object-contain opacity-10 pointer-events-none" />
-          <Button variant="secondary" onClick={openSidePanel} className="relative w-full gap-2">
-            <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
-            {t('chatWithAi')}
-          </Button>
-        </div>
+        <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2">
+          <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
+          {t('chatWithAi')}
+        </Button>
       </div>
     </div>
   );
