@@ -39,7 +39,9 @@ export function ChatView() {
     <div className="flex flex-col h-screen bg-[hsl(var(--background))]">
       {/* Header */}
       <div className="flex items-center gap-2.5 px-4 py-3 bg-white border-b border-[hsl(var(--border))]">
-        <div className="text-xl">💸</div>
+        <div className="w-7 h-7 rounded-full bg-[hsl(var(--accent))] flex items-center justify-center">
+          <Sparkles className="h-3.5 w-3.5 text-white" />
+        </div>
         <div>
           <h1 className="text-sm font-bold text-[hsl(var(--foreground))]">Remittance Buddy</h1>
           <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Your money transfer assistant</p>

@@ -63,7 +63,9 @@ export function App() {
     <div className="flex flex-col h-full p-4 bg-[hsl(var(--background))]">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
-        <div className="text-2xl">💸</div>
+        <div className="w-8 h-8 rounded-full bg-[hsl(var(--accent))] flex items-center justify-center">
+          <Sparkles className="h-4 w-4 text-white" />
+        </div>
         <div>
           <h1 className="text-base font-bold text-[hsl(var(--foreground))]">Remittance Buddy</h1>
           <p className="text-xs text-[hsl(var(--muted-foreground))]">Find the best rate in seconds</p>
