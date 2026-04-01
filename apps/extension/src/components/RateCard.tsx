@@ -52,7 +52,7 @@ export function RateCard({
           )}
         </div>
       </div>
-      <div className="text-xl font-bold text-[hsl(var(--foreground))]" style={{ fontFamily: 'Fredoka, sans-serif' }}>
+      <div className="text-xl font-bold text-[hsl(var(--foreground))]" style={{ fontFamily: "'Varela Round', sans-serif" }}>
         {receiveAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-sm font-medium text-[hsl(var(--muted-foreground))]">{receiveCurrency}</span>
       </div>
       <div className="flex items-center justify-between mt-1 text-xs text-[hsl(var(--muted-foreground))]">

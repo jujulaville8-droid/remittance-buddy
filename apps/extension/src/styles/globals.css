@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&family=Nunito+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -34,13 +34,18 @@
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   min-width: 360px;
   -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Fredoka', 'DM Sans', sans-serif;
+  font-family: 'Varela Round', 'Nunito Sans', sans-serif;
+}
+
+button, a, select, [role="button"] {
+  cursor: pointer;
 }
 
 * {

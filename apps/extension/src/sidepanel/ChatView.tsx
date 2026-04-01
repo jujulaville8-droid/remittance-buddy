@@ -45,10 +45,10 @@ export function ChatView() {
       <div className="relative flex items-center justify-between px-4 py-3 bg-white border-b border-[hsl(var(--border))]">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-[hsl(var(--coral))] flex items-center justify-center shrink-0 shadow-sm shadow-[hsla(var(--coral),0.25)]">
-            <span className="text-white font-bold text-xs" style={{ fontFamily: 'Fredoka, sans-serif' }}>RB</span>
+            <span className="text-white font-bold text-xs" style={{ fontFamily: "'Varela Round', sans-serif" }}>RB</span>
           </div>
           <div>
-            <h1 className="text-sm font-bold text-[hsl(var(--foreground))] tracking-tight" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>{t('appName')}</h1>
+            <h1 className="text-sm font-bold text-[hsl(var(--foreground))] tracking-tight" style={{ fontFamily: "'Varela Round', sans-serif" }}>{t('appName')}</h1>
             <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('chatTagline')}</p>
           </div>
         </div>

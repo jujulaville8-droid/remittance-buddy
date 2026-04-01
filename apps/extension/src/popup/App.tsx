@@ -120,10 +120,10 @@ export function App() {
           <div className="flex items-center gap-2.5">
             {/* Logo placeholder — replace with actual logo */}
             <div className="w-8 h-8 rounded-xl bg-[hsl(var(--coral))] flex items-center justify-center shrink-0 shadow-sm shadow-[hsla(var(--coral),0.25)]">
-              <span className="text-white font-bold text-sm" style={{ fontFamily: 'Fredoka, sans-serif' }}>RB</span>
+              <span className="text-white font-bold text-sm" style={{ fontFamily: "'Varela Round', sans-serif" }}>RB</span>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight tracking-tight" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}>{t('appName')}</h1>
+              <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight tracking-tight" style={{ fontFamily: "'Varela Round', sans-serif" }}>{t('appName')}</h1>
               <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
             </div>
           </div>
