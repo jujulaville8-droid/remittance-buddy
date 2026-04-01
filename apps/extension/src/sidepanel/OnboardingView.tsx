@@ -4,6 +4,7 @@ import { getOAuthUrl } from '../lib/auth';
 import { useI18n } from '../lib/i18n';
 import { Heart, Globe, Zap } from 'lucide-react';
 import { SparklesBurst, WavyLine } from '../components/Doodles';
+import logo from '../assets/logo.png';
 
 export function OnboardingView() {
   const { t } = useI18n();
@@ -22,6 +23,7 @@ export function OnboardingView() {
       <SparklesBurst className="absolute top-12 left-6 w-6 h-6 text-[hsl(var(--gold))] opacity-30" />
       <SparklesBurst className="absolute bottom-20 right-8 w-5 h-5 text-[hsl(var(--teal))] opacity-20" />
 
+      <img src={logo} alt="Remittance Buddy" className="w-20 h-20 mb-3 animate-fade-up" />
       <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1 animate-fade-up" style={{ animationDelay: '80ms' }}>{t('appName')}</h1>
       <WavyLine className="w-28 text-[hsl(var(--coral))] mb-3 animate-fade-up" style={{ animationDelay: '120ms' }} />
       <p className="text-[hsl(var(--muted-foreground))] text-sm mb-8 max-w-[280px] leading-relaxed animate-fade-up" style={{ animationDelay: '160ms' }}>

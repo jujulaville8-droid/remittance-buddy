@@ -6,7 +6,7 @@ import { CurrencySelect } from '../components/CurrencySelect';
 import { RateCard } from '../components/RateCard';
 import { TransferItem } from '../components/TransferItem';
 import { LanguageToggle } from '../components/LanguageToggle';
-import airplanePerson from '../assets/airplane-person.jpg';
+import logo from '../assets/logo.png';
 import philippinesMap from '../assets/philippines-map.webp';
 import { useI18n } from '../lib/i18n';
 
@@ -128,9 +128,7 @@ export function App() {
       <div className="relative px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[hsl(var(--coral))] flex items-center justify-center shrink-0 shadow-sm shadow-[hsla(var(--coral),0.25)]">
-              <span className="text-white font-bold text-sm" style={{ fontFamily: "'Varela Round', sans-serif" }}>RB</span>
-            </div>
+            <img src={logo} alt="Remittance Buddy" className="w-9 h-9 shrink-0" />
             <div>
               <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight tracking-tight" style={{ fontFamily: "'Varela Round', sans-serif" }}>{t('appName')}</h1>
               <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
