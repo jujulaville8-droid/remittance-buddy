@@ -9,10 +9,10 @@ interface TransferItemProps {
 }
 
 const STATUS_CONFIG = {
-  completed: { icon: CheckCircle, color: 'text-[hsl(var(--success))]', bg: 'bg-[hsl(var(--success-light))]', label: 'Done' },
-  pending: { icon: Clock, color: 'text-[hsl(var(--warning))]', bg: 'bg-[hsl(var(--warning-light))]', label: 'Pending' },
-  processing: { icon: Clock, color: 'text-[hsl(var(--accent))]', bg: 'bg-[hsl(var(--accent-light))]', label: 'Processing' },
-  failed: { icon: XCircle, color: 'text-[hsl(var(--destructive))]', bg: 'bg-red-50', label: 'Failed' },
+  completed: { icon: CheckCircle, color: 'text-[hsl(var(--success))]', bg: 'bg-[hsl(var(--success-light))]', label: 'Tapos na' },
+  pending: { icon: Clock, color: 'text-[hsl(var(--warning))]', bg: 'bg-[hsl(var(--warning-light))]', label: 'Hinihintay' },
+  processing: { icon: Clock, color: 'text-[hsl(var(--accent))]', bg: 'bg-[hsl(var(--accent-light))]', label: 'Ipinapadala' },
+  failed: { icon: XCircle, color: 'text-[hsl(var(--destructive))]', bg: 'bg-red-50', label: 'Hindi naipadala' },
 } as const;
 
 export function TransferItem({ amount, currency, receiveCurrency, status, date }: TransferItemProps) {

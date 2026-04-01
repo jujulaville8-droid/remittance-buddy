@@ -44,7 +44,7 @@ export function ChatView() {
         </div>
         <div>
           <h1 className="text-sm font-bold text-[hsl(var(--foreground))]">Remittance Buddy</h1>
-          <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Your money transfer assistant</p>
+          <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Ang iyong padala assistant</p>
         </div>
       </div>
 
@@ -55,12 +55,12 @@ export function ChatView() {
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[hsl(var(--accent-light))] mb-4">
               <Sparkles className="h-7 w-7 text-[hsl(var(--accent))]" />
             </div>
-            <p className="text-lg font-bold text-[hsl(var(--foreground))] mb-1">Hey! Where are you sending money?</p>
+            <p className="text-lg font-bold text-[hsl(var(--foreground))] mb-1">Saan mo gustong magpadala?</p>
             <p className="text-sm text-[hsl(var(--muted-foreground))] max-w-[250px] mx-auto">
-              I'll find you the best rate across all providers.
+              Hahanapin ko ang pinakamababang rate para sa iyo.
             </p>
             <div className="flex flex-wrap justify-center gap-2 mt-5">
-              {['Send $500 to Philippines', 'Compare USD to INR', 'Check my transfers'].map((suggestion) => (
+              {['Magpadala ng $500 sa Pilipinas', 'Ikumpara USD sa PHP', 'Tingnan ang mga padala ko'].map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => { setInputValue(suggestion); }}
@@ -90,7 +90,7 @@ export function ChatView() {
                 handleSubmit();
               }
             }}
-            placeholder="Send $500 to the Philippines..."
+            placeholder="Magpadala ng $500 sa Pilipinas..."
             className="flex-1 resize-none rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-3 py-2.5 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:border-transparent focus-visible:bg-white min-h-[40px] max-h-[120px] transition-all duration-200"
             rows={1}
           />
