@@ -11,23 +11,13 @@ import logo from '../assets/logo.png';
 import { useI18n } from '../lib/i18n';
 import { API_BASE_URL } from '../lib/constants';
 import { getAccessToken, signOut } from '../lib/auth';
-import { getPresetResponse } from '../lib/preset-responses';
-
-interface LocalMessage {
-  readonly id: string;
-  readonly role: 'user' | 'assistant';
-  readonly parts: readonly { readonly type: 'text'; readonly text: string }[];
-}
-
-let msgCounter = 0;
 
 export function ChatView({ onSignOut }: { readonly onSignOut: () => void }) {
   const { t } = useI18n();
   const [inputValue, setInputValue] = useState('');
-  const [localMessages, setLocalMessages] = useState<readonly LocalMessage[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { messages: aiMessages, status, sendMessage } = useChat({
+  const { messages, status, sendMessage } = useChat({
     transport: new DefaultChatTransport({
       api: `${API_BASE_URL}/api/chat`,
       headers: async (): Promise<Record<string, string>> => {
@@ -36,9 +26,6 @@ export function ChatView({ onSignOut }: { readonly onSignOut: () => void }) {
       },
     }),
   });
-
-  // Merge local preset messages with AI messages
-  const messages = [...localMessages, ...aiMessages] as readonly UIMessage[];
 
   const isLoading = status === 'streaming' || status === 'submitted';
 
@@ -50,25 +37,6 @@ export function ChatView({ onSignOut }: { readonly onSignOut: () => void }) {
     const text = inputValue.trim();
     if (!text || isLoading) return;
     setInputValue('');
-
-    // Check for preset response first
-    const preset = getPresetResponse(text);
-    if (preset) {
-      const userMsg: LocalMessage = {
-        id: `local-${++msgCounter}`,
-        role: 'user',
-        parts: [{ type: 'text', text }],
-      };
-      const botMsg: LocalMessage = {
-        id: `local-${++msgCounter}`,
-        role: 'assistant',
-        parts: [{ type: 'text', text: preset }],
-      };
-      setLocalMessages((prev) => [...prev, userMsg, botMsg]);
-      return;
-    }
-
-    // No preset — send to AI
     sendMessage({ text });
   }
 

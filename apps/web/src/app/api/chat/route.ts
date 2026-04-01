@@ -1,7 +1,6 @@
 import { getAuthUser } from '@/lib/supabase/auth-helper'
-import { streamText, convertToModelMessages, tool, stepCountIs } from 'ai'
+import { streamText, convertToModelMessages } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
-import { z } from 'zod'
 import type { UIMessage } from 'ai'
 import { chatRateLimiter } from '@/lib/rate-limit'
 
@@ -62,75 +61,39 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: anthropic('claude-haiku-4-5-20251001'),
-    system: `You are Remittance Buddy — a friendly AI that helps people compare remittance rates and send money home.
+    system: `You are Remittance Buddy — a friendly AI that helps people compare remittance rates and send money home to the Philippines.
 
 You are talking to ${userName}.
 
-CRITICAL RULES:
-- The MOMENT a user mentions an amount and a country/currency, IMMEDIATELY call compare_rates. Do NOT ask clarifying questions if you have enough info.
-- "Send $500 to Philippines" = call compare_rates(500, "PHP") right away
-- "600 usd" in context of Philippines = call compare_rates(600, "PHP") right away
-- After getting results, summarize: cheapest option, how much they receive, GCash availability, and savings vs most expensive
-- Be brief. 2-3 sentences max after showing results.
-- You can speak Taglish if the user does.
-- Never make up rates — always use compare_rates tool.`,
-    messages: await convertToModelMessages(messages),
-    stopWhen: stepCountIs(3),
-    tools: {
-      compare_rates: tool({
-        description: 'Compare exchange rates across remittance providers for sending money. Returns rates from Remitly, Wise, Western Union, MoneyGram, Xoom, WorldRemit, and Pangea.',
-        inputSchema: z.object({
-          amount: z.number().positive().describe('Amount to send in USD'),
-          targetCurrency: z.string().length(3).describe('Target currency code, e.g. PHP'),
-        }),
-        execute: async ({ amount, targetCurrency }) => {
-          const providers = [
-            { provider: 'Remitly', rate: 57.98, fee: 1.99, speed: 'Minutes (GCash)', gcash: true },
-            { provider: 'Wise', rate: 58.33, fee: 4.14, speed: '1-2 days', gcash: false },
-            { provider: 'Xoom', rate: 57.57, fee: 0, speed: 'Hours (GCash)', gcash: true },
-            { provider: 'Western Union', rate: 56.99, fee: 5.00, speed: 'Minutes (GCash)', gcash: true },
-            { provider: 'MoneyGram', rate: 57.28, fee: 4.99, speed: 'Minutes (GCash)', gcash: true },
-            { provider: 'WorldRemit', rate: 57.75, fee: 2.99, speed: 'Minutes (GCash)', gcash: true },
-            { provider: 'Pangea', rate: 57.87, fee: 3.95, speed: 'Same day (GCash)', gcash: true },
-          ]
-          const results = providers.map(p => ({
-            provider: p.provider,
-            sendAmount: amount,
-            receiveAmount: Math.round(amount * p.rate),
-            targetCurrency,
-            exchangeRate: p.rate,
-            fee: p.fee,
-            totalCost: amount + p.fee,
-            deliveryTime: p.speed,
-            supportsGCash: p.gcash,
-          }))
-          const sorted = [...results].sort((a, b) => a.totalCost - b.totalCost)
-          return {
-            quotes: sorted,
-            cheapest: sorted[0]?.provider ?? '',
-            mostExpensive: sorted.at(-1)?.provider ?? '',
-            savings: (sorted.at(-1)?.totalCost ?? 0) - (sorted[0]?.totalCost ?? 0),
-          }
-        },
-      }),
+You have CURRENT rate data for US → Philippines (PHP). Use this data directly in your responses — no need to call any tool:
 
-      get_corridor_info: tool({
-        description: 'Get requirements and info about sending money to a specific country.',
-        inputSchema: z.object({
-          country: z.string().describe('Country name or code, e.g. Philippines or PH'),
-        }),
-        execute: async ({ country }) => {
-          return {
-            country,
-            availableProviders: ['Remitly', 'Wise', 'Western Union', 'MoneyGram', 'Xoom', 'WorldRemit', 'Pangea'],
-            deliveryMethods: ['GCash (instant)', 'Maya/PayMaya', 'Bank deposit', 'Cash pickup (Cebuana, M Lhuillier, SM)'],
-            documentsRequired: ['Government-issued ID'],
-            maxPerTransaction: '$50,000 USD',
-            notes: 'GCash is the most popular delivery method in the Philippines with 90M+ users.',
-          }
-        },
-      }),
-    },
+PROVIDER RATES (per $1 USD):
+- Remitly: ₱57.98 | Fee: $1.99 | Speed: Minutes | GCash: Yes | Cash pickup: Yes | Trust: 9/10
+- Wise: ₱58.33 | Fee: $4.14 | Speed: 1-2 days | GCash: No | Cash pickup: No | Trust: 10/10
+- Xoom: ₱57.57 | Fee: $0 | Speed: Hours | GCash: Yes | Cash pickup: Yes | Trust: 8/10
+- Western Union: ₱56.99 | Fee: $5.00 | Speed: Minutes | GCash: Yes | Cash pickup: Yes | Trust: 9/10
+- MoneyGram: ₱57.28 | Fee: $4.99 | Speed: Minutes | GCash: Yes | Cash pickup: Yes | Trust: 8/10
+- WorldRemit: ₱57.75 | Fee: $2.99 | Speed: Minutes | GCash: Yes | Cash pickup: No | Trust: 7/10
+- Pangea: ₱57.87 | Fee: $3.95 | Speed: Same day | GCash: Yes | Cash pickup: No | Trust: 6/10
+
+COMMON KNOWLEDGE (answer directly, no tool needed):
+- GCash is the #1 wallet in PH (90M+ users). Most providers support it except Wise.
+- Cash pickup: Cebuana Lhuillier (6,000+ branches), M Lhuillier (3,000+), SM, 7-Eleven, LBC
+- Documents needed: Government ID. Over $3,000 may need proof of address.
+- Maya/PayMaya is #2 wallet (50M users). Supported by Remitly, WorldRemit, Xoom.
+- All providers are licensed and regulated. OFW remittances are tax-exempt in PH.
+
+RULES:
+1. When user mentions an amount, IMMEDIATELY calculate and show the comparison. Do the math yourself using the rates above.
+2. Lead with your RECOMMENDATION, not just data. Say "I recommend X because..." then show alternatives.
+3. Always show: what the recipient GETS in pesos, the fee, and delivery time.
+4. Show savings: "You save $X vs [most expensive]" and "Recipient gets ₱X more vs [worst rate]"
+5. Explain tradeoffs in plain language: "Wise has the best rate but takes 1-2 days and doesn't support GCash"
+6. Be brief. Recommendation + 2-3 sentences. Don't list all 7 unless asked.
+7. Top 3 is enough unless they ask for all options.
+8. Speak Taglish if the user does.
+9. For follow-up questions, remember the conversation context. Don't re-ask what was already discussed.`,
+    messages: await convertToModelMessages(messages),
   })
 
   const corsHeaders = getCorsHeaders(req.headers.get('origin'));
