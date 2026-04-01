@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { RateCard } from '../components/RateCard';
 import { LoadingDots } from '../components/LoadingDots';
 import { LanguageToggle } from '../components/LanguageToggle';
-import { PaperAirplane, GlobeHeart } from '../components/Doodles';
+import { PaperAirplane, GlobeHeart, SparklesBurst } from '../components/Doodles';
 import { useI18n } from '../lib/i18n';
 import { API_BASE_URL } from '../lib/constants';
 import { getAccessToken } from '../lib/auth';
@@ -42,24 +42,28 @@ export function ChatView() {
   return (
     <div className="flex flex-col h-screen bg-[hsl(var(--background))]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-[hsl(var(--border))]">
+      <div className="relative flex items-center justify-between px-4 py-3 bg-white border-b border-[hsl(var(--border))]">
         <div className="flex items-center gap-2.5">
-          <PaperAirplane className="w-7 h-7 text-[hsl(var(--accent))] -rotate-12" />
+          <PaperAirplane className="w-7 h-7 text-[hsl(var(--coral))] animate-float" />
           <div>
             <h1 className="text-sm font-bold text-[hsl(var(--foreground))]">{t('appName')}</h1>
             <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('chatTagline')}</p>
           </div>
         </div>
         <LanguageToggle />
+        <SparklesBurst className="absolute top-2 right-20 w-3 h-3 text-[hsl(var(--gold))] opacity-40" />
       </div>
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {messages.length === 0 && (
-          <div className="text-center mt-12">
-            <GlobeHeart className="w-16 h-16 text-[hsl(var(--accent))] mx-auto mb-4" />
+          <div className="text-center mt-10 animate-fade-up">
+            <div className="relative inline-block">
+              <GlobeHeart className="w-20 h-20 text-[hsl(var(--coral))] mx-auto mb-3" />
+              <SparklesBurst className="absolute -top-2 -right-3 w-5 h-5 text-[hsl(var(--gold))]" />
+            </div>
             <p className="text-lg font-bold text-[hsl(var(--foreground))] mb-1">{t('chatWelcome')}</p>
-            <p className="text-sm text-[hsl(var(--muted-foreground))] max-w-[250px] mx-auto">
+            <p className="text-sm text-[hsl(var(--muted-foreground))] max-w-[250px] mx-auto leading-relaxed">
               {t('chatSubtext')}
             </p>
             <div className="flex flex-wrap justify-center gap-2 mt-5">
@@ -67,7 +71,7 @@ export function ChatView() {
                 <button
                   key={suggestion}
                   onClick={() => { setInputValue(suggestion); }}
-                  className="text-xs px-3 py-1.5 rounded-full bg-white border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] hover:border-[hsl(var(--accent))] transition-all duration-200"
+                  className="text-xs px-3.5 py-2 rounded-2xl bg-white border border-[hsl(var(--border))] text-[hsl(var(--foreground))] font-medium shadow-sm hover:shadow-md hover:border-[hsl(var(--coral))]/40 transition-all duration-200"
                 >
                   {suggestion}
                 </button>
@@ -94,7 +98,7 @@ export function ChatView() {
               }
             }}
             placeholder={t('chatPlaceholder')}
-            className="flex-1 resize-none rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-3 py-2.5 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:border-transparent focus-visible:bg-white min-h-[40px] max-h-[120px] transition-all duration-200"
+            className="flex-1 resize-none rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-3.5 py-2.5 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--coral))] focus-visible:border-transparent focus-visible:bg-white min-h-[40px] max-h-[120px] transition-all duration-200"
             rows={1}
           />
           <Button onClick={handleSubmit} disabled={isLoading || !inputValue.trim()} size="sm" className="rounded-full w-9 h-9 p-0 shrink-0">
@@ -111,11 +115,11 @@ function MessageBubble({ message }: { readonly message: UIMessage }) {
   const isUser = message.role === 'user';
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-fade-up`}>
       <div
         className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
           isUser
-            ? 'bg-[hsl(var(--accent))] text-white rounded-br-md'
+            ? 'bg-[hsl(var(--coral))] text-white rounded-br-md shadow-sm shadow-[hsla(var(--coral),0.2)]'
             : 'bg-white border border-[hsl(var(--border))] shadow-sm rounded-bl-md'
         }`}
       >

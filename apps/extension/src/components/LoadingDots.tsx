@@ -4,7 +4,7 @@ export function LoadingDots() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="h-2 w-2 rounded-full bg-[hsl(var(--accent))] opacity-60 animate-bounce"
+          className="h-2 w-2 rounded-full bg-[hsl(var(--coral))] opacity-50 animate-bounce"
           style={{ animationDelay: `${i * 150}ms` }}
         />
       ))}

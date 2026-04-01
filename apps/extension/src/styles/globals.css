@@ -1,47 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 99%;
-  --foreground: 220 15% 20%;
-  --muted: 220 14% 96%;
+  --background: 30 100% 98%;
+  --foreground: 220 25% 18%;
+  --card: 30 60% 99%;
+  --muted: 30 30% 95%;
   --muted-foreground: 220 10% 50%;
-  --border: 220 13% 91%;
-  --accent: 262 83% 58%;
-  --accent-light: 262 83% 96%;
-  --success: 152 69% 40%;
-  --success-light: 152 69% 95%;
-  --warning: 38 92% 50%;
-  --warning-light: 38 92% 95%;
+  --border: 30 20% 90%;
+
+  --coral: 4 85% 65%;
+  --coral-light: 4 85% 95%;
+  --teal: 174 62% 47%;
+  --teal-light: 174 62% 93%;
+  --gold: 45 95% 65%;
+  --gold-light: 45 95% 92%;
+  --lavender: 262 60% 68%;
+  --lavender-light: 262 60% 95%;
+
+  /* Semantic aliases */
+  --accent: var(--coral);
+  --accent-light: var(--coral-light);
+  --success: var(--teal);
+  --success-light: var(--teal-light);
+  --warning: var(--gold);
+  --warning-light: var(--gold-light);
   --destructive: 0 72% 51%;
-  --card: 0 0% 100%;
-  --shadow: 220 15% 85%;
 }
 
 body {
-  @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] antialiased;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   min-width: 360px;
   -webkit-font-smoothing: antialiased;
-  border-radius: 12px;
-  overflow: hidden;
 }
 
-#root {
-  border-radius: 12px;
-  overflow: hidden;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fredoka', 'DM Sans', sans-serif;
 }
 
 * {
   border-color: hsl(var(--border));
 }
 
-/* Range slider styling */
+/* Range slider */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  background: hsl(var(--border));
+  background: linear-gradient(90deg, hsl(var(--coral-light)), hsl(var(--teal-light)));
   border-radius: 999px;
   height: 6px;
   outline: none;
@@ -49,23 +59,24 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: hsl(var(--accent));
+  background: hsl(var(--coral));
   cursor: pointer;
   border: 3px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-  transition: transform 0.15s;
+  box-shadow: 0 2px 8px hsla(var(--coral), 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
+  transform: scale(1.2);
+  box-shadow: 0 3px 12px hsla(var(--coral), 0.45);
 }
 input[type="range"]::-webkit-slider-thumb:active {
   transform: scale(0.95);
 }
 
-/* Hide number input spinners */
+/* Hide number spinners */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -74,3 +85,34 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* Gentle bounce for doodles */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-12deg); }
+  50% { transform: translateY(-3px) rotate(-15deg); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Fade-in for cards */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeUp 0.3s ease-out forwards;
+}
+
+/* Staggered children */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeUp 0.3s ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 360ms; }

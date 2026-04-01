@@ -1,11 +1,14 @@
+import type { CSSProperties } from 'react';
+
 interface DoodleProps {
   readonly className?: string;
+  readonly style?: CSSProperties;
 }
 
 /** Hand-drawn paper airplane being thrown */
-export function PaperAirplane({ className = '' }: DoodleProps) {
+export function PaperAirplane({ className = '', style }: DoodleProps) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 64 64" fill="none" className={className} style={style} xmlns="http://www.w3.org/2000/svg">
       {/* airplane body */}
       <path
         d="M8 32L54 10L38 54L30 36L8 32Z"
@@ -32,9 +35,9 @@ export function PaperAirplane({ className = '' }: DoodleProps) {
 }
 
 /** Hand-drawn coin/money with a happy face */
-export function HappyCoin({ className = '' }: DoodleProps) {
+export function HappyCoin({ className = '', style }: DoodleProps) {
   return (
-    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} xmlns="http://www.w3.org/2000/svg">
       {/* coin circle - slightly wobbly */}
       <path
         d="M24 6C13 5.5 5 13 5.5 24C6 35 14 43 24 42.5C34 42 42 34 42.5 24C43 14 35 6.5 24 6Z"
@@ -60,9 +63,9 @@ export function HappyCoin({ className = '' }: DoodleProps) {
 }
 
 /** Hand-drawn globe with a heart */
-export function GlobeHeart({ className = '' }: DoodleProps) {
+export function GlobeHeart({ className = '', style }: DoodleProps) {
   return (
-    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} xmlns="http://www.w3.org/2000/svg">
       {/* globe circle */}
       <circle cx="24" cy="24" r="17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="currentColor" fillOpacity="0.05" />
       {/* latitude lines */}
@@ -86,9 +89,9 @@ export function GlobeHeart({ className = '' }: DoodleProps) {
 }
 
 /** Hand-drawn sparkle/star burst */
-export function SparklesBurst({ className = '' }: DoodleProps) {
+export function SparklesBurst({ className = '', style }: DoodleProps) {
   return (
-    <svg viewBox="0 0 32 32" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 32 32" fill="none" className={className} style={style} xmlns="http://www.w3.org/2000/svg">
       <path d="M16 4L18 12L26 10L20 16L26 22L18 20L16 28L14 20L6 22L12 16L6 10L14 12L16 4Z"
         stroke="currentColor"
         strokeWidth="1.5"
@@ -106,9 +109,9 @@ export function SparklesBurst({ className = '' }: DoodleProps) {
 }
 
 /** Wavy underline decoration */
-export function WavyLine({ className = '' }: DoodleProps) {
+export function WavyLine({ className = '', style }: DoodleProps) {
   return (
-    <svg viewBox="0 0 120 12" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 120 12" fill="none" className={className} style={style} xmlns="http://www.w3.org/2000/svg">
       <path
         d="M2 6C12 2 18 10 28 6C38 2 44 10 54 6C64 2 70 10 80 6C90 2 96 10 106 6C110 4.5 114 3 118 6"
         stroke="currentColor"

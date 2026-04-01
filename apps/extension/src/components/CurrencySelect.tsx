@@ -26,11 +26,11 @@ interface CurrencySelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElemen
 export function CurrencySelect({ label, className, ...props }: CurrencySelectProps) {
   return (
     <div>
-      <label className="text-xs font-medium text-[hsl(var(--muted-foreground))] mb-1 block">{label}</label>
+      <label className="text-[10px] font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-1 block">{label}</label>
       <select
         className={clsx(
-          'w-full h-10 rounded-xl border border-[hsl(var(--border))] bg-white px-3 text-sm',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:border-transparent',
+          'w-full h-10 rounded-2xl border border-[hsl(var(--border))] bg-white px-3 text-sm font-medium',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--coral))] focus-visible:border-transparent',
           'transition-all duration-200',
           className
         )}

@@ -6,7 +6,7 @@ import { CurrencySelect } from '../components/CurrencySelect';
 import { RateCard } from '../components/RateCard';
 import { TransferItem } from '../components/TransferItem';
 import { LanguageToggle } from '../components/LanguageToggle';
-import { PaperAirplane, WavyLine } from '../components/Doodles';
+import { PaperAirplane, WavyLine, SparklesBurst } from '../components/Doodles';
 import { useI18n } from '../lib/i18n';
 
 interface Quote {
@@ -114,29 +114,32 @@ export function App() {
   return (
     <div className="flex flex-col h-full bg-[hsl(var(--background))]">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 pb-2">
-        <div className="flex items-center gap-2">
-          <PaperAirplane className="w-8 h-8 text-[hsl(var(--accent))] shrink-0 -rotate-12" />
-          <div>
-            <h1 className="text-base font-bold text-[hsl(var(--foreground))]">{t('appName')}</h1>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
+      <div className="relative px-4 pt-4 pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <PaperAirplane className="w-9 h-9 text-[hsl(var(--coral))] animate-float" />
+            <div>
+              <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight">{t('appName')}</h1>
+              <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
+            </div>
           </div>
+          <LanguageToggle />
         </div>
-        <LanguageToggle />
+        <SparklesBurst className="absolute top-3 right-16 w-4 h-4 text-[hsl(var(--gold))] opacity-50" />
       </div>
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {/* Rate Check Card */}
-        <div className="bg-white rounded-2xl p-3.5 shadow-sm border border-[hsl(var(--border))] mb-3">
-          <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide mb-2.5">{t('compareRates')}</h2>
-          <div className="space-y-2">
+        <div className="bg-white rounded-3xl p-4 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up">
+          <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-3">{t('compareRates')}</h2>
+          <div className="space-y-2.5">
             <div className="flex gap-2 items-end">
               <div className="flex-1">
                 <CurrencySelect label={t('youSend')} value={sendCurrency} onChange={(e) => setSendCurrency(e.target.value)} />
               </div>
-              <div className="flex items-center justify-center w-8 h-10 rounded-full bg-[hsl(var(--muted))]">
-                <ArrowRight className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))]" />
+              <div className="flex items-center justify-center w-8 h-10 rounded-full bg-[hsl(var(--coral-light))]">
+                <ArrowRight className="h-3.5 w-3.5 text-[hsl(var(--coral))]" />
               </div>
               <div className="flex-1">
                 <CurrencySelect label={t('theyReceive')} value={receiveCurrency} onChange={(e) => setReceiveCurrency(e.target.value)} />
@@ -144,7 +147,7 @@ export function App() {
             </div>
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-[hsl(var(--muted-foreground))]">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-[hsl(var(--coral))]">$</span>
                 <Input
                   type="number"
                   value={amount}
@@ -158,6 +161,7 @@ export function App() {
                 {loading ? '...' : t('compare')}
               </Button>
             </div>
+            {/* Slider */}
             <div>
               <input
                 type="range"
@@ -166,9 +170,9 @@ export function App() {
                 step="50"
                 value={amount || '500'}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[hsl(var(--accent))] bg-[hsl(var(--border))]"
+                className="w-full h-1.5 rounded-full cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-[hsl(var(--muted-foreground))] mt-0.5 px-0.5">
+              <div className="flex justify-between text-[9px] font-medium text-[hsl(var(--muted-foreground))] mt-0.5 px-0.5">
                 <span>$50</span>
                 <span>$500</span>
                 <span>$1,000</span>
@@ -178,38 +182,40 @@ export function App() {
           </div>
         </div>
 
-        {/* Show quotes OR recent transfers — not both */}
+        {/* Quotes or Recent */}
         {hasQuotes ? (
-          <div className="space-y-2 mb-3">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">{t('results')}</h2>
+          <div className="mb-3">
+            <div className="flex items-center justify-between px-1 mb-2">
+              <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest">{t('results')}</h2>
               <button
                 onClick={() => setQuotes([])}
-                className="text-xs text-[hsl(var(--accent))] hover:underline"
+                className="text-[11px] font-semibold text-[hsl(var(--coral))] hover:underline"
               >
                 {t('clear')}
               </button>
             </div>
-            {quotes.map((quote) => (
-              <RateCard
-                key={quote.provider}
-                {...quote}
-                isCheapest={quote.provider === quotes.at(0)?.provider}
-              />
-            ))}
+            <div className="space-y-2 stagger-children">
+              {quotes.map((quote) => (
+                <RateCard
+                  key={quote.provider}
+                  {...quote}
+                  isCheapest={quote.provider === quotes.at(0)?.provider}
+                />
+              ))}
+            </div>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl p-3 shadow-sm border border-[hsl(var(--border))] mb-3">
-            <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide mb-1.5 px-1">{t('recent')}</h2>
+          <div className="bg-white rounded-3xl p-3.5 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up" style={{ animationDelay: '100ms' }}>
+            <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-1 px-1">{t('recent')}</h2>
             <TransferItem amount={200} currency="USD" receiveCurrency="PHP" status="completed" date="Mar 28" />
             <TransferItem amount={500} currency="USD" receiveCurrency="INR" status="pending" date="Mar 30" />
           </div>
         )}
 
         {/* Chat CTA */}
-        <WavyLine className="w-full text-[hsl(var(--accent))] mb-2" />
-        <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2">
-          <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
+        <WavyLine className="w-full text-[hsl(var(--coral))] mb-2 opacity-40" />
+        <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2 animate-fade-up" style={{ animationDelay: '200ms' }}>
+          <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
           {t('chatWithAi')}
         </Button>
       </div>
