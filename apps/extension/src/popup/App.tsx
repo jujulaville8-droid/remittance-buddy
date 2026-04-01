@@ -7,6 +7,7 @@ import { RateCard } from '../components/RateCard';
 import { TransferItem } from '../components/TransferItem';
 import { LanguageToggle } from '../components/LanguageToggle';
 import airplanePerson from '../assets/airplane-person.jpg';
+import philippinesMap from '../assets/philippines-map.webp';
 import { useI18n } from '../lib/i18n';
 
 interface Quote {
@@ -133,7 +134,8 @@ export function App() {
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {/* Rate Check Card */}
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up">
+        <div className="relative bg-white rounded-3xl p-4 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up overflow-hidden">
+          <img src={philippinesMap} alt="" className="absolute top-1 right-0 w-28 h-auto opacity-[0.07] pointer-events-none" />
           <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-3">{t('compareRates')}</h2>
           <div className="space-y-2.5">
             <div className="flex gap-2 items-end">
