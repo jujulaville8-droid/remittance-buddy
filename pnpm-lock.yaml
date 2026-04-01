@@ -23,6 +23,9 @@ importers:
       '@ai-sdk/react':
         specifier: ^3.0.143
         version: 3.0.143(react@19.2.4)(zod@3.25.76)
+      '@remit/api':
+        specifier: workspace:*
+        version: link:../../packages/api
       '@remit/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -205,6 +208,28 @@ importers:
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.19
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^3.0.5
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.15)(jiti@1.21.7)
+
+  packages/api:
+    dependencies:
+      '@remit/db':
+        specifier: workspace:*
+        version: link:../db
+      ai:
+        specifier: ^6.0.141
+        version: 6.0.141(zod@3.25.76)
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
+    devDependencies:
+      '@remit/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       typescript:
         specifier: ^5.7.2
         version: 5.9.3

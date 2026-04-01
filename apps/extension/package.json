@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.143",
+    "@remit/api": "workspace:*",
     "@remit/db": "workspace:*",
     "ai": "^6.0.141",
     "clsx": "^2.1.1",
