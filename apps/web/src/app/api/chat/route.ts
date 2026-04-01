@@ -2,6 +2,7 @@ import { getAuthUser } from '@/lib/supabase/auth-helper'
 import { streamText, convertToModelMessages } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 import type { UIMessage } from 'ai'
+import { z } from 'zod'
 import { chatRateLimiter } from '@/lib/rate-limit'
 
 export const maxDuration = 30
