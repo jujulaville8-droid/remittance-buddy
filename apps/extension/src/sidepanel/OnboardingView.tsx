@@ -3,7 +3,8 @@ import { LanguageToggle } from '../components/LanguageToggle';
 import { getOAuthUrl } from '../lib/auth';
 import { useI18n } from '../lib/i18n';
 import { Heart, Globe, Zap } from 'lucide-react';
-import { PaperAirplane, SparklesBurst, WavyLine } from '../components/Doodles';
+import { SparklesBurst, WavyLine } from '../components/Doodles';
+import airplanePerson from '../assets/airplane-person.jpg';
 
 export function OnboardingView() {
   const { t } = useI18n();
@@ -23,7 +24,7 @@ export function OnboardingView() {
       <SparklesBurst className="absolute bottom-20 right-8 w-5 h-5 text-[hsl(var(--teal))] opacity-20" />
 
       <div className="relative mb-3 animate-fade-up">
-        <PaperAirplane className="w-52 h-32 text-[hsl(var(--coral))]" />
+        <img src={airplanePerson} alt="" className="w-52 h-auto opacity-80" />
       </div>
 
       <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1 animate-fade-up" style={{ animationDelay: '80ms' }}>{t('appName')}</h1>

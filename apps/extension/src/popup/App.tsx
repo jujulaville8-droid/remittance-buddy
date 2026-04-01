@@ -6,7 +6,7 @@ import { CurrencySelect } from '../components/CurrencySelect';
 import { RateCard } from '../components/RateCard';
 import { TransferItem } from '../components/TransferItem';
 import { LanguageToggle } from '../components/LanguageToggle';
-import { PaperAirplane } from '../components/Doodles';
+import airplanePerson from '../assets/airplane-person.jpg';
 import { useI18n } from '../lib/i18n';
 
 interface Quote {
@@ -221,7 +221,7 @@ export function App() {
         </Button>
 
         {/* Airplane illustration at bottom */}
-        <PaperAirplane className="w-full h-16 text-[hsl(var(--coral))] opacity-20 mt-2" />
+        <img src={airplanePerson} alt="" className="w-full h-auto opacity-15 mt-2" />
       </div>
     </div>
   );
