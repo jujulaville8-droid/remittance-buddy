@@ -139,6 +139,15 @@ export function App() {
               highlighted
             />
 
+            {/* Ask AI nudge */}
+            <button
+              onClick={openSidePanel}
+              className="flex items-center justify-center gap-1.5 w-full py-1.5 text-[11px] text-[hsl(var(--coral))] font-medium hover:underline"
+            >
+              <Sparkles className="h-3 w-3" />
+              Not sure? Ask AI to help you decide
+            </button>
+
             {/* Category winners (compact, deduplicated) */}
             <CategoryWinners result={result} cheapestLabel={t('cheapest')} fastestLabel={t('fastest')} />
 
@@ -153,22 +162,51 @@ export function App() {
 
             {/* All providers (collapsed by default) */}
             {showAll && (
-              <div className="space-y-1.5 stagger-children">
-                {result.ranked.map((q) => (
-                  <CompactRow key={q.provider} quote={q} />
-                ))}
-              </div>
+              <>
+                <div className="space-y-1.5 stagger-children">
+                  {result.ranked.map((q) => (
+                    <CompactRow key={q.provider} quote={q} />
+                  ))}
+                </div>
+                {/* AI nudge after seeing all options */}
+                <button
+                  onClick={openSidePanel}
+                  className="flex items-center gap-2 w-full bg-[hsl(var(--coral-light))] rounded-2xl px-3 py-2.5 mt-2 hover:shadow-sm transition-all text-left"
+                >
+                  <Sparkles className="h-4 w-4 text-[hsl(var(--coral))] shrink-0" />
+                  <div>
+                    <div className="text-xs font-semibold text-[hsl(var(--foreground))]">Still deciding?</div>
+                    <div className="text-[10px] text-[hsl(var(--muted-foreground))]">Tell our AI what matters most - speed, price, or GCash</div>
+                  </div>
+                </button>
+              </>
             )}
           </div>
         ) : (
-          <div className="relative bg-white rounded-3xl p-3 shadow-sm border border-[hsl(var(--border))] overflow-hidden">
-            <img src={philippinesMap} alt="" className="absolute inset-0 w-full h-full object-contain opacity-[0.15] pointer-events-none" />
-            <div className="relative">
-              <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-1 px-1">{t('recent')}</h2>
-              <TransferItem amount={200} currency="USD" receiveCurrency="PHP" status="completed" date="Mar 28" />
-              <TransferItem amount={500} currency="USD" receiveCurrency="INR" status="pending" date="Mar 30" />
+          <>
+            <div className="relative bg-white rounded-3xl p-3 shadow-sm border border-[hsl(var(--border))] overflow-hidden">
+              <img src={philippinesMap} alt="" className="absolute inset-0 w-full h-full object-contain opacity-[0.15] pointer-events-none" />
+              <div className="relative">
+                <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest mb-1 px-1">{t('recent')}</h2>
+                <TransferItem amount={200} currency="USD" receiveCurrency="PHP" status="completed" date="Mar 28" />
+                <TransferItem amount={500} currency="USD" receiveCurrency="INR" status="pending" date="Mar 30" />
+              </div>
             </div>
-          </div>
+
+            {/* AI suggestion on empty state */}
+            <button
+              onClick={openSidePanel}
+              className="flex items-center gap-2.5 w-full bg-white rounded-2xl px-3.5 py-3 border border-[hsl(var(--border))] shadow-sm hover:shadow-md transition-all text-left"
+            >
+              <div className="w-8 h-8 rounded-full bg-[hsl(var(--coral-light))] flex items-center justify-center shrink-0">
+                <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-[hsl(var(--foreground))]">Need help choosing?</div>
+                <div className="text-[10px] text-[hsl(var(--muted-foreground))]">Ask AI to find the best rate for you</div>
+              </div>
+            </button>
+          </>
         )}
 
         {/* Chat CTA */}
