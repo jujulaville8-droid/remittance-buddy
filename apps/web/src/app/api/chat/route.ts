@@ -13,6 +13,20 @@ import { logAuditEvent } from '@/lib/audit'
 
 export const maxDuration = 30
 
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  if (!origin || !origin.startsWith('chrome-extension://')) return {};
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+}
+
+export async function OPTIONS(req: Request) {
+  const origin = req.headers.get('origin');
+  return new Response(null, { status: 204, headers: getCorsHeaders(origin) });
+}
+
 const messagesSchema = z.array(
   z.object({
     id: z.string(),
@@ -456,5 +470,12 @@ When a user says "send to [name/nickname]", always try resolve_recipient first b
     },
   })
 
-  return result.toUIMessageStreamResponse()
+  const corsHeaders = getCorsHeaders(req.headers.get('origin'));
+  const response = result.toUIMessageStreamResponse();
+
+  for (const [key, value] of Object.entries(corsHeaders)) {
+    response.headers.set(key, value);
+  }
+
+  return response;
 }
