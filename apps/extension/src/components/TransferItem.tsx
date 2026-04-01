@@ -1,4 +1,5 @@
 import { CheckCircle, Clock, XCircle } from 'lucide-react';
+import { useI18n, type TranslationKey } from '../lib/i18n';
 
 interface TransferItemProps {
   readonly amount: number;
@@ -8,15 +9,16 @@ interface TransferItemProps {
   readonly date: string;
 }
 
-const STATUS_CONFIG = {
-  completed: { icon: CheckCircle, color: 'text-[hsl(var(--success))]', bg: 'bg-[hsl(var(--success-light))]', label: 'Tapos na' },
-  pending: { icon: Clock, color: 'text-[hsl(var(--warning))]', bg: 'bg-[hsl(var(--warning-light))]', label: 'Hinihintay' },
-  processing: { icon: Clock, color: 'text-[hsl(var(--accent))]', bg: 'bg-[hsl(var(--accent-light))]', label: 'Ipinapadala' },
-  failed: { icon: XCircle, color: 'text-[hsl(var(--destructive))]', bg: 'bg-red-50', label: 'Hindi naipadala' },
-} as const;
+const STATUS_CONFIG: Record<string, { icon: typeof CheckCircle; color: string; bg: string; labelKey: TranslationKey }> = {
+  completed:  { icon: CheckCircle, color: 'text-[hsl(var(--success))]',     bg: 'bg-[hsl(var(--success-light))]', labelKey: 'statusDone' },
+  pending:    { icon: Clock,       color: 'text-[hsl(var(--warning))]',     bg: 'bg-[hsl(var(--warning-light))]', labelKey: 'statusPending' },
+  processing: { icon: Clock,       color: 'text-[hsl(var(--accent))]',      bg: 'bg-[hsl(var(--accent-light))]',  labelKey: 'statusProcessing' },
+  failed:     { icon: XCircle,     color: 'text-[hsl(var(--destructive))]', bg: 'bg-red-50',                      labelKey: 'statusFailed' },
+};
 
 export function TransferItem({ amount, currency, receiveCurrency, status, date }: TransferItemProps) {
-  const config = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.pending;
+  const { t } = useI18n();
+  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG['pending']!;
   const Icon = config.icon;
 
   return (
@@ -32,7 +34,7 @@ export function TransferItem({ amount, currency, receiveCurrency, status, date }
           <div className="text-xs text-[hsl(var(--muted-foreground))]">{date}</div>
         </div>
       </div>
-      <span className={`text-xs font-medium ${config.color}`}>{config.label}</span>
+      <span className={`text-xs font-medium ${config.color}`}>{t(config.labelKey)}</span>
     </div>
   );
 }

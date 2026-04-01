@@ -5,6 +5,8 @@ import { Input } from '../components/ui/input';
 import { CurrencySelect } from '../components/CurrencySelect';
 import { RateCard } from '../components/RateCard';
 import { TransferItem } from '../components/TransferItem';
+import { LanguageToggle } from '../components/LanguageToggle';
+import { useI18n } from '../lib/i18n';
 
 interface Quote {
   readonly provider: string;
@@ -17,6 +19,7 @@ interface Quote {
 }
 
 export function App() {
+  const { t } = useI18n();
   const [sendCurrency, setSendCurrency] = useState('USD');
   const [receiveCurrency, setReceiveCurrency] = useState('PHP');
   const [amount, setAmount] = useState('500');
@@ -110,31 +113,34 @@ export function App() {
   return (
     <div className="flex flex-col h-full bg-[hsl(var(--background))]">
       {/* Header */}
-      <div className="flex items-center gap-2 p-4 pb-2">
-        <div className="w-8 h-8 rounded-full bg-[hsl(var(--accent))] flex items-center justify-center shrink-0">
-          <Sparkles className="h-4 w-4 text-white" />
+      <div className="flex items-center justify-between p-4 pb-2">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-[hsl(var(--accent))] flex items-center justify-center shrink-0">
+            <Sparkles className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <h1 className="text-base font-bold text-[hsl(var(--foreground))]">{t('appName')}</h1>
+            <p className="text-xs text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-base font-bold text-[hsl(var(--foreground))]">Remittance Buddy</h1>
-          <p className="text-xs text-[hsl(var(--muted-foreground))]">Hanapin ang pinakamababang padala rate</p>
-        </div>
+        <LanguageToggle />
       </div>
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {/* Rate Check Card */}
         <div className="bg-white rounded-2xl p-3.5 shadow-sm border border-[hsl(var(--border))] mb-3">
-          <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide mb-2.5">Ikumpara ang Rates</h2>
+          <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide mb-2.5">{t('compareRates')}</h2>
           <div className="space-y-2">
             <div className="flex gap-2 items-end">
               <div className="flex-1">
-                <CurrencySelect label="Ipapadala mo" value={sendCurrency} onChange={(e) => setSendCurrency(e.target.value)} />
+                <CurrencySelect label={t('youSend')} value={sendCurrency} onChange={(e) => setSendCurrency(e.target.value)} />
               </div>
               <div className="flex items-center justify-center w-8 h-10 rounded-full bg-[hsl(var(--muted))]">
                 <ArrowRight className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))]" />
               </div>
               <div className="flex-1">
-                <CurrencySelect label="Matatanggap nila" value={receiveCurrency} onChange={(e) => setReceiveCurrency(e.target.value)} />
+                <CurrencySelect label={t('theyReceive')} value={receiveCurrency} onChange={(e) => setReceiveCurrency(e.target.value)} />
               </div>
             </div>
             <div className="flex gap-2">
@@ -142,11 +148,11 @@ export function App() {
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Amount"
+                placeholder={t('amount')}
                 min="1"
               />
               <Button onClick={handleCheck} disabled={loading || !amount}>
-                {loading ? '...' : 'Ikumpara'}
+                {loading ? '...' : t('compare')}
               </Button>
             </div>
           </div>
@@ -156,12 +162,12 @@ export function App() {
         {hasQuotes ? (
           <div className="space-y-2 mb-3">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">Mga Resulta</h2>
+              <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">{t('results')}</h2>
               <button
                 onClick={() => setQuotes([])}
                 className="text-xs text-[hsl(var(--accent))] hover:underline"
               >
-                Burahin
+                {t('clear')}
               </button>
             </div>
             {quotes.map((quote) => (
@@ -174,7 +180,7 @@ export function App() {
           </div>
         ) : (
           <div className="bg-white rounded-2xl p-3 shadow-sm border border-[hsl(var(--border))] mb-3">
-            <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide mb-1.5 px-1">Kamakailang Padala</h2>
+            <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide mb-1.5 px-1">{t('recent')}</h2>
             <TransferItem amount={200} currency="USD" receiveCurrency="PHP" status="completed" date="Mar 28" />
             <TransferItem amount={500} currency="USD" receiveCurrency="INR" status="pending" date="Mar 30" />
           </div>
@@ -183,7 +189,7 @@ export function App() {
         {/* Chat CTA */}
         <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2">
           <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
-          Kausapin ang AI assistant
+          {t('chatWithAi')}
         </Button>
       </div>
     </div>
