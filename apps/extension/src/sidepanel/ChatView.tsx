@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useChat, type UIMessage } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Send } from 'lucide-react';
+import { Send, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { RateCard } from '../components/RateCard';
 import { LoadingDots } from '../components/LoadingDots';
@@ -36,16 +36,38 @@ export function ChatView() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(var(--border))]">
-        <h1 className="text-sm font-semibold">Remittance Buddy</h1>
+    <div className="flex flex-col h-screen bg-[hsl(var(--background))]">
+      {/* Header */}
+      <div className="flex items-center gap-2.5 px-4 py-3 bg-white border-b border-[hsl(var(--border))]">
+        <div className="text-xl">💸</div>
+        <div>
+          <h1 className="text-sm font-bold text-[hsl(var(--foreground))]">Remittance Buddy</h1>
+          <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Your money transfer assistant</p>
+        </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {messages.length === 0 && (
-          <div className="text-center text-[hsl(var(--muted-foreground))] mt-8">
-            <p className="text-lg font-medium mb-2">Hey! Where are you sending money?</p>
-            <p className="text-sm">I'll find you the best rate across all providers.</p>
+          <div className="text-center mt-12">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[hsl(var(--accent-light))] mb-4">
+              <Sparkles className="h-7 w-7 text-[hsl(var(--accent))]" />
+            </div>
+            <p className="text-lg font-bold text-[hsl(var(--foreground))] mb-1">Hey! Where are you sending money?</p>
+            <p className="text-sm text-[hsl(var(--muted-foreground))] max-w-[250px] mx-auto">
+              I'll find you the best rate across all providers.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 mt-5">
+              {['Send $500 to Philippines', 'Compare USD to INR', 'Check my transfers'].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  onClick={() => { setInputValue(suggestion); }}
+                  className="text-xs px-3 py-1.5 rounded-full bg-white border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] hover:border-[hsl(var(--accent))] transition-all duration-200"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         {messages.map((message) => (
@@ -54,7 +76,8 @@ export function ChatView() {
         {isLoading && messages.at(-1)?.role !== 'assistant' && <LoadingDots />}
       </div>
 
-      <div className="border-t border-[hsl(var(--border))] p-3">
+      {/* Input */}
+      <div className="bg-white border-t border-[hsl(var(--border))] p-3">
         <div className="flex gap-2">
           <textarea
             value={inputValue}
@@ -66,10 +89,10 @@ export function ChatView() {
               }
             }}
             placeholder="Send $500 to the Philippines..."
-            className="flex-1 resize-none rounded-lg border border-[hsl(var(--border))] bg-transparent px-3 py-2 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] min-h-[40px] max-h-[120px]"
+            className="flex-1 resize-none rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-3 py-2.5 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:border-transparent focus-visible:bg-white min-h-[40px] max-h-[120px] transition-all duration-200"
             rows={1}
           />
-          <Button onClick={handleSubmit} disabled={isLoading || !inputValue.trim()} size="sm">
+          <Button onClick={handleSubmit} disabled={isLoading || !inputValue.trim()} size="sm" className="rounded-full w-9 h-9 p-0 shrink-0">
             <Send className="h-4 w-4" />
           </Button>
         </div>
@@ -84,15 +107,15 @@ function MessageBubble({ message }: { readonly message: UIMessage }) {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
           isUser
-            ? 'bg-[hsl(var(--accent))] text-white'
-            : 'bg-[hsl(var(--muted))]'
+            ? 'bg-[hsl(var(--accent))] text-white rounded-br-md'
+            : 'bg-white border border-[hsl(var(--border))] shadow-sm rounded-bl-md'
         }`}
       >
         {message.parts.map((part, i) => {
           if (part.type === 'text') {
-            return <p key={i} className="whitespace-pre-wrap">{part.text}</p>;
+            return <p key={i} className="whitespace-pre-wrap leading-relaxed">{part.text}</p>;
           }
           if (part.type === 'dynamic-tool' && part.toolName === 'checkRates') {
             if (part.state === 'output-available') {
@@ -127,7 +150,7 @@ function MessageBubble({ message }: { readonly message: UIMessage }) {
           if (part.type === 'dynamic-tool') {
             if (part.state === 'input-streaming' || part.state === 'input-available') {
               return (
-                <div key={i} className="text-xs text-[hsl(var(--muted-foreground))] italic">
+                <div key={i} className="text-xs text-[hsl(var(--muted-foreground))] italic py-1">
                   Looking up {part.toolName.replace(/([A-Z])/g, ' $1').toLowerCase()}...
                 </div>
               );

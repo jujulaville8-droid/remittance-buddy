@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, MessageSquare } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { CurrencySelect } from '../components/CurrencySelect';
@@ -60,34 +60,49 @@ export function App() {
   }
 
   return (
-    <div className="flex flex-col h-full p-4">
-      <h2 className="text-sm font-semibold mb-3">Quick Rate Check</h2>
-      <div className="space-y-2 mb-3">
-        <div className="flex gap-2 items-end">
-          <div className="flex-1">
-            <CurrencySelect label="Send" value={sendCurrency} onChange={(e) => setSendCurrency(e.target.value)} />
-          </div>
-          <ArrowRight className="h-4 w-4 mb-2.5 text-[hsl(var(--muted-foreground))] shrink-0" />
-          <div className="flex-1">
-            <CurrencySelect label="Receive" value={receiveCurrency} onChange={(e) => setReceiveCurrency(e.target.value)} />
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Amount"
-            min="1"
-          />
-          <Button onClick={handleCheck} disabled={loading || !amount}>
-            {loading ? '...' : 'Compare'}
-          </Button>
+    <div className="flex flex-col h-full p-4 bg-[hsl(var(--background))]">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="text-2xl">💸</div>
+        <div>
+          <h1 className="text-base font-bold text-[hsl(var(--foreground))]">Remittance Buddy</h1>
+          <p className="text-xs text-[hsl(var(--muted-foreground))]">Find the best rate in seconds</p>
         </div>
       </div>
 
+      {/* Rate Check Card */}
+      <div className="bg-white rounded-2xl p-3.5 shadow-sm border border-[hsl(var(--border))] mb-3">
+        <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide mb-2.5">Compare Rates</h2>
+        <div className="space-y-2">
+          <div className="flex gap-2 items-end">
+            <div className="flex-1">
+              <CurrencySelect label="You send" value={sendCurrency} onChange={(e) => setSendCurrency(e.target.value)} />
+            </div>
+            <div className="flex items-center justify-center w-8 h-10 rounded-full bg-[hsl(var(--muted))]">
+              <ArrowRight className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))]" />
+            </div>
+            <div className="flex-1">
+              <CurrencySelect label="They receive" value={receiveCurrency} onChange={(e) => setReceiveCurrency(e.target.value)} />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Amount"
+              min="1"
+            />
+            <Button onClick={handleCheck} disabled={loading || !amount}>
+              {loading ? '...' : 'Compare'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Quotes */}
       {quotes.length > 0 && (
-        <div className="space-y-2 mb-4 max-h-[200px] overflow-y-auto">
+        <div className="space-y-2 mb-3 max-h-[200px] overflow-y-auto">
           {quotes.map((quote) => (
             <RateCard
               key={quote.provider}
@@ -98,17 +113,17 @@ export function App() {
         </div>
       )}
 
-      <div className="border-t border-[hsl(var(--border))] my-3" />
-
-      <h2 className="text-sm font-semibold mb-2">Recent Transfers</h2>
-      <div className="flex-1 overflow-y-auto">
+      {/* Recent Transfers */}
+      <div className="bg-white rounded-2xl p-3 shadow-sm border border-[hsl(var(--border))] mb-3">
+        <h2 className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wide mb-1.5 px-1">Recent</h2>
         <TransferItem amount={200} currency="USD" receiveCurrency="PHP" status="completed" date="Mar 28" />
         <TransferItem amount={500} currency="USD" receiveCurrency="INR" status="pending" date="Mar 30" />
       </div>
 
-      <Button variant="secondary" onClick={openSidePanel} className="w-full mt-3">
-        <MessageSquare className="h-4 w-4 mr-2" />
-        Open AI Chat
+      {/* Chat CTA */}
+      <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2">
+        <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
+        Chat with AI assistant
       </Button>
     </div>
   );

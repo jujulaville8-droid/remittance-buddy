@@ -20,7 +20,7 @@ export function App() {
 
   if (authed === null) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-[hsl(var(--background))]">
         <div className="h-6 w-6 border-2 border-[hsl(var(--accent))] border-t-transparent rounded-full animate-spin" />
       </div>
     );
