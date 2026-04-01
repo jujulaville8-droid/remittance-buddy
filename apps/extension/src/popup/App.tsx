@@ -259,13 +259,13 @@ export function App() {
         )}
 
         {/* Chat CTA */}
-        <Button variant="secondary" onClick={openSidePanel} className="w-full gap-2">
-          <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
-          {t('chatWithAi')}
-        </Button>
-
-        {/* Airplane illustration */}
-        <img src={airplanePerson} alt="" className="w-full h-auto opacity-30 mt-1" />
+        <div className="relative">
+          <img src={airplanePerson} alt="" className="absolute inset-0 w-full h-full object-contain opacity-10 pointer-events-none" />
+          <Button variant="secondary" onClick={openSidePanel} className="relative w-full gap-2">
+            <Sparkles className="h-4 w-4 text-[hsl(var(--coral))]" />
+            {t('chatWithAi')}
+          </Button>
+        </div>
       </div>
     </div>
   );
