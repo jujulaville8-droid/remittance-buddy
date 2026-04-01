@@ -8,7 +8,8 @@ function getStripe() {
 
 /**
  * Get or create a Stripe customer for a user.
- * Stores customer ID in Stripe metadata keyed by Clerk userId.
+ * Stores customer ID in Stripe metadata keyed by userId.
+ * Note: metadata key is 'clerkUserId' for backward compatibility with existing customers.
  */
 export async function getOrCreateCustomer(userId: string, email: string): Promise<string> {
   const stripe = getStripe()

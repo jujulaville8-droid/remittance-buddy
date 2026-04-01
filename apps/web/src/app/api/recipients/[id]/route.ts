@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, recipients } from '@remit/db'
 import { eq, and } from 'drizzle-orm'
 import { z } from 'zod'
@@ -17,10 +17,12 @@ const UpdateRecipientSchema = z.object({
 })
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = user.id
 
   const { id } = await params
 
@@ -36,10 +38,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = user.id
 
   const { id } = await params
 
@@ -89,10 +93,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = user.id
 
   const { id } = await params
 

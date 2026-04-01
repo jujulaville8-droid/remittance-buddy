@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, transfers } from '@remit/db'
 import { eq } from 'drizzle-orm'
 import Link from 'next/link'
@@ -9,8 +9,10 @@ interface Props {
 }
 
 export default async function PaymentSuccessPage({ params }: Props) {
-  const { userId } = await auth()
-  if (!userId) redirect('/sign-in')
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+  const userId = user.id
 
   const { transferId } = await params
 

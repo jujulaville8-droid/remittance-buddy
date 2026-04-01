@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, recipients } from '@remit/db'
 import { eq, and } from 'drizzle-orm'
 import { z } from 'zod'
@@ -15,10 +15,12 @@ const CreateRecipientSchema = z.object({
 })
 
 export async function GET() {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = user.id
 
   const rows = await db.query.recipients.findMany({
     where: eq(recipients.userId, userId),
@@ -29,10 +31,12 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = user.id
 
   let body: unknown
   try {

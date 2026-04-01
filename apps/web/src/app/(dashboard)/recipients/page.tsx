@@ -1,12 +1,14 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, recipients } from '@remit/db'
 import { eq } from 'drizzle-orm'
 import Link from 'next/link'
 import { RecipientsClient } from './recipients-client'
 
 export default async function RecipientsPage() {
-  const { userId } = await auth()
-  if (!userId) return null
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const userId = user.id
 
   const rows = await db.query.recipients.findMany({
     where: eq(recipients.userId, userId),

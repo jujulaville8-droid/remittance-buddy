@@ -3,8 +3,13 @@ import { randomUUID } from 'crypto'
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
-vi.mock('@clerk/nextjs/server', () => ({
-  auth: vi.fn(),
+const mockGetUser = vi.fn()
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn(() => ({
+    auth: {
+      getUser: mockGetUser,
+    },
+  })),
 }))
 
 vi.mock('@remit/db', () => ({
@@ -36,7 +41,6 @@ vi.mock('@/lib/audit', () => ({
 
 // ─── Imports after mocks ──────────────────────────────────────────────────────
 
-import { auth } from '@clerk/nextjs/server'
 import { db } from '@remit/db'
 import { createQuote, createRecipient, createTransfer } from '@/lib/wise'
 import { transferRateLimiter } from '@/lib/rate-limit'
@@ -70,14 +74,13 @@ describe('GET /api/transfers', () => {
   })
 
   it('returns 401 when not authenticated', async () => {
-    vi.mocked(auth).mockResolvedValue({ userId: null } as never)
-    const req = new Request('http://localhost/api/transfers')
+    mockGetUser.mockResolvedValue({ data: { user: null } })
     const res = await GET()
     expect(res.status).toBe(401)
   })
 
   it('returns transfer list for authenticated user', async () => {
-    vi.mocked(auth).mockResolvedValue({ userId: 'user-123' } as never)
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'user-123' } } })
     vi.mocked(db.query.transfers.findMany).mockResolvedValue([{ id: 'tx-1' }] as never)
     const res = await GET()
     expect(res.status).toBe(200)
@@ -89,7 +92,7 @@ describe('GET /api/transfers', () => {
 describe('POST /api/transfers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(auth).mockResolvedValue({ userId: 'user-123' } as never)
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'user-123' } } })
     vi.mocked(transferRateLimiter.limit).mockResolvedValue({ success: true } as never)
     vi.mocked(db.query.users.findFirst).mockResolvedValue({ id: 'user-123', kycStatus: 'approved' } as never)
     vi.mocked(db.query.transfers.findFirst).mockResolvedValue(null)
@@ -106,7 +109,7 @@ describe('POST /api/transfers', () => {
   })
 
   it('returns 401 when not authenticated', async () => {
-    vi.mocked(auth).mockResolvedValue({ userId: null } as never)
+    mockGetUser.mockResolvedValue({ data: { user: null } })
     const res = await POST(makePostRequest(validTransferBody))
     expect(res.status).toBe(401)
   })

@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { streamText, convertToModelMessages, tool } from 'ai'
 import { gateway } from '@ai-sdk/gateway'
 import { db, users, transfers, recipients } from '@remit/db'
@@ -37,10 +37,12 @@ const messagesSchema = z.array(
 )
 
 export async function POST(req: Request) {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = authUser.id
 
   // Rate limit: 10 chat requests per minute per user (AI calls are expensive)
   const { success } = await chatRateLimiter.limit(userId)

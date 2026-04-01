@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, transfers } from '@remit/db'
 import { eq, and } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
@@ -125,8 +125,10 @@ export default async function TransferDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const { userId } = await auth()
-  if (!userId) return null
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const userId = user.id
 
   const { id } = await params
 

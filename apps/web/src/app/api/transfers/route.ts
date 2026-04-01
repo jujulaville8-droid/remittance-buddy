@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, transfers, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
@@ -7,10 +7,12 @@ import { transferRateLimiter } from '@/lib/rate-limit'
 import { logAuditEvent, getClientIp } from '@/lib/audit'
 
 export async function GET() {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = user.id
 
   const rows = await db.query.transfers.findMany({
     where: eq(transfers.senderId, userId),
@@ -36,10 +38,12 @@ const CreateTransferSchema = z.object({
 })
 
 export async function POST(req: Request) {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = authUser.id
 
   const { success } = await transferRateLimiter.limit(userId)
   if (!success) {

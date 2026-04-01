@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, transfers, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
@@ -11,10 +11,12 @@ const Schema = z.object({
 })
 
 export async function POST(req: Request) {
-  const { userId } = await auth()
-  if (!userId) {
+  const supabase = await createClient()
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const userId = authUser.id
 
   const { success } = await paymentRateLimiter.limit(userId)
   if (!success) {

@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, users, transfers } from '@remit/db'
 import { eq, desc } from 'drizzle-orm'
 import Link from 'next/link'
@@ -27,8 +27,10 @@ function formatDate(date: Date) {
 }
 
 export default async function DashboardPage() {
-  const { userId } = await auth()
-  if (!userId) return null
+  const supabase = await createClient()
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) return null
+  const userId = authUser.id
 
   const [user, recentTransfers] = await Promise.all([
     db.query.users.findFirst({ where: eq(users.id, userId) }),

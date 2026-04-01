@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { createClient } from '@/lib/supabase/server'
 import { db, transfers } from '@remit/db'
 import { eq, and, gte, lte, ilike, type SQL } from 'drizzle-orm'
 import Link from 'next/link'
@@ -56,8 +56,10 @@ export default async function TransfersPage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  const { userId } = await auth()
-  if (!userId) return null
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const userId = user.id
 
   const params = await searchParams
   const { status, from, to, recipient } = params
