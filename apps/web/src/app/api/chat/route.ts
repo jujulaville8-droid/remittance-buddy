@@ -1,5 +1,5 @@
 import { getAuthUser } from '@/lib/supabase/auth-helper'
-import { streamText, convertToModelMessages, tool } from 'ai'
+import { streamText, convertToModelMessages, tool, stepCountIs } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { z } from 'zod'
 import type { UIMessage } from 'ai'
@@ -62,24 +62,20 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: anthropic('claude-haiku-4-5-20251001'),
-    system: `You are Remittance Buddy — a friendly AI assistant that helps people compare remittance rates and send money home to the Philippines.
+    system: `You are Remittance Buddy — a friendly AI that helps people compare remittance rates and send money home.
 
 You are talking to ${userName}.
 
-Your capabilities:
-1. Compare exchange rates across 7 providers (Remitly, Wise, Western Union, MoneyGram, Xoom, WorldRemit, Pangea) using the compare_rates tool
-2. Explain country-specific requirements using get_corridor_info
-3. Help users understand which provider is cheapest, fastest, or supports GCash
-
-When a user asks about sending money:
-- Ask how much they want to send and where
-- Call compare_rates to show real comparisons
-- Highlight which is cheapest and which supports GCash (very important for Philippines)
-- Be concise and warm
-
-You can speak in Taglish (English + Tagalog) if the user does too.
-Always use the tools to get rates — never make up numbers.`,
+CRITICAL RULES:
+- The MOMENT a user mentions an amount and a country/currency, IMMEDIATELY call compare_rates. Do NOT ask clarifying questions if you have enough info.
+- "Send $500 to Philippines" = call compare_rates(500, "PHP") right away
+- "600 usd" in context of Philippines = call compare_rates(600, "PHP") right away
+- After getting results, summarize: cheapest option, how much they receive, GCash availability, and savings vs most expensive
+- Be brief. 2-3 sentences max after showing results.
+- You can speak Taglish if the user does.
+- Never make up rates — always use compare_rates tool.`,
     messages: await convertToModelMessages(messages),
+    stopWhen: stepCountIs(3),
     tools: {
       compare_rates: tool({
         description: 'Compare exchange rates across remittance providers for sending money. Returns rates from Remitly, Wise, Western Union, MoneyGram, Xoom, WorldRemit, and Pangea.',
