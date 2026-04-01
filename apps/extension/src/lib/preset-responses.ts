@@ -3,15 +3,7 @@
  * Returns null if the query needs AI processing.
  */
 
-const RATE_DATA = [
-  { provider: 'Remitly', rate: 57.98, fee: 1.99, speed: 'Minutes', gcash: true },
-  { provider: 'Wise', rate: 58.33, fee: 4.14, speed: '1-2 days', gcash: false },
-  { provider: 'Xoom', rate: 57.57, fee: 0, speed: 'Hours', gcash: true },
-  { provider: 'Western Union', rate: 56.99, fee: 5.00, speed: 'Minutes', gcash: true },
-  { provider: 'MoneyGram', rate: 57.28, fee: 4.99, speed: 'Minutes', gcash: true },
-  { provider: 'WorldRemit', rate: 57.75, fee: 2.99, speed: 'Minutes', gcash: true },
-  { provider: 'Pangea', rate: 57.87, fee: 3.95, speed: 'Same day', gcash: true },
-] as const;
+import { scoreProviders } from './scoring-engine';
 
 const FAQ: Record<string, string> = {
   gcash: `GCash is the #1 e-wallet in the Philippines with 90M+ users. These providers support direct GCash deposit:\n\n• Remitly — Minutes, $1.99 fee\n• Xoom — Hours, FREE\n• Western Union — Minutes, $5.00 fee\n• MoneyGram — Minutes, $4.99 fee\n• WorldRemit — Minutes, $2.99 fee\n• Pangea — Same day, $3.95 fee\n\nWise does NOT support GCash (bank deposit only).`,
@@ -49,31 +41,35 @@ const SAFE_KEYWORDS = /safe|legit|trust|scam|legal|secure/i;
 const GREETING_KEYWORDS = /^(hi|hello|hey|kumusta|musta|good\s*(morning|afternoon|evening))[\s!.?]*$/i;
 
 function formatRateComparison(amount: number): string | null {
-  const sorted = [...RATE_DATA]
-    .map(p => ({
-      ...p,
-      receive: Math.round(amount * p.rate),
-      totalCost: amount + p.fee,
-    }))
-    .sort((a, b) => a.totalCost - b.totalCost);
+  const result = scoreProviders(amount);
+  const { ranked, bestOverall, cheapest, fastest, mostReceived } = result;
 
-  const cheapest = sorted[0];
-  const expensive = sorted[sorted.length - 1];
-  if (!cheapest || !expensive) return null;
-  const savings = (expensive.totalCost - cheapest.totalCost).toFixed(2);
+  if (ranked.length === 0) return null;
 
-  let response = `Here are the rates for sending $${amount.toLocaleString()} to the Philippines:\n\n`;
+  let response = `Sending $${amount.toLocaleString()} to the Philippines:\n\n`;
 
-  for (const p of sorted) {
-    const badge = p === cheapest ? ' ⭐ BEST DEAL' : '';
-    const gcashTag = p.gcash ? ' (GCash)' : '';
-    response += `• ${p.provider} — ₱${p.receive.toLocaleString()} | Fee: $${p.fee.toFixed(2)} | ${p.speed}${gcashTag}${badge}\n`;
+  // Lead with the recommendation
+  response += `Our pick: ${bestOverall.provider}\n`;
+  response += `${bestOverall.explanation}\n`;
+  response += `Recipient gets: ₱${bestOverall.receiveAmount.toLocaleString()} | Fee: $${bestOverall.fee.toFixed(2)} | ${bestOverall.deliveryTime}${bestOverall.gcash ? ' | GCash' : ''}\n\n`;
+
+  // Show category winners if different from best overall
+  if (cheapest.provider !== bestOverall.provider) {
+    response += `Cheapest: ${cheapest.provider} — $${cheapest.fee.toFixed(2)} fee (save $${bestOverall.savingsVsWorst.toFixed(2)} vs most expensive)\n`;
+  }
+  if (mostReceived.provider !== bestOverall.provider) {
+    response += `Most pesos: ${mostReceived.provider} — ₱${mostReceived.receiveAmount.toLocaleString()} (₱${mostReceived.extraPesosVsWorst.toLocaleString()} more than worst rate)\n`;
+  }
+  if (fastest.provider !== bestOverall.provider) {
+    response += `Fastest: ${fastest.provider} — ${fastest.deliveryTime}\n`;
   }
 
-  response += `\nBest deal: ${cheapest.provider} — your recipient gets ₱${cheapest.receive.toLocaleString()} and you save $${savings} vs ${expensive.provider}.`;
-
-  if (cheapest.gcash) {
-    response += `\n\n${cheapest.provider} supports GCash, so the money arrives in minutes!`;
+  response += `\nAll ${ranked.length} options:\n`;
+  for (const q of ranked) {
+    const badges = q.badges.length > 0
+      ? ` [${q.badges.map(b => b.replace('-', ' ')).join(', ')}]`
+      : '';
+    response += `• ${q.provider} — ₱${q.receiveAmount.toLocaleString()} | $${q.fee.toFixed(2)} fee | ${q.deliveryTime}${q.gcash ? ' | GCash' : ''}${badges}\n`;
   }
 
   return response;
