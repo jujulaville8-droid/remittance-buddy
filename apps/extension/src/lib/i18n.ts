@@ -48,6 +48,13 @@ export const translations = {
     getStarted: 'Get started',
     noFees: 'No fees. We earn a small commission from providers.',
 
+    // Savings & social proof
+    youSave: 'You save',
+    vsExpensive: 'vs most expensive',
+    gcash: 'GCash',
+    peopleCompared: 'people compared rates today',
+    theyGet: 'They get',
+
     // Language
     language: 'English',
   },
@@ -95,6 +102,13 @@ export const translations = {
     onboardingFeature3: 'Libre gamitin, palagi',
     getStarted: 'Magsimula',
     noFees: 'Walang bayad. Kumikita kami ng maliit na komisyon mula sa mga provider.',
+
+    // Savings & social proof
+    youSave: 'Nakatipid ka ng',
+    vsExpensive: 'kumpara sa pinakamahal',
+    gcash: 'GCash',
+    peopleCompared: 'tao ang nagkumpara ng rates ngayon',
+    theyGet: 'Matatanggap nila',
 
     // Language
     language: 'Tagalog',

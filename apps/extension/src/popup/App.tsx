@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, TrendingDown } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { CurrencySelect } from '../components/CurrencySelect';
@@ -19,6 +19,8 @@ interface Quote {
   readonly deliveryTime: string;
   readonly affiliateUrl: string;
 }
+
+const QUICK_AMOUNTS = [100, 200, 500, 1000] as const;
 
 export function App() {
   const { t } = useI18n();
@@ -48,7 +50,7 @@ export function App() {
           receiveCurrency,
           exchangeRate: 58.33,
           fee: 4.14,
-          deliveryTime: '1-2 business days',
+          deliveryTime: '1-2 days',
           affiliateUrl: 'https://wise.com/us/send-money/send-money-to-philippines',
         },
         {
@@ -66,7 +68,7 @@ export function App() {
           receiveCurrency,
           exchangeRate: 56.99,
           fee: 5.00,
-          deliveryTime: 'Minutes (GCash, cash)',
+          deliveryTime: 'Minutes (GCash)',
           affiliateUrl: 'https://www.westernunion.com/us/en/send-money-to-philippines.html',
         },
         {
@@ -75,7 +77,7 @@ export function App() {
           receiveCurrency,
           exchangeRate: 57.28,
           fee: 4.99,
-          deliveryTime: 'Minutes (GCash, cash)',
+          deliveryTime: 'Minutes (GCash)',
           affiliateUrl: 'https://www.moneygram.com/mgo/us/en/send/philippines',
         },
         {
@@ -84,7 +86,7 @@ export function App() {
           receiveCurrency,
           exchangeRate: 57.75,
           fee: 2.99,
-          deliveryTime: 'Minutes (GCash, Maya)',
+          deliveryTime: 'Minutes (GCash)',
           affiliateUrl: 'https://www.worldremit.com/en/philippines',
         },
         {
@@ -112,13 +114,20 @@ export function App() {
 
   const hasQuotes = quotes.length > 0;
 
+  // Calculate savings: cheapest total cost vs most expensive
+  const sortedByTotalCost = hasQuotes
+    ? [...quotes].sort((a, b) => (a.fee + Number(amount)) - (b.fee + Number(amount)))
+    : [];
+  const cheapestFee = sortedByTotalCost[0]?.fee ?? 0;
+  const expensiveFee = sortedByTotalCost.at(-1)?.fee ?? 0;
+  const savingsAmount = expensiveFee - cheapestFee;
+
   return (
     <div className="flex flex-col h-full bg-[hsl(var(--background))]">
       {/* Header */}
       <div className="relative px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            {/* Logo placeholder — replace with actual logo */}
             <div className="w-8 h-8 rounded-xl bg-[hsl(var(--coral))] flex items-center justify-center shrink-0 shadow-sm shadow-[hsla(var(--coral),0.25)]">
               <span className="text-white font-bold text-sm" style={{ fontFamily: "'Varela Round', sans-serif" }}>RB</span>
             </div>
@@ -133,6 +142,18 @@ export function App() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
+        {/* Social proof */}
+        <div className="flex items-center justify-center gap-1.5 mb-2.5">
+          <div className="flex -space-x-1.5">
+            {['bg-blue-400', 'bg-teal-400', 'bg-amber-400', 'bg-pink-400'].map((color, i) => (
+              <div key={i} className={`w-5 h-5 rounded-full ${color} border-2 border-[hsl(var(--background))]`} />
+            ))}
+          </div>
+          <span className="text-[10px] text-[hsl(var(--muted-foreground))] font-medium">
+            12,847 {t('peopleCompared')}
+          </span>
+        </div>
+
         {/* Rate Check Card */}
         <div className="relative bg-white rounded-3xl p-4 shadow-sm border border-[hsl(var(--border))] mb-3 animate-fade-up overflow-hidden">
           <img src={philippinesMap} alt="" className="absolute top-1 right-0 w-28 h-auto opacity-[0.07] pointer-events-none" />
@@ -149,22 +170,43 @@ export function App() {
                 <CurrencySelect label={t('theyReceive')} value={receiveCurrency} onChange={(e) => setReceiveCurrency(e.target.value)} />
               </div>
             </div>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-[hsl(var(--coral))]">$</span>
-                <Input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder={t('amount')}
-                  min="1"
-                  className="pl-7"
-                />
+
+            {/* Amount input + quick presets */}
+            <div>
+              <div className="flex gap-2 mb-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-[hsl(var(--coral))]">$</span>
+                  <Input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder={t('amount')}
+                    min="1"
+                    className="pl-7"
+                  />
+                </div>
+                <Button onClick={handleCheck} disabled={loading || !amount}>
+                  {loading ? '...' : t('compare')}
+                </Button>
               </div>
-              <Button onClick={handleCheck} disabled={loading || !amount}>
-                {loading ? '...' : t('compare')}
-              </Button>
+              {/* Quick amount buttons */}
+              <div className="flex gap-1.5">
+                {QUICK_AMOUNTS.map((amt) => (
+                  <button
+                    key={amt}
+                    onClick={() => setAmount(String(amt))}
+                    className={`flex-1 h-7 rounded-xl text-xs font-semibold transition-all duration-150 ${
+                      amount === String(amt)
+                        ? 'bg-[hsl(var(--coral))] text-white shadow-sm'
+                        : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--border))]'
+                    }`}
+                  >
+                    ${amt.toLocaleString()}
+                  </button>
+                ))}
+              </div>
             </div>
+
             {/* Slider */}
             <div>
               <input
@@ -189,6 +231,23 @@ export function App() {
         {/* Quotes or Recent */}
         {hasQuotes ? (
           <div className="mb-3">
+            {/* Savings banner */}
+            {savingsAmount > 0 && (
+              <div className="flex items-center gap-2 bg-[hsl(var(--teal-light))] rounded-2xl px-3.5 py-2.5 mb-2 animate-fade-up">
+                <div className="p-1.5 rounded-full bg-[hsl(var(--teal))]/20">
+                  <TrendingDown className="h-3.5 w-3.5 text-[hsl(var(--teal))]" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-[hsl(var(--teal))]">
+                    {t('youSave')} ${savingsAmount.toFixed(2)}
+                  </div>
+                  <div className="text-[10px] text-[hsl(var(--muted-foreground))]">
+                    {t('vsExpensive')}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between px-1 mb-2">
               <h2 className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-widest">{t('results')}</h2>
               <button
@@ -199,11 +258,12 @@ export function App() {
               </button>
             </div>
             <div className="space-y-2 stagger-children">
-              {quotes.map((quote) => (
+              {quotes.map((quote, i) => (
                 <RateCard
                   key={quote.provider}
                   {...quote}
-                  isCheapest={quote.provider === quotes.at(0)?.provider}
+                  isCheapest={i === 0}
+                  savingsAmount={i === 0 ? savingsAmount : undefined}
                 />
               ))}
             </div>
