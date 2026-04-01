@@ -128,7 +128,7 @@ export function App() {
       <div className="relative px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src={logo} alt="Remittance Buddy" className="w-9 h-9 shrink-0" />
+            <img src={logo} alt="Remittance Buddy" className="w-14 h-14 shrink-0" />
             <div>
               <h1 className="text-lg font-bold text-[hsl(var(--foreground))] leading-tight tracking-tight" style={{ fontFamily: "'Varela Round', sans-serif" }}>{t('appName')}</h1>
               <p className="text-[11px] text-[hsl(var(--muted-foreground))]">{t('tagline')}</p>

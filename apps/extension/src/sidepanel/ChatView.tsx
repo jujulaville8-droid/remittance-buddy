@@ -45,7 +45,7 @@ export function ChatView() {
       {/* Header */}
       <div className="relative flex items-center justify-between px-4 py-3 bg-white border-b border-[hsl(var(--border))]">
         <div className="flex items-center gap-2.5">
-          <img src={logo} alt="Remittance Buddy" className="w-8 h-8 shrink-0" />
+          <img src={logo} alt="Remittance Buddy" className="w-12 h-12 shrink-0" />
           <div>
             <h1 className="text-sm font-bold text-[hsl(var(--foreground))] tracking-tight" style={{ fontFamily: "'Varela Round', sans-serif" }}>{t('appName')}</h1>
             <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('chatTagline')}</p>
