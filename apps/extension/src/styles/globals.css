@@ -1,25 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Varela+Round&family=Nunito+Sans:wght@400;500;600;700&display=swap');
+/* Self-hosted fonts — no runtime Google Fonts dependency */
+@font-face {
+  font-family: 'DM Serif Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/DMSerifDisplay-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../assets/fonts/PlusJakartaSans-Variable.woff2') format('woff2');
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: 30 100% 98%;
-  --foreground: 220 25% 18%;
-  --card: 30 60% 99%;
-  --muted: 30 30% 95%;
-  --muted-foreground: 220 10% 50%;
-  --border: 30 20% 90%;
+  /* Warm Authority palette */
+  --background: 34 33% 95%;       /* #F7F3EE warm sand */
+  --foreground: 20 10% 10%;       /* #1C1917 warm charcoal */
+  --card: 30 100% 99%;            /* #FFFBF7 warm white */
+  --muted: 30 15% 92%;            /* #EDE8E1 muted surface */
+  --muted-foreground: 30 8% 38%;  /* #6B6560 warm gray text — WCAG AA on sand bg */
+  --border: 30 18% 89%;           /* #E7E0D8 warm border */
 
-  --coral: 205 85% 60%;
-  --coral-light: 205 85% 95%;
-  --teal: 174 62% 47%;
-  --teal-light: 174 62% 93%;
-  --gold: 45 95% 65%;
-  --gold-light: 45 95% 92%;
-  --lavender: 262 60% 68%;
-  --lavender-light: 262 60% 95%;
+  /* Brand — true coral/terracotta */
+  --coral: 14 65% 63%;            /* #E07A5F terracotta */
+  --coral-light: 14 65% 95%;      /* Soft coral wash */
+
+  /* Trust — deep teal */
+  --teal: 174 84% 32%;            /* #0D9488 */
+  --teal-light: 174 84% 93%;
+
+  /* Accent — warm gold */
+  --gold: 26 53% 64%;             /* #D4A373 */
+  --gold-light: 26 53% 93%;
 
   /* Semantic aliases */
   --accent: var(--coral);
@@ -29,19 +47,25 @@
   --warning: var(--gold);
   --warning-light: var(--gold-light);
   --destructive: 0 72% 51%;
+
+  /* Elevation system */
+  --shadow-1: 0 1px 2px rgba(28,25,23,0.05);
+  --shadow-2: 0 4px 12px rgba(28,25,23,0.08);
+  --shadow-3: 0 8px 24px rgba(28,25,23,0.12);
 }
 
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   min-width: 360px;
   -webkit-font-smoothing: antialiased;
   touch-action: manipulation;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Varela Round', 'Nunito Sans', sans-serif;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
 }
 
 button, a, select, [role="button"] {
@@ -50,6 +74,12 @@ button, a, select, [role="button"] {
 
 * {
   border-color: hsl(var(--border));
+}
+
+/* Utility: display font for hero numbers */
+.font-display {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
 }
 
 /* Range slider */
@@ -70,12 +100,12 @@ input[type="range"]::-webkit-slider-thumb {
   background: hsl(var(--coral));
   cursor: pointer;
   border: 3px solid white;
-  box-shadow: 0 2px 8px hsla(var(--coral), 0.35);
+  box-shadow: 0 2px 8px hsl(var(--coral) / 0.35);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 3px 12px hsla(var(--coral), 0.45);
+  box-shadow: 0 3px 12px hsl(var(--coral) / 0.45);
 }
 input[type="range"]::-webkit-slider-thumb:active {
   transform: scale(0.95);
@@ -121,3 +151,15 @@ input[type="number"] {
 .stagger-children > *:nth-child(5) { animation-delay: 240ms; }
 .stagger-children > *:nth-child(6) { animation-delay: 300ms; }
 .stagger-children > *:nth-child(7) { animation-delay: 360ms; }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-fade-up,
+  .stagger-children > *,
+  .animate-spin {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

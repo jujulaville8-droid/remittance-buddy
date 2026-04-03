@@ -33,10 +33,10 @@ describe('verifyWiseWebhookSignature', () => {
     process.env = { ...originalEnv }
   })
 
-  it('returns true when WISE_WEBHOOK_SECRET is not set (skip verification)', async () => {
+  it('returns false when WISE_WEBHOOK_SECRET is not set (fail closed)', async () => {
     delete process.env.WISE_WEBHOOK_SECRET
     const result = await verifyWiseWebhookSignature('body', 'anysig')
-    expect(result).toBe(true)
+    expect(result).toBe(false)
   })
 
   it('returns true for a valid HMAC signature', async () => {

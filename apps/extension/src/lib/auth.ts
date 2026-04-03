@@ -41,3 +41,10 @@ export async function signUp(email: string, password: string, fullName?: string)
 export async function signOut() {
   await supabase.auth.signOut();
 }
+
+export function onAuthChange(callback: (isAuthed: boolean) => void) {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    callback(session !== null);
+  });
+  return subscription;
+}

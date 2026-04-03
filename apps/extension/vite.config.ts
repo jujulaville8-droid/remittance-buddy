@@ -14,6 +14,12 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  server: {
+    port: 5174,
+    cors: {
+      origin: '*',
+    },
+  },
   base: './',
   build: {
     outDir: 'dist',

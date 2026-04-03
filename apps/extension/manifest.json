@@ -10,6 +10,7 @@
     "notifications"
   ],
   "host_permissions": [
+    "https://remittancebuddy.com/*",
     "http://localhost:3000/*"
   ],
   "action": {

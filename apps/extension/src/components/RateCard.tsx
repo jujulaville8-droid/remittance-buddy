@@ -33,11 +33,11 @@ export function RateCard({
   const hasGcash = GCASH_PROVIDERS.has(provider);
 
   const cardClass = isCheapest
-    ? 'bg-[hsl(var(--teal-light))] border-2 border-[hsl(var(--teal))]/30 shadow-sm shadow-[hsla(var(--teal),0.1)]'
-    : 'bg-white border border-[hsl(var(--border))] shadow-sm';
+    ? 'bg-[hsl(var(--teal-light))] border-2 border-[hsl(var(--teal))]/30 shadow-level-1'
+    : 'bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-level-1';
 
   return (
-    <div className={`rounded-2xl p-3.5 transition-all duration-200 hover:shadow-md ${cardClass}`}>
+    <div className={`rounded-lg p-3.5 transition-all duration-200 hover:shadow-level-2 ${cardClass}`}>
       {/* Provider header */}
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-2">
@@ -61,7 +61,7 @@ export function RateCard({
       {/* Receive amount — the hero number */}
       <div className="mb-1">
         <div className="text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{t('theyGet')}</div>
-        <div className="text-xl font-bold text-[hsl(var(--foreground))]" style={{ fontFamily: "'Varela Round', sans-serif" }}>
+        <div className="text-xl font-display font-bold text-[hsl(var(--foreground))]">
           {receiveAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })} <span className="text-sm font-medium text-[hsl(var(--muted-foreground))]">{receiveCurrency}</span>
         </div>
       </div>
@@ -91,7 +91,7 @@ export function RateCard({
         href={affiliateUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-2.5 flex items-center justify-center gap-1.5 w-full h-9 rounded-2xl bg-[hsl(var(--coral))] text-white text-sm font-semibold shadow-sm shadow-[hsla(var(--coral),0.25)] hover:shadow-md hover:shadow-[hsla(var(--coral),0.35)] hover:brightness-105 transition-all duration-200 active:scale-[0.97]"
+        className="mt-2.5 flex items-center justify-center gap-1.5 w-full h-9 rounded-md bg-[hsl(var(--coral))] text-white text-sm font-semibold shadow-level-1 hover:shadow-level-2 hover:brightness-105 transition-all duration-200 active:scale-[0.97]"
       >
         {t('sendWith')} {provider} <ExternalLink className="h-3.5 w-3.5" />
       </a>

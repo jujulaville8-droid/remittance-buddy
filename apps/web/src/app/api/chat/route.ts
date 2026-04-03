@@ -1,9 +1,42 @@
 import { getAuthUser } from '@/lib/supabase/auth-helper'
-import { streamText, convertToModelMessages } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
+import { streamText, convertToModelMessages, tool, stepCountIs } from 'ai'
 import type { UIMessage } from 'ai'
 import { z } from 'zod'
 import { chatRateLimiter } from '@/lib/rate-limit'
+import { db, users } from '@remit/db'
+import { eq } from 'drizzle-orm'
+
+const PROVIDER_DATA = [
+  { provider: 'Remitly',        rate: 57.98, fee: 1.99, speed: 'Minutes',  gcash: true,  cashPickup: true,  trust: 9 },
+  { provider: 'Wise',           rate: 58.33, fee: 4.14, speed: '1-2 days', gcash: false, cashPickup: false, trust: 10 },
+  { provider: 'Xoom',           rate: 57.57, fee: 0,    speed: 'Hours',    gcash: true,  cashPickup: true,  trust: 8 },
+  { provider: 'Western Union',  rate: 56.99, fee: 5.00, speed: 'Minutes',  gcash: true,  cashPickup: true,  trust: 9 },
+  { provider: 'MoneyGram',      rate: 57.28, fee: 4.99, speed: 'Minutes',  gcash: true,  cashPickup: true,  trust: 8 },
+  { provider: 'WorldRemit',     rate: 57.75, fee: 2.99, speed: 'Minutes',  gcash: true,  cashPickup: false, trust: 7 },
+  { provider: 'Pangea',         rate: 57.87, fee: 3.95, speed: 'Same day', gcash: true,  cashPickup: false, trust: 6 },
+] as const;
+
+function computeComparison(amountUsd: number, filter?: string) {
+  let providers = PROVIDER_DATA.map(p => {
+    const receiveAmount = Math.round((amountUsd - p.fee) * p.rate);
+    const totalCost = amountUsd + p.fee;
+    return { ...p, receiveAmount, totalCost, sendAmount: amountUsd };
+  });
+
+  if (filter === 'gcash') providers = providers.filter(p => p.gcash);
+  if (filter === 'cash_pickup') providers = providers.filter(p => p.cashPickup);
+  if (filter === 'fast') providers = providers.filter(p => p.speed === 'Minutes');
+
+  const sorted = [...providers].sort((a, b) => b.receiveAmount - a.receiveAmount);
+  const best = sorted[0];
+  const worst = sorted[sorted.length - 1];
+
+  return {
+    recommended: best ? { ...best, reason: `Best value — recipient gets the most pesos (₱${best.receiveAmount.toLocaleString()})` } : null,
+    alternatives: sorted.slice(1, 4).map(p => ({ ...p })),
+    savings: best && worst ? { feeSaved: worst.totalCost - best.totalCost, extraPesos: best.receiveAmount - worst.receiveAmount } : null,
+  };
+}
 
 export const maxDuration = 30
 
@@ -44,9 +77,19 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
   }
 
-  // Use auth user info directly (DB connection not yet available via pooler)
-  const kycStatus = 'approved'
-  const userName = authUser.user_metadata?.full_name ?? authUser.email?.split('@')[0] ?? 'there'
+  // Look up user from DB for KYC status; fall back to auth metadata
+  const fallbackName = authUser.user_metadata?.full_name ?? authUser.email?.split('@')[0] ?? 'there'
+  let kycStatus = 'pending'
+  let userName = fallbackName
+  try {
+    const dbUser = await db.query.users.findFirst({ where: eq(users.id, userId) })
+    if (dbUser) {
+      kycStatus = dbUser.kycStatus
+      userName = dbUser.fullName ?? fallbackName
+    }
+  } catch {
+    // DB unavailable — continue with defaults
+  }
 
   let messages: UIMessage[]
   try {
@@ -61,39 +104,50 @@ export async function POST(req: Request) {
   }
 
   const result = streamText({
-    model: anthropic('claude-haiku-4-5-20251001'),
+    model: 'anthropic/claude-haiku-4.5',
     system: `You are Remittance Buddy — a friendly AI that helps people compare remittance rates and send money home to the Philippines.
 
 You are talking to ${userName}.
 
-You have CURRENT rate data for US → Philippines (PHP). Use this data directly in your responses — no need to call any tool:
+You have a compareProviders tool that shows visual comparison cards to the user. Use it when it adds value:
+- User mentions a specific dollar amount to send
+- User asks to compare providers or rates
+- User changes criteria (e.g. "what about GCash only?" or "show me the fastest")
+- A visual comparison would help the user decide
 
-PROVIDER RATES (per $1 USD):
-- Remitly: ₱57.98 | Fee: $1.99 | Speed: Minutes | GCash: Yes | Cash pickup: Yes | Trust: 9/10
-- Wise: ₱58.33 | Fee: $4.14 | Speed: 1-2 days | GCash: No | Cash pickup: No | Trust: 10/10
-- Xoom: ₱57.57 | Fee: $0 | Speed: Hours | GCash: Yes | Cash pickup: Yes | Trust: 8/10
-- Western Union: ₱56.99 | Fee: $5.00 | Speed: Minutes | GCash: Yes | Cash pickup: Yes | Trust: 9/10
-- MoneyGram: ₱57.28 | Fee: $4.99 | Speed: Minutes | GCash: Yes | Cash pickup: Yes | Trust: 8/10
-- WorldRemit: ₱57.75 | Fee: $2.99 | Speed: Minutes | GCash: Yes | Cash pickup: No | Trust: 7/10
-- Pangea: ₱57.87 | Fee: $3.95 | Speed: Same day | GCash: Yes | Cash pickup: No | Trust: 6/10
+Do NOT call the tool when:
+- User asks a general question (e.g. "what is GCash?", "what documents do I need?")
+- You already showed a comparison and the user is asking a follow-up that doesn't need new data
+- The conversation is casual/greeting
 
-COMMON KNOWLEDGE (answer directly, no tool needed):
+When you call the tool, add 1-2 sentences after with your recommendation and tradeoffs. Don't repeat numbers — the cards show those.
+
+You do NOT have rate data in your memory. If the user asks about rates or amounts, you MUST call the tool — never guess numbers.
+
+GENERAL KNOWLEDGE (answer without the tool):
 - GCash is the #1 wallet in PH (90M+ users). Most providers support it except Wise.
-- Cash pickup: Cebuana Lhuillier (6,000+ branches), M Lhuillier (3,000+), SM, 7-Eleven, LBC
-- Documents needed: Government ID. Over $3,000 may need proof of address.
-- Maya/PayMaya is #2 wallet (50M users). Supported by Remitly, WorldRemit, Xoom.
-- All providers are licensed and regulated. OFW remittances are tax-exempt in PH.
+- Cash pickup locations: Cebuana Lhuillier (6,000+), M Lhuillier (3,000+), SM, 7-Eleven, LBC
+- Documents: Government ID. Over $3,000 may need proof of address.
+- Maya/PayMaya is #2 wallet. Supported by Remitly, WorldRemit, Xoom.
+- OFW remittances are tax-exempt in PH.
 
-RULES:
-1. When user mentions an amount, IMMEDIATELY calculate and show the comparison. Do the math yourself using the rates above.
-2. Lead with your RECOMMENDATION, not just data. Say "I recommend X because..." then show alternatives.
-3. Always show: what the recipient GETS in pesos, the fee, and delivery time.
-4. Show savings: "You save $X vs [most expensive]" and "Recipient gets ₱X more vs [worst rate]"
-5. Explain tradeoffs in plain language: "Wise has the best rate but takes 1-2 days and doesn't support GCash"
-6. Be brief. Recommendation + 2-3 sentences. Don't list all 7 unless asked.
-7. Top 3 is enough unless they ask for all options.
-8. Speak Taglish if the user does.
-9. For follow-up questions, remember the conversation context. Don't re-ask what was already discussed.`,
+STYLE:
+- Be brief and helpful. Speak Taglish if the user does.
+- Lead with recommendations, not data dumps.`,
+    tools: {
+      compareProviders: tool({
+        description: 'Compare remittance providers for a given USD amount. MUST be called whenever the user mentions any dollar amount, asks to compare, or asks about rates/fees. Returns structured visual cards.',
+        inputSchema: z.object({
+          amountUsd: z.number().describe('The amount in USD to send'),
+          filter: z.enum(['all', 'gcash', 'cash_pickup', 'fast']).optional().describe('Optional filter: gcash (GCash only), cash_pickup (cash pickup only), fast (instant delivery only)'),
+        }),
+        execute: async ({ amountUsd, filter }) => {
+          return computeComparison(amountUsd, filter === 'all' ? undefined : filter);
+        },
+      }),
+    },
+    toolChoice: 'auto',
+    stopWhen: stepCountIs(2),
     messages: await convertToModelMessages(messages),
   })
 

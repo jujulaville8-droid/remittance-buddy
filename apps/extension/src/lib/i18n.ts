@@ -55,6 +55,39 @@ export const translations = {
     peopleCompared: 'people compared rates today',
     theyGet: 'They get',
 
+    // Popup result strings
+    ourPick: 'Our pick',
+    mostPesos: 'Most pesos',
+    mostTrusted: 'Most trusted',
+    askAiHelp: 'Not sure? Ask AI to help you decide',
+    showLess: 'Show less',
+    showAllProviders: 'Show all {count} providers',
+    stillDeciding: 'Still deciding?',
+    stillDecidingDesc: 'Tell our AI what matters most - speed, price, or GCash',
+    needHelpChoosing: 'Need help choosing?',
+    needHelpChoosingDesc: 'Ask AI to find the best rate for you',
+    recipientGetsViaGcash: 'Recipient gets via GCash',
+    recipientGets: 'Recipient gets',
+
+    // Onboarding auth
+    fullName: 'Full name',
+    emailPlaceholder: 'Email',
+    passwordPlaceholder: 'Password',
+    signIn: 'Sign in',
+    createAccount: 'Create account',
+    noAccount: "Don't have an account? Sign up",
+    hasAccount: 'Already have an account? Sign in',
+    usersThisMonth: '12,847 users this month',
+    weCompare: 'We compare',
+    plusMore: '+2 more',
+
+    // Chat
+    ratesUpdated: 'Rates updated just now',
+    signOut: 'Sign out',
+    getInstantComparison: 'Get instant rate comparison',
+    seeWhichWins: 'See which provider wins',
+    viewTransferHistory: 'View your transfer history',
+
     // Language
     language: 'English',
   },
@@ -109,6 +142,39 @@ export const translations = {
     gcash: 'GCash',
     peopleCompared: 'tao ang nagkumpara ng rates ngayon',
     theyGet: 'Matatanggap nila',
+
+    // Popup result strings
+    ourPick: 'Pinili namin',
+    mostPesos: 'Pinakamaraming pesos',
+    mostTrusted: 'Pinaka-tiwala',
+    askAiHelp: 'Hindi sigurado? Itanong sa AI',
+    showLess: 'Ipakita ang mas kaunti',
+    showAllProviders: 'Ipakita lahat ng {count} provider',
+    stillDeciding: 'Nagde-desisyon pa?',
+    stillDecidingDesc: 'Sabihin sa AI kung ano ang importante — bilis, presyo, o GCash',
+    needHelpChoosing: 'Kailangan ng tulong?',
+    needHelpChoosingDesc: 'Itanong sa AI ang pinakamagandang rate para sa iyo',
+    recipientGetsViaGcash: 'Matatanggap sa GCash',
+    recipientGets: 'Matatanggap',
+
+    // Onboarding auth
+    fullName: 'Buong pangalan',
+    emailPlaceholder: 'Email',
+    passwordPlaceholder: 'Password',
+    signIn: 'Mag-sign in',
+    createAccount: 'Gumawa ng account',
+    noAccount: 'Wala pang account? Mag-sign up',
+    hasAccount: 'May account na? Mag-sign in',
+    usersThisMonth: '12,847 gumagamit ngayong buwan',
+    weCompare: 'Inihahambing namin',
+    plusMore: '+2 pa',
+
+    // Chat
+    ratesUpdated: 'Mga rate na-update ngayon lang',
+    signOut: 'Mag-sign out',
+    getInstantComparison: 'Makakuha ng instant rate comparison',
+    seeWhichWins: 'Tingnan kung aling provider ang panalo',
+    viewTransferHistory: 'Tingnan ang iyong mga padala',
 
     // Language
     language: 'Tagalog',

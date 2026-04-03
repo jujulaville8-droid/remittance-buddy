@@ -209,9 +209,9 @@ export default function HomePage() {
             <nav className="flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
               <Link href="/sign-up" className="hover:text-foreground transition-colors">Get started</Link>
               <Link href="/sign-in" className="hover:text-foreground transition-colors">Sign in</Link>
-              <span>Privacy Policy</span>
-              <span>Terms of Service</span>
-              <span>Support</span>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
+              <a href="mailto:support@remittancebuddy.com" className="hover:text-foreground transition-colors">Support</a>
             </nav>
           </div>
           <p className="mt-6 text-center text-xs text-muted-foreground">

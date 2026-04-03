@@ -22,7 +22,7 @@ export function TransferItem({ amount, currency, receiveCurrency, status, date }
   const Icon = config.icon;
 
   return (
-    <div className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-[hsl(var(--muted))] transition-colors">
+    <div className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-[hsl(var(--card))] transition-colors">
       <div className="flex items-center gap-2.5">
         <div className={`p-1.5 rounded-full ${config.bg}`}>
           <Icon className={`h-3.5 w-3.5 ${config.color}`} />

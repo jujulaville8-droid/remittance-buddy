@@ -29,7 +29,7 @@ export function CurrencySelect({ label, className, ...props }: CurrencySelectPro
       <label className="text-[10px] font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-1 block">{label}</label>
       <select
         className={clsx(
-          'w-full h-10 rounded-2xl border border-[hsl(var(--border))] bg-white px-3 text-sm font-medium',
+          'w-full h-10 rounded-sm border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-sm font-medium',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--coral))] focus-visible:border-transparent',
           'transition-all duration-200',
           className

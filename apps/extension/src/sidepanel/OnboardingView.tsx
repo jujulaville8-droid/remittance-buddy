@@ -45,18 +45,18 @@ export function OnboardingView({ onAuth }: { readonly onAuth: () => void }) {
       {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
         <img src={logo} alt="Remittance Buddy" className="w-16 h-16 mb-3 animate-fade-up" />
-        <h1 className="text-xl font-bold text-[hsl(var(--foreground))] mb-1 animate-fade-up" style={{ fontFamily: "'Varela Round', sans-serif", animationDelay: '60ms' }}>{t('appName')}</h1>
+        <h1 className="text-xl font-bold font-display text-[hsl(var(--foreground))] mb-1 animate-fade-up" style={{ animationDelay: '60ms' }}>{t('appName')}</h1>
         <p className="text-[hsl(var(--muted-foreground))] text-sm mb-5 max-w-[280px] leading-relaxed animate-fade-up" style={{ animationDelay: '120ms' }}>
           {t('onboardingDescription')}
         </p>
 
         {/* Provider logos — trust signal */}
         <div className="flex items-center gap-2 mb-6 animate-fade-up" style={{ animationDelay: '160ms' }}>
-          <span className="text-[9px] text-[hsl(var(--muted-foreground))] font-medium mr-1">We compare</span>
+          <span className="text-[9px] text-[hsl(var(--muted-foreground))] font-medium mr-1">{t('weCompare')}</span>
           {PROVIDER_NAMES.map((name) => (
             <ProviderLogo key={name} provider={name} size="sm" />
           ))}
-          <span className="text-[9px] text-[hsl(var(--muted-foreground))]">+2 more</span>
+          <span className="text-[9px] text-[hsl(var(--muted-foreground))]">{t('plusMore')}</span>
         </div>
 
         {/* Auth form */}
@@ -64,38 +64,41 @@ export function OnboardingView({ onAuth }: { readonly onAuth: () => void }) {
           {mode === 'signup' && (
             <Input
               type="text"
-              placeholder="Full name"
+              placeholder={t('fullName')}
+              aria-label={t('fullName')}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
           )}
           <Input
             type="email"
-            placeholder="Email"
+            placeholder={t('emailPlaceholder')}
+            aria-label={t('emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <Input
             type="password"
-            placeholder="Password"
+            placeholder={t('passwordPlaceholder')}
+            aria-label={t('passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
           />
 
           {error && (
-            <p className="text-xs text-red-500 text-left">{error}</p>
+            <p className="text-xs text-red-500 text-left" role="alert">{error}</p>
           )}
 
           <Button onClick={handleSubmit} disabled={loading || !email || !password} size="lg" className="w-full">
-            {loading ? '...' : mode === 'signin' ? 'Sign in' : 'Create account'}
+            {loading ? '...' : mode === 'signin' ? t('signIn') : t('createAccount')}
           </Button>
 
           <button
             onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}
             className="text-xs text-[hsl(var(--coral))] hover:underline"
           >
-            {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+            {mode === 'signin' ? t('noAccount') : t('hasAccount')}
           </button>
         </div>
 
@@ -107,7 +110,7 @@ export function OnboardingView({ onAuth }: { readonly onAuth: () => void }) {
                 <div key={i} className={`w-3.5 h-3.5 rounded-full ${c} border-2 border-[hsl(var(--background))]`} />
               ))}
             </div>
-            <span className="text-[9px] text-[hsl(var(--muted-foreground))]">12,847 users this month</span>
+            <span className="text-[9px] text-[hsl(var(--muted-foreground))]">{t('usersThisMonth')}</span>
           </div>
           <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{t('noFees')}</p>
         </div>

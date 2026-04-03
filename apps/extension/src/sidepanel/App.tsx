@@ -1,18 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ChatView } from './ChatView';
 import { OnboardingView } from './OnboardingView';
-import { isAuthenticated } from '../lib/auth';
+import { isAuthenticated, onAuthChange } from '../lib/auth';
 
 export function App() {
   const [authed, setAuthed] = useState<boolean | null>(null);
 
-  const checkAuth = useCallback(() => {
-    isAuthenticated().then(setAuthed);
-  }, []);
-
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    isAuthenticated().then(setAuthed);
+    const subscription = onAuthChange(setAuthed);
+    return () => { subscription.unsubscribe(); };
+  }, []);
 
   if (authed === null) {
     return (
@@ -22,5 +20,5 @@ export function App() {
     );
   }
 
-  return authed ? <ChatView onSignOut={checkAuth} /> : <OnboardingView onAuth={checkAuth} />;
+  return authed ? <ChatView onSignOut={() => setAuthed(false)} /> : <OnboardingView onAuth={() => setAuthed(true)} />;
 }

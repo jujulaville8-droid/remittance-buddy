@@ -33,12 +33,16 @@ export async function POST(req: Request) {
     return Response.json({ error: 'KYC already approved' }, { status: 409 })
   }
 
+  const fullName = (user.fullName ?? '').trim()
+  const [nameFirst, ...lastParts] = fullName.length > 0 ? fullName.split(/\s+/) : []
+  const nameLast = lastParts.join(' ') || undefined
+
   const inquiry = await createInquiry({
     templateId,
     referenceId: userId,
     fields: {
-      nameFirst: user.fullName.split(' ')[0],
-      nameLast: user.fullName.split(' ').slice(1).join(' ') || undefined,
+      nameFirst,
+      nameLast,
       emailAddress: user.email,
     },
   })

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { db, transfers, users } from '@remit/db'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { createQuote, createRecipient, createTransfer } from '@/lib/wise'
 import { transferRateLimiter } from '@/lib/rate-limit'
@@ -80,7 +80,10 @@ export async function POST(req: Request) {
 
   // Idempotency check — return existing transfer if key already used
   const existing = await db.query.transfers.findFirst({
-    where: eq(transfers.idempotencyKey, input.idempotencyKey),
+    where: and(
+      eq(transfers.idempotencyKey, input.idempotencyKey),
+      eq(transfers.senderId, userId),
+    ),
   })
   if (existing) {
     return Response.json(existing)
@@ -115,25 +118,41 @@ export async function POST(req: Request) {
   const targetAmountCents = Math.round(quote.targetAmount * 100)
 
   // 4. Persist transfer record
-  const [record] = await db
-    .insert(transfers)
-    .values({
-      senderId: userId,
-      sourceCurrency: input.sourceCurrency,
-      sourceAmountCents: input.sourceAmountCents,
-      targetCurrency: input.targetCurrency,
-      targetAmountCents,
-      fxRate: String(quote.rate),
-      feeCents,
-      recipientName: input.recipientName,
-      recipientCountry: input.recipientCountry,
-      recipientBankAccount: input.recipientBankAccount,
-      status: 'processing',
-      provider: 'wise',
-      providerTransferId: String(wiseTransfer.id),
-      idempotencyKey: input.idempotencyKey,
-    })
-    .returning()
+  let record = existing
+  try {
+    const inserted = await db
+      .insert(transfers)
+      .values({
+        senderId: userId,
+        sourceCurrency: input.sourceCurrency,
+        sourceAmountCents: input.sourceAmountCents,
+        targetCurrency: input.targetCurrency,
+        targetAmountCents,
+        fxRate: String(quote.rate),
+        feeCents,
+        recipientName: input.recipientName,
+        recipientCountry: input.recipientCountry,
+        recipientBankAccount: input.recipientBankAccount,
+        status: 'processing',
+        provider: 'wise',
+        providerTransferId: String(wiseTransfer.id),
+        idempotencyKey: input.idempotencyKey,
+      })
+      .returning()
+    record = inserted[0]
+  } catch (err: unknown) {
+    const code = (err as { code?: string })?.code
+    if (code === '23505') {
+      const dupe = await db.query.transfers.findFirst({
+        where: and(
+          eq(transfers.idempotencyKey, input.idempotencyKey),
+          eq(transfers.senderId, userId),
+        ),
+      })
+      if (dupe) return Response.json(dupe)
+    }
+    throw err
+  }
 
   await logAuditEvent({
     userId,

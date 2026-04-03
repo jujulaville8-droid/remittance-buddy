@@ -211,7 +211,8 @@ export async function verifyWiseWebhookSignature(
   // https://api.transferwise.com/v1/subscriptions/signatures
   // For MVP, we use the shared secret approach as a simpler alternative
   const secret = process.env.WISE_WEBHOOK_SECRET
-  if (!secret) return true // skip verification if not configured
+  if (!secret) return false // fail closed if webhook secret is not configured
+  if (!signatureHeader) return false
 
   const encoder = new TextEncoder()
   const key = await crypto.subtle.importKey(
@@ -222,8 +223,12 @@ export async function verifyWiseWebhookSignature(
     ['verify'],
   )
 
-  const sigBytes = Uint8Array.from(atob(signatureHeader), (c) => c.charCodeAt(0))
-  return crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(rawBody))
+  try {
+    const sigBytes = Uint8Array.from(atob(signatureHeader), (c) => c.charCodeAt(0))
+    return crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(rawBody))
+  } catch {
+    return false
+  }
 }
 
 // ─── Status mapping ───────────────────────────────────────────────────────────
