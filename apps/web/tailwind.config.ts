@@ -18,6 +18,11 @@ const config: Config = {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      boxShadow: {
+        'level-1': '0 1px 2px rgba(28,25,23,0.05)',
+        'level-2': '0 4px 12px rgba(28,25,23,0.08)',
+        'level-3': '0 8px 24px rgba(28,25,23,0.12)',
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

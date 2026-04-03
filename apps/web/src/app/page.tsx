@@ -53,7 +53,7 @@ export default function HomePage() {
           </div>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
             Send money home.<br />
-            <span className="text-muted-foreground">The smart way.</span>
+            <span className="text-primary">The smart way.</span>
           </h1>
           <p className="mx-auto max-w-xl text-lg text-muted-foreground">
             AI-powered transfers to the Philippines with the best rates available. No app to download — just chat, get a quote, and send.
@@ -139,7 +139,7 @@ export default function HomePage() {
               },
             ].map(({ step, title, description }) => (
               <div key={step} className="flex gap-6">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground text-sm font-bold">
                   {step}
                 </div>
                 <div className="space-y-1 pt-1">
