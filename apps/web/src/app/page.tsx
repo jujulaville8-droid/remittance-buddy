@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import './landing.css'
+import ScrollAnimations from '@/components/landing/ScrollAnimations'
 
 export const metadata: Metadata = {
   title: 'Remittance Buddy — Send Money to the Philippines',
@@ -22,203 +24,455 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Nav */}
-      <nav className="border-b border-border/40 px-6 py-4">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="font-semibold tracking-tight">Remittance Buddy</span>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/sign-in"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/sign-up"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm font-medium transition-colors"
-            >
-              Get started
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="px-6 py-24 text-center">
-        <div className="mx-auto max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
-            Serving Filipinos abroad
-          </div>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Send money home.<br />
-            <span className="text-primary">The smart way.</span>
-          </h1>
-          <p className="mx-auto max-w-xl text-lg text-muted-foreground">
-            AI-powered transfers to the Philippines with the best rates available. No app to download — just chat, get a quote, and send.
-          </p>
-          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href="/sign-up"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-md px-8 py-3 text-sm font-medium transition-colors sm:w-auto"
-            >
-              Start sending for free
-            </Link>
-            <Link
-              href="/sign-in"
-              className="border border-border hover:bg-accent w-full rounded-md px-8 py-3 text-sm font-medium transition-colors sm:w-auto"
-            >
-              Sign in
-            </Link>
-          </div>
-          <p className="text-xs text-muted-foreground">No hidden fees. No app download. No hassle.</p>
-        </div>
-      </section>
-
-      {/* Value props */}
-      <section className="border-t border-border/40 px-6 py-20">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight">
-            Why Remittance Buddy?
-          </h2>
-          <div className="grid gap-8 sm:grid-cols-3">
-            <div className="space-y-3 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-2xl">
-                💸
-              </div>
-              <h3 className="font-semibold">Best rates guaranteed</h3>
-              <p className="text-sm text-muted-foreground">
-                We compare across providers in real time to get you the best PHP exchange rate every single time.
-              </p>
-            </div>
-            <div className="space-y-3 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-2xl">
-                🤖
-              </div>
-              <h3 className="font-semibold">AI-powered, human-friendly</h3>
-              <p className="text-sm text-muted-foreground">
-                Chat in plain English (or Filipino). Our AI guides you through every step — no confusing forms.
-              </p>
-            </div>
-            <div className="space-y-3 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-2xl">
-                📱
-              </div>
-              <h3 className="font-semibold">No app needed</h3>
-              <p className="text-sm text-muted-foreground">
-                Works right in your browser. Send from your phone, tablet, or laptop — wherever you are.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="border-t border-border/40 bg-muted/30 px-6 py-20">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight">
-            How it works
-          </h2>
-          <div className="space-y-8">
-            {[
-              {
-                step: '1',
-                title: 'Chat with our AI',
-                description: 'Tell us how much you want to send and where. Our AI handles the rest — no jargon, no paperwork.',
-              },
-              {
-                step: '2',
-                title: 'Get an instant quote',
-                description: "See the exact rate and total fee upfront. No surprises. Accept only when you're happy.",
-              },
-              {
-                step: '3',
-                title: 'Your family receives the money',
-                description: 'We send directly to Philippine banks. Fast, tracked, and fully insured.',
-              },
-            ].map(({ step, title, description }) => (
-              <div key={step} className="flex gap-6">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground text-sm font-bold">
-                  {step}
+    <ScrollAnimations>
+      <div className="page-wrapper">
+        {/* ─── NAV ─── */}
+        <nav className="nav">
+          <div className="page-padding cc-nav">
+            <div className="container cc-nav">
+              <div className="nav-inner">
+                <div className="nav-left-wrapper">
+                  <Link href="/" className="nav-logo" aria-label="Remittance Buddy Home">
+                    <span
+                      style={{
+                        fontSize: '18px',
+                        fontWeight: 700,
+                        letterSpacing: '-0.02em',
+                        fontFamily: 'var(--font-heading), serif',
+                      }}
+                    >
+                      Remittance Buddy
+                    </span>
+                  </Link>
+                  <div
+                    className="nav-textlink-innerwrapper"
+                    style={{ gap: '24px', display: 'flex', alignItems: 'center' }}
+                  >
+                    <a href="#features" className="nav-textlink">
+                      Features
+                    </a>
+                    <a href="#how-it-works" className="nav-textlink">
+                      How it works
+                    </a>
+                  </div>
                 </div>
-                <div className="space-y-1 pt-1">
-                  <h3 className="font-semibold">{title}</h3>
-                  <p className="text-sm text-muted-foreground">{description}</p>
+                <div className="nav-right">
+                  <Link href="/sign-in" className="nav-textlink margin">
+                    Sign in
+                  </Link>
+                  <Link href="/sign-up" className="cta cc-nav">
+                    Get started
+                  </Link>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-          <div className="mt-12 text-center">
-            <Link
-              href="/sign-up"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex rounded-md px-8 py-3 text-sm font-medium transition-colors"
-            >
-              Send your first transfer
-            </Link>
-          </div>
-        </div>
-      </section>
+        </nav>
 
-      {/* Trust signals */}
-      <section className="border-t border-border/40 px-6 py-20">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight">
-            Safe, secure, and regulated
-          </h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: '🔒', label: 'Bank-grade encryption', desc: '256-bit SSL on every transfer' },
-              { icon: '🏦', label: 'Regulated & licensed', desc: 'Fully compliant money service business' },
-              { icon: '✅', label: 'KYC verified', desc: 'Identity-verified accounts only' },
-              { icon: '🛡️', label: 'Transfer insurance', desc: 'Every transfer is tracked and insured' },
-            ].map(({ icon, label, desc }) => (
-              <div key={label} className="rounded-lg border border-border bg-card p-5 space-y-2">
-                <div className="text-2xl">{icon}</div>
-                <p className="text-sm font-semibold">{label}</p>
-                <p className="text-xs text-muted-foreground">{desc}</p>
+        {/* ─── MAIN ─── */}
+        <main className="main">
+          {/* ─── HERO SCROLL SECTION ─── */}
+          <div className="hero-scroll-wrap">
+            <div className="video-trigger" />
+            <div className="hero-scroll-triger" />
+            <div className="hands-trigger" />
+
+            <header className="home-hero">
+              <div className="container">
+                <div className="page-padding">
+                  <div className="home-hero-inner">
+                    <div className="home-hero-heading-wrap">
+                      <h1 className="home-hero-heading">
+                        <span className="heading-line-1">Send money home.</span>{' '}
+                        <span className="heading-line-2" style={{ color: 'var(--red)' }}>
+                          The smart way.
+                        </span>
+                      </h1>
+                      <p
+                        style={{
+                          marginTop: '1.5rem',
+                          fontSize: '1.25rem',
+                          lineHeight: 1.5,
+                          color: 'var(--text-secondary)',
+                          maxWidth: '32rem',
+                        }}
+                      >
+                        AI-powered transfers to the Philippines with the best rates. Compare Wise,
+                        Remitly, Western Union &amp; more in one click.
+                      </p>
+                    </div>
+                    <div className="home-hero-countries-wrap">
+                      <div className="hero-countries-inner">
+                        <div className="countries-title-wrap">
+                          <div>Trusted by Filipinos&nbsp;</div>
+                          <div className="countries-title-switcher">
+                            <div className="countries-title-switch cc-in">worldwide</div>
+                            <div className="countries-title-switch cc-from">
+                              in US, Canada, UK &amp; more
+                            </div>
+                          </div>
+                        </div>
+                        <div className="countries-banner-wrap">
+                          <div
+                            className="countries-banner"
+                            style={{
+                              display: 'inline-block',
+                              fontSize: '2rem',
+                              letterSpacing: '0.5rem',
+                            }}
+                          >
+                            🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭 🇵🇭
+                          </div>
+                          <div className="countries-overlay" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </header>
 
-      {/* CTA banner */}
-      <section className="border-t border-border/40 bg-primary px-6 py-16 text-center">
-        <div className="mx-auto max-w-2xl space-y-4">
-          <h2 className="text-2xl font-bold text-primary-foreground">
-            Ready to send money home?
-          </h2>
-          <p className="text-primary-foreground/70 text-sm">
-            Join thousands of Filipinos abroad who trust Remittance Buddy for fast, affordable transfers.
-          </p>
-          <Link
-            href="/sign-up"
-            className="bg-background text-foreground hover:bg-background/90 inline-flex rounded-md px-8 py-3 text-sm font-medium transition-colors"
-          >
-            Create a free account
-          </Link>
-        </div>
-      </section>
+            {/* ─── FEATURES ─── */}
+            <div id="features" className="features-scroll-wrap visible">
+              <div className="features-section">
+                <div className="container">
+                  <div className="page-padding">
+                    <div className="features-wrap">
+                      <div className="features-list">
+                        {/* Feature 1 */}
+                        <div className="features-item-wrap">
+                          <div className="features-item">
+                            <div className="feature-title-wrap">
+                              <h2 className="feature-title">Compare rates instantly</h2>
+                            </div>
+                            <div className="feature-learn-more">Learn more</div>
+                            <div className="feature-scroll-link" />
+                          </div>
+                        </div>
+                        {/* Feature 2 */}
+                        <div className="features-item-wrap">
+                          <div className="features-item">
+                            <div className="feature-title-wrap">
+                              <h2 className="feature-title">AI chat assistant</h2>
+                            </div>
+                            <div className="feature-learn-more">Learn more</div>
+                            <div className="feature-scroll-link" />
+                          </div>
+                        </div>
+                        {/* Feature 3 */}
+                        <div className="features-item-wrap">
+                          <div className="features-item">
+                            <div className="feature-title-wrap">
+                              <h2 className="feature-title">GCash &amp; cash pickup</h2>
+                            </div>
+                            <div className="feature-learn-more">Learn more</div>
+                            <div className="feature-scroll-link" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-      {/* Footer */}
-      <footer className="border-t border-border/40 px-6 py-10">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
-            <span className="text-sm font-semibold">Remittance Buddy</span>
-            <nav className="flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
-              <Link href="/sign-up" className="hover:text-foreground transition-colors">Get started</Link>
-              <Link href="/sign-in" className="hover:text-foreground transition-colors">Sign in</Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
-              <a href="mailto:support@remittancebuddy.com" className="hover:text-foreground transition-colors">Support</a>
-            </nav>
+            {/* ─── STICKY HAND / PHONE MOCKUP ─── */}
+            <div className="sticky-hand-wrap">
+              <div className="mockup-wrap">
+                <div className="mockup-anim-initial">
+                  <div className="mockup-anim-target">
+                    <div className="mockup-anim-scroll">
+                      <div className="screen-wrap">
+                        <div className="screen-initial">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/landing/images/66e46fca14ca4f992f4aa028_login-profile.jpg"
+                            width={750}
+                            height={660}
+                            alt="User profile icon"
+                            className="login-profile"
+                          />
+                          <div className="login-title">Maria Santos</div>
+                          <div className="login-btn">Compare Rates</div>
+                        </div>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/landing/images/6908ec939cf0db6a6b3324ad_AccountMain.jpg"
+                          width={1125}
+                          height={2436}
+                          alt="App screen showing rate comparison results"
+                          className="screen-home"
+                        />
+                        <div className="screen-features">
+                          {/* Screen 1: Compare rates */}
+                          <div className="screen-features-item" style={{ display: 'none' }}>
+                            <video
+                              width="100%"
+                              height="100%"
+                              autoPlay
+                              muted
+                              playsInline
+                              loop
+                            >
+                              <source
+                                src="/landing/videos/receive-usd.mp4"
+                                type="video/mp4"
+                              />
+                            </video>
+                          </div>
+                          {/* Screen 2: AI chat */}
+                          <div className="screen-features-item" style={{ display: 'none' }}>
+                            <video
+                              width="100%"
+                              height="100%"
+                              autoPlay
+                              muted
+                              playsInline
+                              loop
+                            >
+                              <source
+                                src="/landing/videos/send-money-home.mp4"
+                                type="video/mp4"
+                              />
+                            </video>
+                          </div>
+                          {/* Screen 3: GCash */}
+                          <div className="screen-features-item" style={{ display: 'none' }}>
+                            <video
+                              width="100%"
+                              height="100%"
+                              autoPlay
+                              muted
+                              playsInline
+                              loop
+                            >
+                              <source src="/landing/videos/Invest.mp4" type="video/mp4" />
+                            </video>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="hands-wrap">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/landing/images/66dec5457616b5f6b52ea7a0_nsave-hand-1.webp"
+                          fetchPriority="high"
+                          alt="Hand holding phone"
+                          className="hand cc-initial"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Remittance Buddy. All rights reserved. Money transfers are subject to regulatory requirements.
-          </p>
-        </div>
-      </footer>
-    </div>
+
+          {/* ─── PRICING SCROLL SECTION ─── */}
+          <div id="how-it-works" className="pricing-scroll-wrap">
+            <div className="pricing-scroll-sticky">
+              <div className="container">
+                <div className="page-padding">
+                  <div className="pricing-scroll-inner">
+                    <div className="pricing-zoom-wrap">
+                      <div className="pricing-zoom-target">
+                        <div className="pricing-scroll-number">
+                          <span className="pricing-header-currency">$</span>15.00
+                        </div>
+                        <div className="pricing-scroll-label">Average savings per transfer</div>
+                      </div>
+                    </div>
+                    <div className="pricing-header">
+                      <h2 className="home-section-heading">
+                        <span className="pricing-header-line-1">Stop overpaying. </span>
+                        <span className="pricing-header-line-2">Start comparing.</span>
+                      </h2>
+                      <Link href="/sign-up" className="cta">
+                        Compare rates now
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ─── CARDS SLIDER ─── */}
+          <div className="home-section-cards">
+            <div className="slider-cards w-slider">
+              <div className="w-slider-mask">
+                {/* Card 1: Get Started */}
+                <div className="cards-slide w-slide">
+                  <Link href="/sign-up" className="card-link">
+                    <div className="cards-inner-wrapper">
+                      <div className="cards-caption">Get started</div>
+                      <h3 className="cards-title">
+                        Compare rates in 30 seconds — no signup needed
+                      </h3>
+                    </div>
+                  </Link>
+                </div>
+                {/* Card 2: Mission */}
+                <div className="cards-slide w-slide">
+                  <Link href="#" id="card-globe" className="card-link _2">
+                    <div className="cards-inner-wrapper">
+                      <div className="cards-caption">Our mission</div>
+                      <h3 className="cards-title shorter">
+                        Help immigrants keep more of their money
+                      </h3>
+                    </div>
+                  </Link>
+                </div>
+                {/* Card 3: Extension */}
+                <div className="cards-slide w-slide">
+                  <Link href="#" className="card-link _3">
+                    <div className="cards-inner-wrapper">
+                      <div className="cards-caption">Chrome extension</div>
+                      <h3 className="cards-title">
+                        Install our Chrome extension for instant comparisons
+                      </h3>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+              {/* Arrows (visible on tablet) */}
+              <div
+                className="w-slider-arrow-left"
+                role="button"
+                tabIndex={0}
+                aria-label="previous slide"
+              >
+                <span style={{ color: 'white', fontSize: '20px', fontWeight: 600 }}>
+                  &#8249;
+                </span>
+              </div>
+              <div
+                className="w-slider-arrow-right"
+                role="button"
+                tabIndex={0}
+                aria-label="next slide"
+              >
+                <span style={{ color: 'white', fontSize: '20px', fontWeight: 600 }}>
+                  &#8250;
+                </span>
+              </div>
+              {/* Dots */}
+              <div className="w-slider-nav w-round">
+                <div
+                  className="w-slider-dot"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Show slide 1 of 3"
+                >
+                  1
+                </div>
+                <div
+                  className="w-slider-dot"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Show slide 2 of 3"
+                >
+                  2
+                </div>
+                <div
+                  className="w-slider-dot"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Show slide 3 of 3"
+                >
+                  3
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ─── CARD SECTION (sticky with hand) ─── */}
+          <div className="footer-sticky-wrap">
+            <div className="footer-sticky-spacing" />
+            <div className="footer-sticky-inner">
+              <div className="card-scroll-wrap">
+                <div className="card-scroll-trigger" />
+                <div className="card-sticky-wrap">
+                  <div className="container">
+                    <div className="page-padding">
+                      <div className="card-sticky-inner">
+                        <div className="card-hand-wrap">
+                          <div className="card-header">
+                            <h2 className="home-section-heading cc-card">
+                              Compare rates. Send smarter.
+                            </h2>
+                            <a href="#" className="cta">
+                              Install Chrome Extension
+                            </a>
+                          </div>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/landing/images/66ec3cc89e0cb29c05701494_hand-holding-card.webp"
+                            width={1869}
+                            height={2217}
+                            alt="Hand holding phone with rate comparison"
+                            className="card-hand-img"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ─── FOOTER TOP ─── */}
+              <div className="footer-top">
+                <div className="page-padding">
+                  <div className="footer-top-inner">
+                    <div className="footer-menu">
+                      <div className="footer-menu-cell">
+                        <h3 className="footer-menu-title">Product</h3>
+                        <Link href="/sign-up" className="footer-link">
+                          Compare Rates
+                        </Link>
+                        <a href="#" className="footer-link">
+                          Chrome Extension
+                        </a>
+                      </div>
+                      <div className="footer-menu-cell">
+                        <h3 className="footer-menu-title">Company</h3>
+                        <Link href="/privacy" className="footer-link">
+                          Privacy Policy
+                        </Link>
+                        <Link href="/terms" className="footer-link">
+                          Terms of Service
+                        </Link>
+                        <a
+                          href="mailto:support@remittancebuddy.com"
+                          className="footer-link"
+                        >
+                          Support
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* ─── FOOTER BOTTOM ─── */}
+        <footer className="footer">
+          <div className="footer-bottom">
+            <div className="page-padding">
+              <div className="footer-bottom-top">
+                <div>
+                  <em>&copy; 2026 Remittance Buddy. All rights reserved.</em>
+                </div>
+              </div>
+              <div className="disclaimer-text">
+                Remittance Buddy is a comparison service. We do not hold or transfer funds. All
+                transfers are processed by the providers listed.
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </ScrollAnimations>
   )
 }
