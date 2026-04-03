@@ -23,10 +23,11 @@ const securityHeaders = [
       // Clerk, Stripe, Stripe.js, Wise, Persona hosted assets
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.remittancebuddy.app https://js.stripe.com https://withpersona.com",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://img.clerk.com",
-      "font-src 'self'",
+      "img-src 'self' data: blob: https://img.clerk.com https://cdn.prod.website-files.com",
+      "font-src 'self' data: https://cdn.prod.website-files.com",
       "connect-src 'self' https://*.clerk.accounts.dev https://api.stripe.com https://api.wise.com https://withpersona.com https://sdk.vercel.ai",
       "frame-src https://js.stripe.com https://hooks.stripe.com https://withpersona.com",
+      "media-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
