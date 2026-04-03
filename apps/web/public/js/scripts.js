@@ -1,7 +1,7 @@
 // nsave.com — Scroll-driven IX2 animations (v3)
 // Calibrated from frame-by-frame scroll capture at 1920x1080
 
-document.addEventListener('DOMContentLoaded', () => {
+function initNsave() {
 
   // ─── 1. LOAD SEQUENCE ───
   document.body.classList.add('loaded');
@@ -412,4 +412,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const sliderDots = document.querySelectorAll('.w-slider-dot');
   if (sliderDots.length) sliderDots[0]?.classList.add('w-active');
 
-});
+}
+
+// Run immediately if DOM already loaded (Next.js), otherwise wait
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNsave);
+} else {
+  initNsave();
+}

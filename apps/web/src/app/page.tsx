@@ -29,7 +29,7 @@ export default function HomePage() {
       <link rel="stylesheet" href="/css/styles.css" />
       <link rel="stylesheet" href="/css/nsave.shared.b159b4734.min.css" />
       <div className="loaded" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
-      <Script src="/js/scripts.js" strategy="afterInteractive" />
+      <Script src="/js/scripts.js" strategy="lazyOnload" />
     </>
   )
 }
