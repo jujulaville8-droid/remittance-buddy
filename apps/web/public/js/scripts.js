@@ -8,6 +8,7 @@ function initNsave() {
 
   // ─── 2. DOM REFS ───
   const heroHeading = document.querySelector('.home-hero-heading-wrap');
+  const heroCountries = document.querySelector('.home-hero-countries-wrap');
   const mockupAnimScroll = document.querySelector('.mockup-anim-scroll');
   const mockupAnimTarget = document.querySelector('.mockup-anim-target');
   const featuresWrap = document.querySelector('.features-wrap');
@@ -47,19 +48,27 @@ function initNsave() {
     });
   }
 
-  // ── Hero heading: fade out 0→540 ──
+  // ── Hero heading: fade out 0→540, countries: fade out 0→300 (earlier) ──
   function updateHeroHeading(y) {
     if (!heroHeading) return;
     if (y <= 0) {
       heroHeading.style.opacity = '1';
       heroHeading.style.transform = 'translateY(0px)';
+      if (heroCountries) { heroCountries.style.opacity = '1'; heroCountries.style.transform = 'translateY(0px)'; }
     } else if (y >= 540) {
       heroHeading.style.opacity = '0';
       heroHeading.style.transform = 'translateY(-162px)';
+      if (heroCountries) { heroCountries.style.opacity = '0'; heroCountries.style.transform = 'translateY(-80px)'; }
     } else {
       const t = y / 540;
       heroHeading.style.opacity = String(1 - t);
       heroHeading.style.transform = `translateY(${-162 * t}px)`;
+      if (heroCountries) {
+        // Countries fade out faster — gone by scroll 300
+        const ct = Math.min(1, y / 300);
+        heroCountries.style.opacity = String(1 - ct);
+        heroCountries.style.transform = `translateY(${-80 * ct}px)`;
+      }
     }
   }
 
