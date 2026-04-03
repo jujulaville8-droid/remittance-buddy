@@ -26,10 +26,10 @@ export default function HomePage() {
 
   return (
     <>
-      <link rel="stylesheet" href="/css/styles.css" />
-      <link rel="stylesheet" href="/css/nsave.shared.b159b4734.min.css" />
+      <link rel="stylesheet" href="/css/styles.css?v=3" />
+      <link rel="stylesheet" href="/css/nsave.shared.b159b4734.min.css?v=3" />
       <div className="loaded" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
-      <Script src="/js/scripts.js" strategy="lazyOnload" />
+      <Script src="/js/scripts.js?v=3" strategy="lazyOnload" />
     </>
   )
 }
