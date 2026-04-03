@@ -414,7 +414,6 @@ function initNsave() {
 
 }
 
-// Run immediately if DOM already loaded (Next.js), otherwise wait
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initNsave);
 } else {
