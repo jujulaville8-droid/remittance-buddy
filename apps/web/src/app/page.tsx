@@ -1,35 +1,51 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { Nav } from '@/components/landing/Nav'
+import { Hero } from '@/components/landing/Hero'
+import { ProviderStrip } from '@/components/landing/ProviderStrip'
+import { Stats } from '@/components/landing/Stats'
+import { HowItWorks } from '@/components/landing/HowItWorks'
+import { Features } from '@/components/landing/Features'
+import { Corridor } from '@/components/landing/Corridor'
+import { Testimonials } from '@/components/landing/Testimonials'
+import { FAQ } from '@/components/landing/FAQ'
+import { FinalCTA } from '@/components/landing/FinalCTA'
+import { Footer } from '@/components/landing/Footer'
+import { Reveal } from '@/components/landing/Reveal'
 
 export const metadata: Metadata = {
   title: 'Remittance Buddy — Send Money to the Philippines',
   description:
-    'AI-powered international money transfers. Send money to the Philippines with the best rates, no app download needed. Fast, transparent, and secure.',
-}
-
-function getBodyHtml(): string {
-  try {
-    const htmlPath = join(process.cwd(), 'public', 'index-source.html')
-    const html = readFileSync(htmlPath, 'utf-8')
-    const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/)
-    if (!bodyMatch) return '<p>Failed to load page content</p>'
-    return bodyMatch[1].replace(/<script[^>]*>[\s\S]*?<\/script>/g, '')
-  } catch {
-    return '<p>Failed to load page content</p>'
-  }
+    'A decision engine for international money transfers. We rank every provider for your corridor and amount, show the math, and tell you which one actually wins.',
 }
 
 export default function HomePage() {
-  const bodyHtml = getBodyHtml()
-
   return (
-    <>
-      <link rel="stylesheet" href="/css/styles.css?v=3" />
-      <link rel="stylesheet" href="/css/nsave.shared.b159b4734.min.css?v=3" />
-      <div className="loaded" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
-      <Script src="/js/scripts.js?v=3" strategy="lazyOnload" />
-    </>
+    <main className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
+      <Nav />
+      <Hero />
+      <ProviderStrip />
+      <Reveal>
+        <Stats />
+      </Reveal>
+      <Reveal>
+        <HowItWorks />
+      </Reveal>
+      <Reveal>
+        <Features />
+      </Reveal>
+      <Reveal>
+        <Corridor />
+      </Reveal>
+      <Reveal>
+        <Testimonials />
+      </Reveal>
+      <Reveal>
+        <FAQ />
+      </Reveal>
+      <Reveal>
+        <FinalCTA />
+      </Reveal>
+      <Footer />
+    </main>
   )
 }

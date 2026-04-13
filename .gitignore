@@ -36,3 +36,22 @@ pnpm-debug.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# AIDesigner generations (kept locally, not shipped)
+.aidesigner/*
+!.aidesigner/.gitkeep
+
+# Agent / tool config (local only)
+.agents/
+.claude/
+.mcp.json
+.playwright-mcp/
+
+# Local screenshots from dev / Playwright sessions
+*.png
+!apps/**/public/**/*.png
+!apps/**/icons/**/*.png
+!apps/**/assets/**/*.png
+
+# AIDesigner HTML variants previewed locally
+apps/web/public/variants/

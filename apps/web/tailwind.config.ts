@@ -8,9 +8,21 @@ const config: Config = {
     './src/app/**/*.{ts,tsx}',
   ],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1.25rem',
+        sm: '1.5rem',
+        lg: '2rem',
+      },
+      screens: {
+        '2xl': '1200px',
+      },
+    },
     extend: {
       fontFamily: {
-        sans: ['var(--font-geist-sans)'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-heading)', 'Georgia', 'serif'],
         mono: ['var(--font-geist-mono)'],
       },
       borderRadius: {
@@ -22,6 +34,8 @@ const config: Config = {
         'level-1': '0 1px 2px rgba(28,25,23,0.05)',
         'level-2': '0 4px 12px rgba(28,25,23,0.08)',
         'level-3': '0 8px 24px rgba(28,25,23,0.12)',
+        'level-4': '0 24px 48px -12px rgba(28,25,23,0.18)',
+        'glow-coral': '0 16px 40px -12px hsla(14,65%,55%,0.45)',
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -57,6 +71,18 @@ const config: Config = {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+        coral: {
+          DEFAULT: 'hsl(var(--coral))',
+          light: 'hsl(var(--coral-light))',
+        },
+        teal: {
+          DEFAULT: 'hsl(var(--teal))',
+          light: 'hsl(var(--teal-light))',
+        },
+        gold: {
+          DEFAULT: 'hsl(var(--gold))',
+          light: 'hsl(var(--gold-light))',
+        },
       },
     },
   },

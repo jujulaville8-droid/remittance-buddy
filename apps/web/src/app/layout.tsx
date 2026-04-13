@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Plus_Jakarta_Sans, DM_Serif_Display } from 'next/font/google'
@@ -25,6 +25,16 @@ export const metadata: Metadata = {
     template: '%s | Remittance Buddy',
   },
   description: 'AI-powered international money transfers',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#faf8f4' },
+    { media: '(prefers-color-scheme: dark)', color: '#120f0e' },
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
