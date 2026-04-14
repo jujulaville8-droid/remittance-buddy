@@ -6,14 +6,26 @@ const COLUMNS = [
     links: [
       { href: '#compare', label: 'Compare rates' },
       { href: '#how', label: 'How it works' },
-      { href: '#corridor', label: 'Philippines corridor' },
+      { href: '/alerts', label: 'Rate alerts' },
+      { href: '/family', label: 'Family hub' },
       { href: '#', label: 'Chrome extension' },
+    ],
+  },
+  {
+    title: 'Corridors',
+    links: [
+      { href: '#corridor', label: 'US → Philippines' },
+      { href: '#', label: 'UK → Philippines' },
+      { href: '#', label: 'Singapore → Philippines' },
+      { href: '#', label: 'UAE → Philippines' },
+      { href: '#', label: 'Request a corridor' },
     ],
   },
   {
     title: 'Company',
     links: [
       { href: '#', label: 'About' },
+      { href: '/pricing', label: 'Pricing' },
       { href: '#', label: 'Blog' },
       { href: '#', label: 'Press kit' },
       { href: '#', label: 'Contact' },
@@ -32,33 +44,35 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-border bg-background">
-      <div className="container py-16 lg:py-20">
-        <div className="grid lg:grid-cols-[1.5fr_2fr] gap-12">
+    <footer className="relative border-t border-border bg-card">
+      <div className="container py-20 lg:py-24">
+        <div className="grid gap-16 lg:grid-cols-[1.4fr_2.6fr]">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-coral to-[hsl(14,75%,62%)] grid place-items-center shadow-glow-coral">
-                <span className="font-display text-background text-lg leading-none">R</span>
+            <Link href="/" className="inline-flex items-center gap-2.5">
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-foreground">
+                <span className="font-display text-background text-base leading-none">R</span>
               </div>
-              <span className="font-display text-lg leading-none tracking-tight text-foreground">
+              <span className="font-display text-xl leading-none tracking-tight text-foreground">
                 Remittance Buddy
               </span>
             </Link>
-            <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
-              A decision engine for international money transfers. Transparent math. No jargon. We tell you which option actually wins.
+            <p className="mt-6 text-sm text-muted-foreground max-w-sm leading-relaxed">
+              Building financial transparency for the global diaspora. Every cent counts when it
+              is going home.
             </p>
-            <p className="mt-6 text-xs text-muted-foreground">
-              Remittance Buddy is a comparison tool, not a money transmitter. We earn affiliate fees from partners when you send through them. This never affects our rankings.
+            <p className="mt-8 text-xs text-muted-foreground/80 max-w-sm leading-relaxed">
+              Remittance Buddy is a comparison tool, not a money transmitter. We earn affiliate
+              fees from partners when you send through them. This never affects our rankings.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-12">
             {COLUMNS.map((col) => (
               <div key={col.title}>
-                <div className="text-xs font-bold uppercase tracking-wider text-foreground mb-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground mb-5">
                   {col.title}
                 </div>
-                <ul className="space-y-2.5">
+                <ul className="space-y-3">
                   {col.links.map((l) => (
                     <li key={l.label}>
                       <Link
@@ -75,14 +89,12 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Remittance Buddy. All rights reserved.
-          </div>
-          <div className="text-xs text-muted-foreground flex items-center gap-4">
-            <span>🇺🇸 → 🇵🇭 Made for senders</span>
+        <div className="mt-20 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-muted-foreground">
+          <div>© {new Date().getFullYear()} Remittance Buddy Technologies Inc.</div>
+          <div className="flex items-center gap-6">
+            <span>Made for the diaspora</span>
             <span className="h-1 w-1 rounded-full bg-border" />
-            <span>Rates by partner APIs</span>
+            <span>USD · PHP · GBP · AED · SGD</span>
           </div>
         </div>
       </div>

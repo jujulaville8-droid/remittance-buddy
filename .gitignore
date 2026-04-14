@@ -55,3 +55,7 @@ next-env.d.ts
 
 # AIDesigner HTML variants previewed locally
 apps/web/public/variants/
+
+# Business plan build artifacts (keep sources, skip node_modules + generated PDF)
+docs/business-plan/node_modules/
+docs/business-plan/*.pdf

@@ -4,62 +4,62 @@
 
 @layer base {
   :root {
-    /* Warm Authority palette — matches Chrome extension */
-    --background: 34 33% 97%;          /* warm sand */
-    --foreground: 20 10% 10%;          /* warm charcoal */
-    --card: 30 100% 99%;               /* warm white */
-    --card-foreground: 20 10% 10%;
-    --popover: 30 100% 99%;
-    --popover-foreground: 20 10% 10%;
-    --primary: 14 65% 55%;             /* coral/terracotta */
+    /* Blue Authority palette */
+    --background: 210 40% 98%;         /* cool white */
+    --foreground: 220 30% 12%;         /* deep navy text */
+    --card: 0 0% 100%;                 /* pure white */
+    --card-foreground: 220 30% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 12%;
+    --primary: 218 85% 55%;            /* vivid blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 30 15% 92%;           /* muted warm surface */
-    --secondary-foreground: 20 10% 10%;
-    --muted: 30 15% 92%;
-    --muted-foreground: 30 8% 42%;     /* warm gray text */
-    --accent: 174 84% 32%;             /* teal */
+    --secondary: 215 25% 93%;          /* muted cool surface */
+    --secondary-foreground: 220 30% 12%;
+    --muted: 215 25% 93%;
+    --muted-foreground: 215 15% 42%;   /* cool gray text */
+    --accent: 195 85% 42%;             /* cyan accent */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 18% 89%;              /* warm border */
-    --input: 30 18% 89%;
-    --ring: 14 65% 55%;                /* coral ring */
+    --border: 215 25% 89%;             /* cool border */
+    --input: 215 25% 89%;
+    --ring: 218 85% 55%;               /* blue ring */
     --radius: 0.75rem;
 
-    /* Aliases used by landing components (match extension tokens) */
-    --coral: 14 65% 55%;
-    --coral-light: 14 80% 96%;
-    --teal: 174 84% 32%;
-    --teal-light: 174 50% 95%;
+    /* Aliases kept under old names so existing class names stay blue */
+    --coral: 218 85% 55%;              /* now blue */
+    --coral-light: 218 100% 96%;
+    --teal: 195 85% 42%;               /* kept as cyan accent */
+    --teal-light: 195 60% 95%;
     --gold: 38 92% 50%;
     --gold-light: 38 92% 95%;
   }
 
   .dark {
-    --background: 20 10% 6%;
-    --foreground: 30 20% 94%;
-    --card: 20 10% 8%;
-    --card-foreground: 30 20% 94%;
-    --popover: 20 10% 8%;
-    --popover-foreground: 30 20% 94%;
-    --primary: 14 65% 58%;
+    --background: 220 30% 6%;
+    --foreground: 210 30% 94%;
+    --card: 220 30% 9%;
+    --card-foreground: 210 30% 94%;
+    --popover: 220 30% 9%;
+    --popover-foreground: 210 30% 94%;
+    --primary: 218 85% 62%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 20 10% 14%;
-    --secondary-foreground: 30 20% 94%;
-    --muted: 20 10% 14%;
-    --muted-foreground: 30 8% 60%;
-    --accent: 174 84% 38%;
+    --secondary: 220 25% 15%;
+    --secondary-foreground: 210 30% 94%;
+    --muted: 220 25% 15%;
+    --muted-foreground: 215 15% 62%;
+    --accent: 195 85% 48%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 20 10% 16%;
-    --input: 20 10% 16%;
-    --ring: 14 65% 58%;
+    --border: 220 25% 17%;
+    --input: 220 25% 17%;
+    --ring: 218 85% 62%;
 
-    --coral: 14 65% 58%;
-    --coral-light: 14 40% 18%;
-    --teal: 174 84% 38%;
-    --teal-light: 174 40% 18%;
+    --coral: 218 85% 62%;
+    --coral-light: 218 40% 18%;
+    --teal: 195 85% 48%;
+    --teal-light: 195 40% 18%;
     --gold: 38 92% 55%;
     --gold-light: 38 40% 18%;
   }
@@ -104,7 +104,7 @@
     animation: fade-in 0.8s ease-out both;
   }
   .animate-marquee {
-    animation: marquee 40s linear infinite;
+    animation: marquee 60s linear infinite;
   }
 }
 

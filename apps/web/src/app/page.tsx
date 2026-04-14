@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
 import { Nav } from '@/components/landing/Nav'
 import { Hero } from '@/components/landing/Hero'
+import { SocialProof } from '@/components/landing/SocialProof'
 import { ProviderStrip } from '@/components/landing/ProviderStrip'
-import { Stats } from '@/components/landing/Stats'
-import { HowItWorks } from '@/components/landing/HowItWorks'
 import { Features } from '@/components/landing/Features'
-import { Corridor } from '@/components/landing/Corridor'
-import { Testimonials } from '@/components/landing/Testimonials'
+import { HowItWorks } from '@/components/landing/HowItWorks'
+import { Stats } from '@/components/landing/Stats'
 import { FAQ } from '@/components/landing/FAQ'
 import { FinalCTA } from '@/components/landing/FinalCTA'
 import { Footer } from '@/components/landing/Footer'
@@ -23,21 +22,20 @@ export default function HomePage() {
     <main className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
       <Nav />
       <Hero />
-      <ProviderStrip />
       <Reveal>
-        <Stats />
+        <SocialProof />
       </Reveal>
       <Reveal>
-        <HowItWorks />
+        <ProviderStrip />
       </Reveal>
       <Reveal>
         <Features />
       </Reveal>
       <Reveal>
-        <Corridor />
+        <HowItWorks />
       </Reveal>
       <Reveal>
-        <Testimonials />
+        <Stats />
       </Reveal>
       <Reveal>
         <FAQ />

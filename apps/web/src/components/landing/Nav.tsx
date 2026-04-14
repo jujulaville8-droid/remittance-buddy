@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
   { href: '#how', label: 'How it works' },
-  { href: '#why', label: 'Why us' },
-  { href: '#corridor', label: 'Philippines' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/alerts', label: 'Alerts' },
   { href: '#faq', label: 'FAQ' },
 ] as const
 
@@ -48,43 +48,47 @@ export function Nav() {
         className={cn(
           'fixed inset-x-0 top-0 z-50 transition-all duration-300',
           scrolled || menuOpen
-            ? 'backdrop-blur-md bg-background/80 border-b border-border/60'
+            ? 'backdrop-blur-md bg-background/85 border-b border-border/60'
             : 'bg-transparent',
         )}
       >
-        <div className="container flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group" onClick={() => setMenuOpen(false)}>
+        <div className="container flex h-20 items-center justify-between">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 group"
+            onClick={() => setMenuOpen(false)}
+          >
             <Logo />
-            <span className="font-display text-lg leading-none tracking-tight">
+            <span className="font-display text-xl leading-none tracking-tight text-foreground">
               Remittance Buddy
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-10">
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md"
+                className="relative text-sm font-medium text-foreground/75 hover:text-foreground transition-colors after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:origin-right after:scale-x-0 after:bg-foreground after:transition-transform after:duration-300 hover:after:origin-left hover:after:scale-x-100"
               >
                 {l.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-5">
             <Link
               href="/sign-in"
-              className="hidden sm:inline-flex h-9 items-center px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="hidden sm:inline-flex text-sm font-medium text-foreground/80 hover:text-coral transition-colors"
             >
               Sign in
             </Link>
             <Link
-              href="#compare"
-              className="hidden sm:inline-flex h-9 items-center rounded-full bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/90 transition-all active:scale-95"
+              href="/send/recipient"
+              className="hidden sm:inline-flex items-center rounded-full bg-coral px-6 py-3 text-sm font-semibold text-white shadow-glow-coral hover:shadow-none hover:-translate-y-0.5 transition-all active:scale-95"
               onClick={() => setMenuOpen(false)}
             >
-              Compare rates
+              Start a transfer
             </Link>
             <button
               type="button"
@@ -167,9 +171,8 @@ function MobileMenu({ open, onClose }: MobileMenuProps) {
 
 function Logo() {
   return (
-    <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-coral to-[hsl(14,75%,62%)] shadow-glow-coral grid place-items-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent" />
-      <span className="relative font-display text-background text-lg leading-none">R</span>
+    <div className="relative w-9 h-9 rounded-full bg-foreground grid place-items-center overflow-hidden">
+      <span className="relative font-display text-background text-base leading-none">R</span>
     </div>
   )
 }

@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, BadgeCheck, ChevronDown, Receipt, TrendingUp, Zap } from 'lucide-react';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { useI18n } from '../lib/i18n';
-import { scoreProviders, type ScoredQuote } from '../lib/scoring-engine';
+import { scoreProviders, type ScoredQuote, type ScoringResult } from '../lib/scoring-engine';
+import { fetchLiveQuotes } from '../lib/live-quotes';
 import { getAffiliateUrl, trackAffiliateClick } from '../lib/affiliates';
 
 const QUICK_AMOUNTS = [100, 200, 500, 1000] as const;
@@ -11,10 +12,39 @@ export function App() {
   const { t } = useI18n();
   const [amount, setAmount] = useState<number>(500);
   const lastUpdated = useLastUpdated();
+  const [result, setResult] = useState<ScoringResult | null>(() => scoreProviders(500));
+  const [loading, setLoading] = useState(false);
+  const [isLive, setIsLive] = useState(false);
 
-  const result = useMemo(() => {
-    if (!amount || amount < 1) return null;
-    return scoreProviders(amount);
+  // Debounced live quote fetching. Falls back to local scoring engine if API is down.
+  useEffect(() => {
+    if (!amount || amount < 1) {
+      setResult(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    setLoading(true);
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const res = await fetchLiveQuotes({ sourceAmount: amount, signal: controller.signal });
+        setResult(res.result);
+        setIsLive(!res.fromFallback);
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          setResult(scoreProviders(amount));
+          setIsLive(false);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [amount]);
 
   function openSidePanel() {
@@ -34,7 +64,13 @@ export function App() {
       <Header />
       <ReceiptDivider />
 
-      <InputSection amount={amount} setAmount={setAmount} lastUpdated={lastUpdated} />
+      <InputSection
+        amount={amount}
+        setAmount={setAmount}
+        lastUpdated={lastUpdated}
+        isLive={isLive}
+        loading={loading}
+      />
       <ReceiptDivider />
 
       {best ? (
@@ -77,9 +113,11 @@ interface InputSectionProps {
   readonly amount: number;
   readonly setAmount: (n: number) => void;
   readonly lastUpdated: number;
+  readonly isLive: boolean;
+  readonly loading: boolean;
 }
 
-function InputSection({ amount, setAmount, lastUpdated }: InputSectionProps) {
+function InputSection({ amount, setAmount, lastUpdated, isLive, loading }: InputSectionProps) {
   return (
     <section className="px-5 pt-4 pb-5 shrink-0 flex flex-col">
       {/* Corridor + live indicator */}
@@ -94,10 +132,30 @@ function InputSection({ amount, setAmount, lastUpdated }: InputSectionProps) {
           </span>
           <ChevronDown className="h-2.5 w-2.5 text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))] group-hover:translate-y-px transition-all" />
         </button>
-        <div className="flex items-center gap-1 text-[hsl(var(--teal))]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--teal))] animate-pulse" />
+        <div
+          className={`flex items-center gap-1 ${
+            isLive
+              ? 'text-[hsl(var(--teal))]'
+              : loading
+                ? 'text-[hsl(var(--gold))]'
+                : 'text-[hsl(var(--muted-foreground))]'
+          }`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              isLive
+                ? 'bg-[hsl(var(--teal))] animate-pulse'
+                : loading
+                  ? 'bg-[hsl(var(--gold))] animate-pulse'
+                  : 'bg-[hsl(var(--muted-foreground))]'
+            }`}
+          />
           <span className="text-[10px] font-mono font-medium tabular-nums">
-            Live rates · {formatAgo(lastUpdated)}
+            {isLive
+              ? `Live rates · ${formatAgo(lastUpdated)}`
+              : loading
+                ? 'Fetching…'
+                : 'Demo rates'}
           </span>
         </div>
       </div>

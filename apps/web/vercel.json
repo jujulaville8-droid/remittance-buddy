@@ -2,5 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "next build",
-  "ignoreCommand": ""
+  "ignoreCommand": "",
+  "crons": [
+    {
+      "path": "/api/cron/refresh-rates",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/check-alerts",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
