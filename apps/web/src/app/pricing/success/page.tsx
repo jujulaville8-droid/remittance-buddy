@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle2, Sparkles } from 'lucide-react'
@@ -15,6 +15,29 @@ type State =
   | { status: 'error'; message: string }
 
 export default function PricingSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingShell />}>
+      <PricingSuccessInner />
+    </Suspense>
+  )
+}
+
+function LoadingShell() {
+  return (
+    <main className="relative min-h-screen bg-background text-foreground">
+      <Nav />
+      <section className="pt-40 pb-20">
+        <div className="container max-w-xl text-center">
+          <div className="w-16 h-16 rounded-full border-4 border-coral border-t-transparent animate-spin mx-auto mb-6" />
+          <h1 className="font-display text-3xl text-foreground mb-2">Confirming your upgrade…</h1>
+        </div>
+      </section>
+      <Footer />
+    </main>
+  )
+}
+
+function PricingSuccessInner() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
   const [state, setState] = useState<State>({ status: 'loading' })
