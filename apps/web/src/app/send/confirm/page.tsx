@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle2, Clock, Shield, Sparkles, User } from 'lucide-react'
 import {
@@ -15,6 +15,14 @@ import { useLiveQuotes } from '@/components/landing/useLiveQuotes'
 const BUDDY_FEE_BPS = 50 // 0.5%
 
 export default function ConfirmPage() {
+  return (
+    <Suspense fallback={null}>
+      <ConfirmPageInner />
+    </Suspense>
+  )
+}
+
+function ConfirmPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const amount = Number(searchParams.get('amount') ?? 500)

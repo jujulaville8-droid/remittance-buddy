@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Check, Plus, User } from 'lucide-react'
 import {
   recipientsStore,
@@ -10,6 +10,14 @@ import {
 } from '@/lib/local-db'
 
 export default function RecipientPage() {
+  return (
+    <Suspense fallback={null}>
+      <RecipientPageInner />
+    </Suspense>
+  )
+}
+
+function RecipientPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const amount = Number(searchParams.get('amount') ?? 500)
