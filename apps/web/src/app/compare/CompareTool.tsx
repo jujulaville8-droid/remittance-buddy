@@ -248,9 +248,9 @@ export function CompareTool() {
             ) : (
               <>
                 {' '}
-                to{' '}
+                home to{' '}
                 <span className="font-semibold text-foreground">
-                  {corridor.targetCurrency === 'PHP' ? 'the Philippines' : 'home'}
+                  {corridor.targetCurrency === 'PHP' ? 'the Philippines 🇵🇭' : 'your family'}
                 </span>
               </>
             )}
@@ -346,19 +346,23 @@ export function CompareTool() {
 function Greeting({ recipientFirstName }: { readonly recipientFirstName: string | null }) {
   return (
     <header className="container max-w-6xl">
-      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">
-        Your sending tool
+      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-coral">
+        <span className="text-sm leading-none">🇵🇭</span>
+        Built for Filipino families abroad
       </div>
-      <h1 className="mt-4 font-display text-5xl lg:text-[4.25rem] leading-[0.95] text-foreground text-balance max-w-4xl">
+      <h1 className="mt-5 font-display text-5xl lg:text-[4.25rem] leading-[0.95] text-foreground text-balance max-w-4xl">
         {greeting()},{' '}
         <span className="italic text-coral">
-          {recipientFirstName ? `sending home to ${recipientFirstName}` : 'let\u2019s send some pesos home'}.
+          {recipientFirstName
+            ? `sending home to ${recipientFirstName}`
+            : 'padalahan natin ang pamilya mo'}
+          .
         </span>
       </h1>
       <p className="mt-5 text-lg text-muted-foreground max-w-2xl leading-relaxed">
         {recipientFirstName
-          ? `We\u2019ll find the best route for ${recipientFirstName} across every major provider — the math is all on screen, nothing hidden.`
-          : 'Tap a recipient or start fresh. We compare every major provider in real time and tell you which one lands the most pesos for your family.'}
+          ? `We\u2019ll find the best route for ${recipientFirstName} across every major provider — live rates from every OFW corridor, the math all on screen.`
+          : 'For Filipino OFWs sending home from the US, UK, Singapore, UAE and Saudi. We compare every major provider in real time and tell you which route lands the most pesos — GCash, Maya, bank, or cash pickup.'}
       </p>
     </header>
   )
@@ -403,10 +407,10 @@ function RecipientStrip({
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-semibold text-foreground text-sm">
-              No one saved yet — that\u2019s okay.
+              Nanay, Tatay, Ate, Kuya — we\u2019ll remember them all.
             </div>
             <div className="text-xs text-muted-foreground mt-0.5">
-              Run a comparison below, and save whoever you\u2019re sending to after.
+              Run a comparison below, then save whoever you\u2019re sending to. One tap next time.
             </div>
           </div>
           <Link

@@ -3,9 +3,23 @@ import { Nav } from '@/components/landing/Nav'
 import { Footer } from '@/components/landing/Footer'
 
 export const metadata: Metadata = {
-  title: 'Compare rates — Remittance Buddy',
+  title: 'Send money home to the Philippines — Remittance Buddy',
   description:
-    'Live comparison across every major remittance provider. See the winning route, the exact math, and send with one click.',
+    'Live rate comparison for Filipino OFWs. Find the best route for sending money to the Philippines via GCash, Maya, bank, or cash pickup — every major provider compared in real time.',
+  keywords: [
+    'send money to Philippines',
+    'remittance Philippines',
+    'GCash remittance',
+    'OFW remittance',
+    'best remittance provider Philippines',
+    'Wise vs Remitly Philippines',
+  ],
+  openGraph: {
+    title: 'Send money home to the Philippines — Remittance Buddy',
+    description:
+      'Live rate comparison for Filipino OFWs. We compare every major provider and tell you which route lands the most pesos for your family.',
+    locale: 'en_PH',
+  },
 }
 
 export default function CompareLayout({
