@@ -110,10 +110,10 @@ export function Hero() {
 
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <Link
-                href="#compare"
+                href={`/compare?amount=${amount}&corridor=US-PH&payout=gcash`}
                 className="group inline-flex h-14 items-center gap-2 rounded-full bg-foreground px-8 text-base font-medium text-background transition-all hover:-translate-y-0.5 active:scale-[0.98]"
               >
-                Compare rates
+                Open the tool
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link

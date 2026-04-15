@@ -6,10 +6,10 @@ import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
+  { href: '/compare', label: 'Compare' },
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/alerts', label: 'Alerts' },
-  { href: '#faq', label: 'FAQ' },
 ] as const
 
 export function Nav() {
@@ -84,11 +84,11 @@ export function Nav() {
               Sign in
             </Link>
             <Link
-              href="/send/recipient"
+              href="/compare"
               className="hidden sm:inline-flex items-center rounded-full bg-coral px-6 py-3 text-sm font-semibold text-white shadow-glow-coral hover:shadow-none hover:-translate-y-0.5 transition-all active:scale-95"
               onClick={() => setMenuOpen(false)}
             >
-              Start a transfer
+              Open the tool
             </Link>
             <button
               type="button"
