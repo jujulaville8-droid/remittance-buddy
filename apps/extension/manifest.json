@@ -1,20 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Remittance Buddy",
-  "description": "AI-powered remittance concierge — compare rates, send money smarter",
-  "version": "0.1.0",
-  "permissions": [
-    "sidePanel",
-    "storage",
-    "alarms",
-    "notifications"
-  ],
+  "name": "Remittance Buddy — Smart money transfer comparison",
+  "short_name": "Remittance Buddy",
+  "description": "Compare live rates from every major remittance provider in real time. Know exactly which route saves your family the most, before you send.",
+  "version": "0.2.0",
+  "author": "Remittance Buddy",
+  "homepage_url": "https://remitance-buddy-ey2a2pix9-jujulaville8-droids-projects.vercel.app",
+  "permissions": ["storage", "sidePanel", "alarms", "notifications"],
   "host_permissions": [
-    "https://remittancebuddy.com/*",
-    "http://localhost:3000/*"
+    "https://remitance-buddy-ey2a2pix9-jujulaville8-droids-projects.vercel.app/*",
+    "https://*.vercel.app/*",
+    "https://remittancebuddy.com/*"
   ],
   "action": {
     "default_popup": "src/popup/index.html",
+    "default_title": "Remittance Buddy",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png",
@@ -28,6 +28,10 @@
   "background": {
     "service_worker": "src/background/service-worker.ts",
     "type": "module"
+  },
+  "options_ui": {
+    "page": "src/options/index.html",
+    "open_in_tab": true
   },
   "icons": {
     "16": "icons/icon-16.png",

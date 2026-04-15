@@ -6,7 +6,7 @@ import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
-  { href: '#how', label: 'How it works' },
+  { href: '/dashboard', label: 'Dashboard' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/alerts', label: 'Alerts' },
   { href: '#faq', label: 'FAQ' },

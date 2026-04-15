@@ -6,7 +6,7 @@
  * get the same real data as the web app.
  */
 
-import { API_BASE_URL } from './constants';
+import { resolveApiBaseUrl } from './constants';
 import type { ProviderQuote, ScoringResult } from './scoring-engine';
 import { scoreProviders } from './scoring-engine';
 
@@ -88,7 +88,8 @@ export async function fetchLiveQuotes(args: FetchQuotesArgs): Promise<LiveQuoteR
     sourceAmount: sourceAmount.toString(),
     payoutMethod,
   });
-  const url = `${API_BASE_URL}/api/quotes?${params.toString()}`;
+  const baseUrl = await resolveApiBaseUrl();
+  const url = `${baseUrl}/api/quotes?${params.toString()}`;
 
   try {
     const res = await fetch(url, {
