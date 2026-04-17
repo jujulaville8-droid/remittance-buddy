@@ -95,7 +95,7 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
    ========================================================================= */
 .hero{
   max-width:1280px;margin:0 auto;padding:64px 32px 80px;
-  display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center;
+  display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:center;
   position:relative;
 }
 .hero::before{
@@ -116,14 +116,14 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
 @keyframes pulse{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:0;transform:scale(2)}}
 
 .hero h1{
-  font-family:var(--font-display);font-size:clamp(56px,7.6vw,112px);
-  line-height:0.94;letter-spacing:-0.025em;margin-top:28px;color:var(--bg-cream);
+  font-family:var(--font-display);font-size:clamp(44px,6.4vw,88px);
+  line-height:0.96;letter-spacing:-0.025em;margin-top:28px;color:var(--bg-cream);
   text-wrap:balance;
 }
 .hero h1 em{font-style:italic;color:var(--coral)}
 .hero h1 .strike{
   position:relative;display:inline-block;color:rgba(248,242,227,0.45);
-  font-style:italic;
+  font-style:italic;white-space:nowrap;
 }
 .hero h1 .strike::after{
   content:"";position:absolute;left:-2%;right:-2%;top:56%;height:3px;
