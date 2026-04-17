@@ -679,10 +679,6 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
   box-shadow:0 24px 48px -16px rgba(20,17,13,0.35);
   transform:rotate(1.5deg);position:relative;
 }
-.punch-card::before{
-  content:"";position:absolute;top:-10px;bottom:-10px;left:30%;width:1px;
-  background:repeating-linear-gradient(to bottom,var(--bg-paper) 0,var(--bg-paper) 6px,transparent 6px,transparent 12px);
-}
 .punch-card .k{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--coral)}
 .punch-card .name{font-family:var(--font-display);font-size:32px;letter-spacing:-0.015em;margin-top:10px;line-height:1.05}
 .punch-card .name em{color:var(--coral);font-style:italic}
