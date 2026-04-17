@@ -1,49 +1,12 @@
 import type { Metadata } from 'next'
-import { Nav } from '@/components/landing/Nav'
-import { Hero } from '@/components/landing/Hero'
-import { SocialProof } from '@/components/landing/SocialProof'
-import { ProviderStrip } from '@/components/landing/ProviderStrip'
-import { Features } from '@/components/landing/Features'
-import { HowItWorks } from '@/components/landing/HowItWorks'
-import { Stats } from '@/components/landing/Stats'
-import { FAQ } from '@/components/landing/FAQ'
-import { FinalCTA } from '@/components/landing/FinalCTA'
-import { Footer } from '@/components/landing/Footer'
-import { Reveal } from '@/components/landing/Reveal'
+import LandingReceipt from '@/components/landing/LandingReceipt'
 
 export const metadata: Metadata = {
-  title: 'Remittance Buddy — Send Money to the Philippines',
+  title: "Remittance Buddy — The receipt doesn't lie.",
   description:
-    'A decision engine for international money transfers. We rank every provider for your corridor and amount, show the math, and tell you which one actually wins.',
+    "Every remittance provider says 'low fees, great rates.' We compare all twelve — live, every 60 seconds — and show you the actual pesos your family will hold. Nothing estimated, nothing spun.",
 }
 
 export default function HomePage() {
-  return (
-    <main className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
-      <Nav />
-      <Hero />
-      <Reveal>
-        <SocialProof />
-      </Reveal>
-      <Reveal>
-        <ProviderStrip />
-      </Reveal>
-      <Reveal>
-        <Features />
-      </Reveal>
-      <Reveal>
-        <HowItWorks />
-      </Reveal>
-      <Reveal>
-        <Stats />
-      </Reveal>
-      <Reveal>
-        <FAQ />
-      </Reveal>
-      <Reveal>
-        <FinalCTA />
-      </Reveal>
-      <Footer />
-    </main>
-  )
+  return <LandingReceipt />
 }
