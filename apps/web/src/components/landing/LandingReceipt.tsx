@@ -43,6 +43,7 @@ body::before{
   opacity:0.5;mix-blend-mode:screen;
 }
 main,nav,footer{position:relative;z-index:2}
+main{overflow-x:clip}
 
 /* =========================================================================
    NAV — dark
@@ -305,7 +306,7 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
 
 /* "Competitor receipt" behind as ghost */
 .ghost-receipt{
-  position:absolute;top:-12px;right:-24px;width:280px;
+  position:absolute;top:-24px;right:-120px;width:240px;
   background:rgba(248,242,227,0.08);border:1px dashed rgba(248,242,227,0.3);
   padding:18px;font-family:var(--font-mono);font-size:10px;line-height:18px;
   color:rgba(248,242,227,0.5);transform:rotate(5deg);z-index:-1;
@@ -325,7 +326,7 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
 
 /* Floating stamp */
 .hero-stamp{
-  position:absolute;top:8%;left:-6%;
+  position:absolute;top:4%;left:-14%;z-index:3;
   background:var(--coral);color:#fff;
   padding:10px 14px;border-radius:4px;
   font-family:var(--font-display);font-size:16px;line-height:18px;letter-spacing:-0.01em;
