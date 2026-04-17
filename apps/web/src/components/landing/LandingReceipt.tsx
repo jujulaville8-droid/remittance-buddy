@@ -43,6 +43,7 @@ body::before{
   opacity:0.5;mix-blend-mode:screen;
 }
 main,nav,footer{position:relative;z-index:2}
+main{overflow-x:clip}
 
 /* =========================================================================
    NAV — dark
@@ -95,7 +96,7 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
    ========================================================================= */
 .hero{
   max-width:1280px;margin:0 auto;padding:64px 32px 80px;
-  display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center;
+  display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:center;
   position:relative;
 }
 .hero::before{
@@ -116,14 +117,14 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
 @keyframes pulse{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:0;transform:scale(2)}}
 
 .hero h1{
-  font-family:var(--font-display);font-size:clamp(56px,7.6vw,112px);
-  line-height:0.94;letter-spacing:-0.025em;margin-top:28px;color:var(--bg-cream);
+  font-family:var(--font-display);font-size:clamp(44px,6.4vw,88px);
+  line-height:0.96;letter-spacing:-0.025em;margin-top:28px;color:var(--bg-cream);
   text-wrap:balance;
 }
 .hero h1 em{font-style:italic;color:var(--coral)}
 .hero h1 .strike{
   position:relative;display:inline-block;color:rgba(248,242,227,0.45);
-  font-style:italic;
+  font-style:italic;white-space:nowrap;
 }
 .hero h1 .strike::after{
   content:"";position:absolute;left:-2%;right:-2%;top:56%;height:3px;
@@ -305,7 +306,7 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
 
 /* "Competitor receipt" behind as ghost */
 .ghost-receipt{
-  position:absolute;top:-12px;right:-24px;width:280px;
+  position:absolute;top:-24px;right:-120px;width:240px;
   background:rgba(248,242,227,0.08);border:1px dashed rgba(248,242,227,0.3);
   padding:18px;font-family:var(--font-mono);font-size:10px;line-height:18px;
   color:rgba(248,242,227,0.5);transform:rotate(5deg);z-index:-1;
@@ -325,7 +326,7 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
 
 /* Floating stamp */
 .hero-stamp{
-  position:absolute;top:8%;left:-6%;
+  position:absolute;top:4%;left:-14%;z-index:3;
   background:var(--coral);color:#fff;
   padding:10px 14px;border-radius:4px;
   font-family:var(--font-display);font-size:16px;line-height:18px;letter-spacing:-0.01em;
@@ -677,10 +678,6 @@ nav.top .actions{display:flex;gap:10px;align-items:center}
   border-radius:20px;padding:36px;
   box-shadow:0 24px 48px -16px rgba(20,17,13,0.35);
   transform:rotate(1.5deg);position:relative;
-}
-.punch-card::before{
-  content:"";position:absolute;top:-10px;bottom:-10px;left:30%;width:1px;
-  background:repeating-linear-gradient(to bottom,var(--bg-paper) 0,var(--bg-paper) 6px,transparent 6px,transparent 12px);
 }
 .punch-card .k{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--coral)}
 .punch-card .name{font-family:var(--font-display);font-size:32px;letter-spacing:-0.015em;margin-top:10px;line-height:1.05}
