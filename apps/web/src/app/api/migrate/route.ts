@@ -1,34 +1,20 @@
 /**
- * POST /api/migrate — consume a localStorage payload and upsert it into
- * Postgres once Neon is unpaused.
+ * POST /api/migrate — push a localStorage payload into Supabase Postgres.
  *
- * Contract: the client POSTs the shape defined in `lib/migrate-local-db.ts`
- * (MigrationPayload). We validate with Zod, then do best-effort inserts,
- * returning a MigrationReport with per-entity counts and any errors.
+ * Auth: reads the Supabase session from cookies via `lib/supabase/server`.
+ * RLS then scopes every insert to `auth.uid() = user_id` automatically.
  *
- * Idempotency: client UUIDs become Postgres primary keys, so repeated
- * calls with overlapping data are safe — we use `onConflictDoNothing()`
- * on every insert.
+ * Idempotency: we onConflict-ignore on the primary key. Client-generated
+ * UUIDs become Postgres PKs, so replaying the same payload is a no-op.
  *
- * This route is intentionally tolerant: one failing row doesn't abort
- * the rest. That lets partial recovery work when some data is malformed.
+ * Tolerance: one bad row doesn't abort the rest — each slice reports
+ * counts + errors independently.
  */
 
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import * as Sentry from '@sentry/nextjs'
-
-/**
- * Auth is pre-Clerk during V1 build phase: we accept the user id via an
- * `x-user-id` header that the client sets from its auth provider once
- * sign-in is wired. Until then every call is rejected unless the header
- * is present, so the endpoint can't be hit anonymously.
- */
-function resolveUserId(req: Request): string | null {
-  const headerId = req.headers.get('x-user-id')
-  if (headerId && headerId.length > 0) return headerId
-  return null
-}
+import { createClient } from '@/lib/supabase/server'
 
 const recipientSchema = z.object({
   id: z.string(),
@@ -82,15 +68,25 @@ const affiliateClickSchema = z.object({
   affiliateUrl: z.string(),
   context: z.enum(['popup', 'hero', 'compare', 'sidepanel']),
   clickedAt: z.string(),
-  synced: z.boolean(),
+  synced: z.boolean().optional(),
 })
 
 const familyGroupSchema = z.object({
   id: z.string(),
   name: z.string(),
-  members: z.array(z.object({ id: z.string(), name: z.string(), role: z.enum(['owner', 'member']) })),
+  members: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      role: z.enum(['owner', 'member']),
+    }),
+  ),
   goal: z
-    .object({ label: z.string(), targetAmount: z.number(), currency: z.string() })
+    .object({
+      label: z.string(),
+      targetAmount: z.number(),
+      currency: z.string(),
+    })
     .nullable(),
   recipientIds: z.array(z.string()),
   createdAt: z.string(),
@@ -98,7 +94,7 @@ const familyGroupSchema = z.object({
 
 const rateAlertSchema = z.object({
   id: z.string(),
-  email: z.string().email(),
+  email: z.string(),
   corridor: z.string(),
   sourceCurrency: z.string(),
   targetCurrency: z.string(),
@@ -124,27 +120,41 @@ type Payload = z.infer<typeof payloadSchema>
 interface MigrationReport {
   ok: boolean
   migratedAt: string
-  counts: {
-    recipients: number
-    transfers: number
-    affiliateClicks: number
-    familyGroups: number
-    rateAlerts: number
-  }
+  counts: Record<'recipients' | 'transfers' | 'affiliateClicks' | 'familyGroups' | 'rateAlerts', number>
   errors: string[]
 }
 
+type Supa = Awaited<ReturnType<typeof createClient>>
+
 async function insertRecipients(
-  _userId: string,
+  supabase: Supa,
+  userId: string,
   rows: Payload['recipients'],
   errors: string[],
 ): Promise<number> {
   if (rows.length === 0) return 0
   try {
-    // When DB resumes: import { db } from '@remit/db'; import { recipients } from '@remit/db/schema'
-    // await db.insert(recipients).values(rows.map(r => ({ id: r.id, userId, name: r.fullName, ... })))
-    //   .onConflictDoNothing({ target: recipients.id })
-    return rows.length
+    const payload = rows.map((r) => ({
+      id: r.id,
+      user_id: userId,
+      full_name: r.fullName,
+      relationship: r.relationship,
+      country: r.country,
+      payout_method: r.payoutMethod,
+      gcash_number: r.gcashNumber ?? null,
+      maya_number: r.mayaNumber ?? null,
+      bank_code: r.bankCode ?? null,
+      bank_account_number: r.bankAccountNumber ?? null,
+      avatar_color: r.avatarColor,
+      send_count: r.sendCount,
+      last_used_at: r.lastUsedAt,
+      created_at: r.createdAt,
+    }))
+    const { error, count } = await supabase
+      .from('recipients')
+      .upsert(payload, { onConflict: 'id', ignoreDuplicates: true, count: 'exact' })
+    if (error) throw error
+    return count ?? payload.length
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     errors.push(`recipients: ${msg}`)
@@ -154,14 +164,39 @@ async function insertRecipients(
 }
 
 async function insertTransfers(
-  _userId: string,
+  supabase: Supa,
+  userId: string,
   rows: Payload['transfers'],
   errors: string[],
 ): Promise<number> {
   if (rows.length === 0) return 0
   try {
-    // When DB resumes: upsert into transfers with amounts in cents
-    return rows.length
+    const payload = rows.map((t) => ({
+      id: t.id,
+      user_id: userId,
+      recipient_id: t.recipientId,
+      recipient_name: t.recipientName,
+      source_amount: t.sourceAmount,
+      source_currency: t.sourceCurrency,
+      target_amount: t.targetAmount,
+      target_currency: t.targetCurrency,
+      exchange_rate: t.exchangeRate,
+      provider_fee: t.providerFee,
+      buddy_fee: t.buddyFee,
+      total_cost: t.totalCost,
+      provider: t.provider,
+      provider_slug: t.providerSlug,
+      status: t.status,
+      status_history: t.statusHistory,
+      created_at: t.createdAt,
+      updated_at: t.updatedAt,
+      delivered_at: t.deliveredAt,
+    }))
+    const { error, count } = await supabase
+      .from('transfers')
+      .upsert(payload, { onConflict: 'id', ignoreDuplicates: true, count: 'exact' })
+    if (error) throw error
+    return count ?? payload.length
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     errors.push(`transfers: ${msg}`)
@@ -171,13 +206,27 @@ async function insertTransfers(
 }
 
 async function insertAffiliateClicks(
-  _userId: string,
+  supabase: Supa,
+  userId: string,
   rows: Payload['affiliateClicks'],
   errors: string[],
 ): Promise<number> {
   if (rows.length === 0) return 0
   try {
-    return rows.length
+    const payload = rows.map((c) => ({
+      id: c.id,
+      user_id: userId,
+      provider: c.provider,
+      amount: c.amount,
+      affiliate_url: c.affiliateUrl,
+      context: c.context,
+      clicked_at: c.clickedAt,
+    }))
+    const { error, count } = await supabase
+      .from('affiliate_clicks')
+      .upsert(payload, { onConflict: 'id', ignoreDuplicates: true, count: 'exact' })
+    if (error) throw error
+    return count ?? payload.length
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     errors.push(`affiliateClicks: ${msg}`)
@@ -187,12 +236,49 @@ async function insertAffiliateClicks(
 }
 
 async function insertFamilyGroups(
-  _userId: string,
+  supabase: Supa,
+  userId: string,
   rows: Payload['familyGroups'],
   errors: string[],
 ): Promise<number> {
   if (rows.length === 0) return 0
   try {
+    const groupPayload = rows.map((g) => ({
+      id: g.id,
+      owner_id: userId,
+      name: g.name,
+      goal_label: g.goal?.label ?? null,
+      goal_target_amount: g.goal?.targetAmount ?? null,
+      goal_currency: g.goal?.currency ?? null,
+      created_at: g.createdAt,
+    }))
+    const { error: groupErr } = await supabase
+      .from('family_groups')
+      .upsert(groupPayload, { onConflict: 'id', ignoreDuplicates: true })
+    if (groupErr) throw groupErr
+
+    // Member + recipient join rows are idempotent via composite PKs
+    for (const g of rows) {
+      const members = g.members.map((m) => ({
+        group_id: g.id,
+        user_id: m.id,
+        role: m.role,
+      }))
+      if (members.length > 0) {
+        await supabase
+          .from('family_group_members')
+          .upsert(members, { onConflict: 'group_id,user_id', ignoreDuplicates: true })
+      }
+      const recipients = g.recipientIds.map((rid) => ({
+        group_id: g.id,
+        recipient_id: rid,
+      }))
+      if (recipients.length > 0) {
+        await supabase
+          .from('family_group_recipients')
+          .upsert(recipients, { onConflict: 'group_id,recipient_id', ignoreDuplicates: true })
+      }
+    }
     return rows.length
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
@@ -203,13 +289,31 @@ async function insertFamilyGroups(
 }
 
 async function insertRateAlerts(
-  _userId: string,
+  supabase: Supa,
+  userId: string,
   rows: Payload['rateAlerts'],
   errors: string[],
 ): Promise<number> {
   if (rows.length === 0) return 0
   try {
-    return rows.length
+    const payload = rows.map((a) => ({
+      id: a.id,
+      user_id: userId,
+      email: a.email,
+      corridor: a.corridor,
+      source_currency: a.sourceCurrency,
+      target_currency: a.targetCurrency,
+      target_rate: a.targetRate,
+      payout_method: a.payoutMethod,
+      active: a.active,
+      last_triggered_at: a.lastTriggeredAt,
+      created_at: a.createdAt,
+    }))
+    const { error, count } = await supabase
+      .from('rate_alerts')
+      .upsert(payload, { onConflict: 'id', ignoreDuplicates: true, count: 'exact' })
+    if (error) throw error
+    return count ?? payload.length
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     errors.push(`rateAlerts: ${msg}`)
@@ -219,8 +323,11 @@ async function insertRateAlerts(
 }
 
 export async function POST(req: Request) {
-  const userId = resolveUserId(req)
-  if (!userId) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -243,11 +350,11 @@ export async function POST(req: Request) {
   const errors: string[] = []
 
   const counts = {
-    recipients: await insertRecipients(userId, payload.recipients, errors),
-    transfers: await insertTransfers(userId, payload.transfers, errors),
-    affiliateClicks: await insertAffiliateClicks(userId, payload.affiliateClicks, errors),
-    familyGroups: await insertFamilyGroups(userId, payload.familyGroups, errors),
-    rateAlerts: await insertRateAlerts(userId, payload.rateAlerts, errors),
+    recipients: await insertRecipients(supabase, user.id, payload.recipients, errors),
+    transfers: await insertTransfers(supabase, user.id, payload.transfers, errors),
+    affiliateClicks: await insertAffiliateClicks(supabase, user.id, payload.affiliateClicks, errors),
+    familyGroups: await insertFamilyGroups(supabase, user.id, payload.familyGroups, errors),
+    rateAlerts: await insertRateAlerts(supabase, user.id, payload.rateAlerts, errors),
   }
 
   const report: MigrationReport = {

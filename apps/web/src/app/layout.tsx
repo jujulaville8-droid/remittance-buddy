@@ -5,6 +5,7 @@ import { GeistMono } from 'geist/font/mono'
 import { Plus_Jakarta_Sans, DM_Serif_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import MigrationBridge from '@/components/MigrationBridge'
 import './globals.css'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${GeistSans.variable} ${GeistMono.variable} ${plusJakartaSans.variable} ${dmSerifDisplay.variable}`}
     >
       <body>
+        <MigrationBridge />
         {children}
         <Analytics />
         <SpeedInsights />
