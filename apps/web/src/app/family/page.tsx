@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { Users } from 'lucide-react'
 import {
   familyGroupsStore,
   recipientsStore,
@@ -137,8 +138,8 @@ function EmptyState({
 }) {
   return (
     <section className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
-      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10 text-2xl">
-        👨‍👩‍👧
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10 text-coral">
+        <Users className="h-6 w-6" strokeWidth={1.75} />
       </div>
       <h2 className="font-sans font-semibold tracking-tight text-2xl">No family groups yet</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
