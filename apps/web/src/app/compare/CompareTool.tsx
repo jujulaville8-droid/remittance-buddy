@@ -33,11 +33,11 @@ import { useBuddyPlus } from '@/lib/hooks/useBuddyPlus'
 // ─────────────────────────────────────────────────────────────
 
 const CORRIDORS = [
-  { id: 'US-PH', label: 'US → PH', sourceCurrency: 'USD', targetCurrency: 'PHP', flag: '🇺🇸' },
-  { id: 'UK-PH', label: 'UK → PH', sourceCurrency: 'GBP', targetCurrency: 'PHP', flag: '🇬🇧' },
-  { id: 'SG-PH', label: 'SG → PH', sourceCurrency: 'SGD', targetCurrency: 'PHP', flag: '🇸🇬' },
-  { id: 'AE-PH', label: 'UAE → PH', sourceCurrency: 'AED', targetCurrency: 'PHP', flag: '🇦🇪' },
-  { id: 'SA-PH', label: 'SA → PH', sourceCurrency: 'SAR', targetCurrency: 'PHP', flag: '🇸🇦' },
+  { id: 'US-PH', label: 'US → PH', sourceCurrency: 'USD', targetCurrency: 'PHP' },
+  { id: 'UK-PH', label: 'UK → PH', sourceCurrency: 'GBP', targetCurrency: 'PHP' },
+  { id: 'SG-PH', label: 'SG → PH', sourceCurrency: 'SGD', targetCurrency: 'PHP' },
+  { id: 'AE-PH', label: 'UAE → PH', sourceCurrency: 'AED', targetCurrency: 'PHP' },
+  { id: 'SA-PH', label: 'SA → PH', sourceCurrency: 'SAR', targetCurrency: 'PHP' },
 ] as const
 
 const PAYOUT_METHODS = [
@@ -194,7 +194,7 @@ export function CompareTool() {
     if (typeof window === 'undefined') return
     const name = recipientFirstName ?? 'the family'
     const php = Math.round(winner.targetAmount).toLocaleString()
-    const message = `Sending ₱${php} home to ${name} via ${winner.provider}, arriving in ${winner.deliveryTime}. I'll let you know when it lands 🇵🇭`
+    const message = `Sending ₱${php} home to ${name} via ${winner.provider}, arriving in ${winner.deliveryTime}. I'll let you know when it lands.`
 
     const flash = () => {
       setShared(true)
@@ -254,7 +254,7 @@ export function CompareTool() {
                 {' '}
                 home to{' '}
                 <span className="font-semibold text-foreground">
-                  {corridor.targetCurrency === 'PHP' ? 'the Philippines 🇵🇭' : 'your family'}
+                  {corridor.targetCurrency === 'PHP' ? 'the Philippines' : 'your family'}
                 </span>
               </>
             )}
@@ -358,7 +358,7 @@ function Greeting({ recipientFirstName }: { readonly recipientFirstName: string 
   return (
     <header className="container max-w-6xl">
       <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-coral">
-        <span className="text-sm leading-none">🇵🇭</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-coral" />
         Built for Filipino families abroad
       </div>
       <h1 className="mt-5 font-sans font-semibold text-4xl lg:text-[3.25rem] tracking-tight leading-[1.05] text-foreground text-balance max-w-4xl">
@@ -605,7 +605,6 @@ function ControlBar({
                       : 'border-border bg-background text-foreground hover:border-foreground/30'
                   }`}
                 >
-                  <span className="text-sm">{c.flag}</span>
                   <span>{c.label}</span>
                 </button>
               )

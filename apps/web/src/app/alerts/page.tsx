@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react'
 import { rateAlertsStore, type LocalRateAlert } from '@/lib/local-db'
 
 const CORRIDORS = [
-  { corridor: 'US-PH', source: 'USD', target: 'PHP', label: '🇺🇸 USD → 🇵🇭 PHP' },
-  { corridor: 'UK-PH', source: 'GBP', target: 'PHP', label: '🇬🇧 GBP → 🇵🇭 PHP' },
-  { corridor: 'SG-PH', source: 'SGD', target: 'PHP', label: '🇸🇬 SGD → 🇵🇭 PHP' },
-  { corridor: 'AE-PH', source: 'AED', target: 'PHP', label: '🇦🇪 AED → 🇵🇭 PHP' },
-  { corridor: 'SA-PH', source: 'SAR', target: 'PHP', label: '🇸🇦 SAR → 🇵🇭 PHP' },
+  { corridor: 'US-PH', source: 'USD', target: 'PHP', label: 'USD → PHP' },
+  { corridor: 'UK-PH', source: 'GBP', target: 'PHP', label: 'GBP → PHP' },
+  { corridor: 'SG-PH', source: 'SGD', target: 'PHP', label: 'SGD → PHP' },
+  { corridor: 'AE-PH', source: 'AED', target: 'PHP', label: 'AED → PHP' },
+  { corridor: 'SA-PH', source: 'SAR', target: 'PHP', label: 'SAR → PHP' },
 ] as const
 
 type PayoutMethod = 'gcash' | 'maya' | 'bank' | 'cash_pickup'
