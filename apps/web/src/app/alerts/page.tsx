@@ -1,7 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { rateAlertsStore, type LocalRateAlert } from '@/lib/local-db'
+import Link from 'next/link'
+import { useState } from 'react'
+import type { LocalRateAlert } from '@/lib/local-db'
+import { useRateAlerts } from '@/lib/hooks/useRateAlerts'
+import { isPlanLimitError } from '@/lib/plan-limits'
 
 const CORRIDORS = [
   { corridor: 'US-PH', source: 'USD', target: 'PHP', label: 'USD → PHP' },
@@ -28,14 +31,10 @@ const INITIAL_FORM: FormState = {
 }
 
 export default function RateAlertsPage() {
-  const [alerts, setAlerts] = useState<LocalRateAlert[]>([])
+  const { alerts, create: createAlert, remove: removeAlert } = useRateAlerts()
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [submitting, setSubmitting] = useState(false)
-  const [message, setMessage] = useState<{ type: 'ok' | 'error'; text: string } | null>(null)
-
-  useEffect(() => {
-    setAlerts(rateAlertsStore.list())
-  }, [])
+  const [message, setMessage] = useState<{ type: 'ok' | 'error' | 'upgrade'; text: string } | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -52,25 +51,7 @@ export default function RateAlertsPage() {
 
     setSubmitting(true)
     try {
-      const res = await fetch('/api/alerts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: form.email.trim(),
-          corridor: corridor.corridor,
-          sourceCurrency: corridor.source,
-          targetCurrency: corridor.target,
-          targetRate,
-          payoutMethod: form.payoutMethod,
-        }),
-      })
-
-      if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as { error?: string } | null
-        throw new Error(body?.error ?? `Request failed (${res.status})`)
-      }
-
-      const local = rateAlertsStore.create({
+      await createAlert({
         email: form.email.trim(),
         corridor: corridor.corridor,
         sourceCurrency: corridor.source,
@@ -78,27 +59,24 @@ export default function RateAlertsPage() {
         targetRate,
         payoutMethod: form.payoutMethod,
       })
-      setAlerts([local, ...alerts])
       setForm({ ...INITIAL_FORM, email: form.email })
-      setMessage({ type: 'ok', text: 'Alert created — we’ll email you when the rate hits.' })
+      setMessage({ type: 'ok', text: "Alert created — we'll email you when the rate hits." })
     } catch (err) {
-      const text = err instanceof Error ? err.message : 'Failed to create alert'
-      setMessage({ type: 'error', text })
+      if (isPlanLimitError(err)) {
+        setMessage({ type: 'upgrade', text: err.message })
+      } else {
+        setMessage({
+          type: 'error',
+          text: err instanceof Error ? err.message : 'Failed to create alert',
+        })
+      }
     } finally {
       setSubmitting(false)
     }
   }
 
   async function handleDelete(alert: LocalRateAlert) {
-    try {
-      await fetch(`/api/alerts?id=${alert.id}&email=${encodeURIComponent(alert.email)}`, {
-        method: 'DELETE',
-      })
-    } catch {
-      // best-effort — local removal still proceeds
-    }
-    rateAlertsStore.remove(alert.id)
-    setAlerts(alerts.filter((a) => a.id !== alert.id))
+    await removeAlert(alert.id)
   }
 
   return (
@@ -171,15 +149,26 @@ export default function RateAlertsPage() {
         </div>
 
         {message ? (
-          <div
-            className={`rounded-lg px-4 py-3 text-sm ${
-              message.type === 'ok'
-                ? 'bg-teal/10 text-teal'
-                : 'bg-coral/10 text-coral'
-            }`}
-          >
-            {message.text}
-          </div>
+          message.type === 'upgrade' ? (
+            <div className="rounded-lg border border-coral/40 bg-coral/5 px-4 py-3 text-sm">
+              <p className="font-semibold text-coral">Free plan limit reached</p>
+              <p className="mt-1 text-muted-foreground">{message.text}</p>
+              <Link
+                href="/pricing"
+                className="mt-3 inline-flex items-center rounded-full bg-coral px-4 py-1.5 text-xs font-semibold text-white"
+              >
+                Upgrade to Buddy Plus →
+              </Link>
+            </div>
+          ) : (
+            <div
+              className={`rounded-lg px-4 py-3 text-sm ${
+                message.type === 'ok' ? 'bg-teal/10 text-teal' : 'bg-coral/10 text-coral'
+              }`}
+            >
+              {message.text}
+            </div>
+          )
         ) : null}
 
         <button

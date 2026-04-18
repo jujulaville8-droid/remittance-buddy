@@ -1,16 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Users } from 'lucide-react'
-import {
-  familyGroupsStore,
-  recipientsStore,
-  transfersStore,
-  type LocalFamilyGroup,
-  type LocalRecipient,
-  type LocalTransfer,
-} from '@/lib/local-db'
+import type { LocalFamilyGroup, LocalRecipient, LocalTransfer } from '@/lib/local-db'
+import { useFamilyGroups } from '@/lib/hooks/useFamilyGroups'
+import { useRecipients } from '@/lib/hooks/useRecipients'
+import { useTransfers } from '@/lib/hooks/useTransfers'
+import { isPlanLimitError } from '@/lib/plan-limits'
 
 interface NewGroupDraft {
   name: string
@@ -27,17 +24,12 @@ const EMPTY_DRAFT: NewGroupDraft = {
 }
 
 export default function FamilyHubPage() {
-  const [groups, setGroups] = useState<LocalFamilyGroup[]>([])
-  const [recipients, setRecipients] = useState<LocalRecipient[]>([])
-  const [transfers, setTransfers] = useState<LocalTransfer[]>([])
+  const { groups, create: createGroup } = useFamilyGroups()
+  const { recipients } = useRecipients()
+  const { transfers } = useTransfers()
   const [showForm, setShowForm] = useState(false)
   const [draft, setDraft] = useState<NewGroupDraft>(EMPTY_DRAFT)
-
-  useEffect(() => {
-    setGroups(familyGroupsStore.list())
-    setRecipients(recipientsStore.list())
-    setTransfers(transfersStore.list())
-  }, [])
+  const [error, setError] = useState<string | null>(null)
 
   const hasGroups = groups.length > 0
   const hasRecipients = recipients.length > 0
@@ -51,22 +43,30 @@ export default function FamilyHubPage() {
     }))
   }
 
-  function handleCreate(e: React.FormEvent) {
+  async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!draft.name.trim()) return
     const targetAmount = Number(draft.goalTarget) || 0
-    const created = familyGroupsStore.create({
-      name: draft.name.trim(),
-      members: [{ id: 'owner', name: 'You', role: 'owner' }],
-      goal:
-        draft.goalLabel.trim() && targetAmount > 0
-          ? { label: draft.goalLabel.trim(), targetAmount, currency: 'USD' }
-          : null,
-      recipientIds: draft.recipientIds,
-    })
-    setGroups([created, ...groups])
-    setDraft(EMPTY_DRAFT)
-    setShowForm(false)
+    setError(null)
+    try {
+      await createGroup({
+        name: draft.name.trim(),
+        members: [{ id: 'owner', name: 'You', role: 'owner' }],
+        goal:
+          draft.goalLabel.trim() && targetAmount > 0
+            ? { label: draft.goalLabel.trim(), targetAmount, currency: 'USD' }
+            : null,
+        recipientIds: draft.recipientIds,
+      })
+      setDraft(EMPTY_DRAFT)
+      setShowForm(false)
+    } catch (err) {
+      if (isPlanLimitError(err)) {
+        setError(err.message)
+      } else {
+        setError(err instanceof Error ? err.message : 'Could not create group')
+      }
+    }
   }
 
   return (
@@ -81,6 +81,19 @@ export default function FamilyHubPage() {
         </p>
       </header>
 
+      {error ? (
+        <div className="rounded-2xl border border-coral/40 bg-coral/5 p-4 text-sm">
+          <p className="font-semibold text-coral">Free plan limit reached</p>
+          <p className="mt-1 text-muted-foreground">{error}</p>
+          <Link
+            href="/pricing"
+            className="mt-3 inline-flex items-center rounded-full bg-coral px-4 py-1.5 text-xs font-semibold text-white"
+          >
+            Upgrade to Buddy Plus →
+          </Link>
+        </div>
+      ) : null}
+
       {!hasGroups && !showForm ? (
         <EmptyState onStart={() => setShowForm(true)} hasRecipients={hasRecipients} />
       ) : null}
@@ -94,6 +107,7 @@ export default function FamilyHubPage() {
           onCancel={() => {
             setShowForm(false)
             setDraft(EMPTY_DRAFT)
+            setError(null)
           }}
           onSubmit={handleCreate}
         />
