@@ -988,7 +988,7 @@ const HTML = String.raw`
 
       <div class="line"><span class="l">Rate via <span id="r-provider">Remitly</span></span><span class="v tab">₱<span id="r-rate">56.82</span> / $1</span></div>
       <div class="line deduct"><span class="l">Provider fee</span><span class="v tab">−$<span id="r-provider-fee">0.00</span></span></div>
-      <div class="line deduct"><span class="l">Buddy platform fee (0.5%)</span><span class="v tab">−$<span id="r-platform-fee">2.50</span></span></div>
+      <div class="line"><span class="l">Buddy fee</span><span class="v tab" style="color:var(--teal)">Always $0</span></div>
 
       <div class="line total">
         <span class="l">Mama gets</span>
@@ -1054,7 +1054,7 @@ const HTML = String.raw`
         <div class="rows">
           <div class="r"><span class="l">Rate</span><span class="v good">₱56.82</span></div>
           <div class="r"><span class="l">Provider fee</span><span class="v good">$0.00</span></div>
-          <div class="r"><span class="l">Buddy platform fee</span><span class="v good">$2.50</span></div>
+          <div class="r"><span class="l">Buddy fee</span><span class="v good">Always $0</span></div>
           <div class="r"><span class="l">Delivery</span><span class="v">2 min · direct to GCash</span></div>
         </div>
         <div class="bottom">
@@ -1378,7 +1378,7 @@ const HTML = String.raw`
     <div class="list">
       <details open>
         <summary>Is Remittance Buddy free? <span class="plus-ic">+</span></summary>
-        <p>Yes, completely free to compare. We charge a flat 0.5% platform fee only when you choose to send through our rail — shown on screen before you confirm. If you pick an affiliate provider instead, we earn a referral fee from them, not from you.</p>
+        <p>Completely free, and that won't change. We earn a referral fee from the providers you choose to send with — paid by them, never by you. Your transfer goes through the provider's own rail, not ours. We're a comparison tool, not a money transmitter.</p>
       </details>
       <details>
         <summary>How do you get the live rates? <span class="plus-ic">+</span></summary>
