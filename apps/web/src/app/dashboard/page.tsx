@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import {
   ArrowUpRight,
   Bell,
@@ -14,33 +13,25 @@ import {
   Users,
   Wallet,
 } from 'lucide-react'
-import {
-  buddyPlusStore,
-  familyGroupsStore,
-  rateAlertsStore,
-  recipientsStore,
-  transfersStore,
-  type LocalBuddyPlusState,
-  type LocalFamilyGroup,
-  type LocalRateAlert,
-  type LocalRecipient,
-  type LocalTransfer,
+import type {
+  LocalBuddyPlusState,
+  LocalFamilyGroup,
+  LocalRateAlert,
+  LocalRecipient,
+  LocalTransfer,
 } from '@/lib/local-db'
+import { useRecipients } from '@/lib/hooks/useRecipients'
+import { useTransfers } from '@/lib/hooks/useTransfers'
+import { useRateAlerts } from '@/lib/hooks/useRateAlerts'
+import { useFamilyGroups } from '@/lib/hooks/useFamilyGroups'
+import { useBuddyPlus } from '@/lib/hooks/useBuddyPlus'
 
 export default function DashboardPage() {
-  const [recipients, setRecipients] = useState<LocalRecipient[]>([])
-  const [transfers, setTransfers] = useState<LocalTransfer[]>([])
-  const [alerts, setAlerts] = useState<LocalRateAlert[]>([])
-  const [families, setFamilies] = useState<LocalFamilyGroup[]>([])
-  const [buddyPlus, setBuddyPlus] = useState<LocalBuddyPlusState | null>(null)
-
-  useEffect(() => {
-    setRecipients(recipientsStore.list())
-    setTransfers(transfersStore.list())
-    setAlerts(rateAlertsStore.list())
-    setFamilies(familyGroupsStore.list())
-    setBuddyPlus(buddyPlusStore.get())
-  }, [])
+  const { recipients } = useRecipients()
+  const { transfers } = useTransfers()
+  const { alerts } = useRateAlerts()
+  const { groups: families } = useFamilyGroups()
+  const { state: buddyPlus } = useBuddyPlus()
 
   const totalSent = transfers.reduce((sum, t) => sum + t.sourceAmount, 0)
   const completedTransfers = transfers.filter((t) => t.status === 'delivered').length
