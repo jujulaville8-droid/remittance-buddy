@@ -20,12 +20,12 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      // Clerk, Stripe, Stripe.js, Wise, Persona hosted assets
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.remittancebuddy.app https://js.stripe.com https://withpersona.com",
+      // Supabase (auth + realtime), Stripe.js, Wise, Persona, Google Fonts, Vercel AI
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://withpersona.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "img-src 'self' data: blob: https://img.clerk.com https://cdn.prod.website-files.com",
+      "img-src 'self' data: blob: https://cdn.prod.website-files.com",
       "font-src 'self' data: https://cdn.prod.website-files.com https://fonts.gstatic.com",
-      "connect-src 'self' https://*.clerk.accounts.dev https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.wise.com https://withpersona.com https://sdk.vercel.ai",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.wise.com https://withpersona.com https://sdk.vercel.ai",
       "frame-src https://js.stripe.com https://hooks.stripe.com https://withpersona.com",
       "media-src 'self'",
       "object-src 'none'",
@@ -56,12 +56,7 @@ const nextConfig: NextConfig = {
     ppr: false,
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'img.clerk.com',
-      },
-    ],
+    remotePatterns: [],
   },
 }
 
