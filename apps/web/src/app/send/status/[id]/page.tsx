@@ -144,10 +144,6 @@ export default function StatusPage() {
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Buddy service fee</span>
-              <span className="font-mono tabular-nums">${transfer.buddyFee.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
               <span>Total charged</span>
               <span className="font-mono font-bold text-foreground tabular-nums">
                 ${transfer.totalCost.toFixed(2)}

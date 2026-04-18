@@ -19,7 +19,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useLiveQuotes, type LiveQuote } from '@/components/landing/useLiveQuotes'
-import { decideRouting } from '@/lib/affiliate-routing'
+import { decideRouting, trackAffiliateClick } from '@/lib/affiliate-routing'
 import {
   familyGroupsStore,
   recipientsStore,
@@ -907,10 +907,9 @@ function WinnerCard({
     )
   }
 
-  // Buddy Plus perk: zero platform fee on sends. Free tier: 0.5%.
-  const buddyFee = isPlus ? 0 : amount * 0.005
-  const total = amount + winner.fee + buddyFee
-  const isBuddyRoute = routing.action === 'buddy-executes'
+  // No Buddy platform fee — we route to the provider, user pays them
+  // directly. Our revenue comes from the affiliate relationship.
+  const total = amount + winner.fee
 
   const sendHref = `/send/recipient?amount=${amount}&corridor=${corridor.id}&payout=${payout}${
     recipientId ? `&recipient=${recipientId}` : ''
@@ -958,10 +957,6 @@ function WinnerCard({
       <div className="relative mt-7 space-y-2.5 rounded-2xl border border-border bg-background p-4">
         <MathRow label="You send" value={`$${amount.toFixed(2)}`} />
         <MathRow label={`${winner.provider} fee`} value={`$${winner.fee.toFixed(2)}`} />
-        <MathRow
-          label={isPlus ? 'Buddy service fee · waived for Plus' : 'Buddy service fee · 0.5%'}
-          value={isPlus ? '$0.00' : `$${buddyFee.toFixed(2)}`}
-        />
         <div className="border-t border-dashed border-border pt-2.5">
           <MathRow label="You pay in total" value={`$${total.toFixed(2)}`} bold />
         </div>
@@ -971,16 +966,26 @@ function WinnerCard({
         />
       </div>
 
-      {/* Primary action — changes copy based on routing decision */}
-      <Link
-        href={sendHref}
+      {/* Primary action — hand off to the provider's affiliate URL.
+          Opens in a new tab so users can still compare, and logs the
+          click for attribution. We never take their money directly. */}
+      <a
+        href={routing.affiliateUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() =>
+          trackAffiliateClick({
+            provider: winner.provider,
+            amount,
+            affiliateUrl: routing.affiliateUrl,
+            context: 'compare',
+          })
+        }
         className="relative mt-6 group flex items-center justify-center gap-2 w-full h-14 rounded-full bg-coral text-white text-sm font-semibold transition-all hover:-translate-y-0.5"
       >
-        {isBuddyRoute
-          ? `Send ${name}\u2019s money now`
-          : `Continue with ${winner.provider}`}
+        Continue with {winner.provider}
         <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-      </Link>
+      </a>
 
       {/* Secondary action — let the family know */}
       <button
@@ -993,7 +998,7 @@ function WinnerCard({
       </button>
 
       <p className="relative mt-4 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
-        Rate locked 30 min · Best-price guarantee
+        We earn a referral fee from providers · never from you
       </p>
     </div>
   )

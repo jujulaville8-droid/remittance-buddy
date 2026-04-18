@@ -226,8 +226,8 @@ function BuddyPlusCard({ buddyPlus }: { readonly buddyPlus: LocalBuddyPlusState 
       </div>
       <p className={`mt-4 text-sm leading-relaxed ${isActive ? 'text-background/70' : 'text-muted-foreground'}`}>
         {isActive
-          ? 'Unlimited sends, rate alerts, family hub, and priority routing are active on this device.'
-          : '$1.99 / month. Unlimited sends, unlimited alerts, family hub, and priority routing. 7-day free trial.'}
+          ? 'Unlimited recipients, unlimited alerts, 20-second rate refresh, and early corridor access are active.'
+          : '$1.99 / month. Unlimited recipients + alerts, priority rate refresh, weekly savings digest, early corridor access. 7-day free trial.'}
       </p>
       {isActive ? (
         <div

@@ -12,24 +12,24 @@ export const metadata: Metadata = {
 }
 
 const FREE_FEATURES = [
-  'Compare 7+ providers in real time',
-  'Best-price guarantee',
-  '2 sends per month',
-  'Recipient book (up to 3 recipients)',
+  'Compare every major provider in real time',
+  'Recipient book (up to 3 saved)',
+  'Up to 3 rate alerts',
+  'One family group',
   'Standard support',
 ] as const
 
 const PLUS_FEATURES = [
   'Everything in Free',
-  '**Unlimited** sends with no transaction fees',
-  'Unlimited recipients',
-  'Family group hub with shared goals',
-  'Rate alerts when your corridor drops',
-  'Weekly savings digest email',
-  'Scheduled and recurring sends',
-  'Priority delivery routing',
-  'Ad-free experience',
-  'Priority customer support',
+  '**Unlimited** saved recipients',
+  '**Unlimited** rate alerts · priority email delivery',
+  'Unlimited family groups with shared goals',
+  'Weekly savings digest — see what you avoided',
+  '20-second rate refresh (vs 60s)',
+  'Early access to new corridors',
+  'Transfer history CSV export',
+  'Ad-free everywhere',
+  'Priority support · same-day response',
 ] as const
 
 export default function PricingPage() {
