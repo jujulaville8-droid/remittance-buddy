@@ -41,6 +41,11 @@
     --teal-light: 164 36% 93%;
     --gold: 39 77% 56%;                /* #E6A93A */
     --gold-light: 42 76% 91%;          /* #FAEFD6 */
+
+    /* Body / UI sans = Geist. Exposed as --font-sans so every
+       component using Tailwind's `font-sans` utility picks it up
+       without needing to touch the config. */
+    --font-sans: var(--font-geist-sans);
   }
 
   .dark {
