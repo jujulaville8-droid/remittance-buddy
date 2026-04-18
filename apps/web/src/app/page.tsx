@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import LandingReceipt from '@/components/landing/LandingReceipt'
+import PWARedirect from '@/components/PWARedirect'
 
 export const metadata: Metadata = {
   title: "Remittance Buddy — The receipt doesn't lie.",
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  return <LandingReceipt />
+  return (
+    <>
+      <PWARedirect />
+      <LandingReceipt />
+    </>
+  )
 }

@@ -2,7 +2,7 @@
   "name": "Remittance Buddy",
   "short_name": "Remit Buddy",
   "description": "Compare every remittance provider. Live. Every 60 seconds.",
-  "start_url": "/",
+  "start_url": "/compare?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

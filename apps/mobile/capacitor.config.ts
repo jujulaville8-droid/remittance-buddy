@@ -11,7 +11,10 @@ const config: CapacitorConfig = {
   appName: 'Remittance Buddy',
   webDir: 'www',
   server: {
-    url: 'https://remitance-buddy.vercel.app',
+    // Native shell drops users straight into the tool, skipping the
+    // landing page. Landing is for web visitors; app users already
+    // installed — they want the product.
+    url: 'https://remitance-buddy.vercel.app/compare?source=app',
     cleartext: false,
   },
   ios: {
