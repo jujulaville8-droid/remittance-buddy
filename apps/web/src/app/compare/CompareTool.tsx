@@ -26,6 +26,7 @@ import {
   type LocalFamilyGroup,
   type LocalRecipient,
 } from '@/lib/local-db'
+import { useBuddyPlus } from '@/lib/hooks/useBuddyPlus'
 
 // ─────────────────────────────────────────────────────────────
 // Constants — corridors/payouts tuned for OFW Philippines-first
@@ -108,6 +109,9 @@ export function CompareTool() {
   const [recipients, setRecipients] = useState<readonly LocalRecipient[]>([])
   const [families, setFamilies] = useState<readonly LocalFamilyGroup[]>([])
   const [selectedRecipientId, setSelectedRecipientId] = useState<string | null>(initialRecipientId)
+
+  // Buddy Plus state — enables the "fee waived" perk in WinnerCard
+  const { isActive: isPlus } = useBuddyPlus()
 
   useEffect(() => {
     setRecipients(recipientsStore.list())
@@ -325,6 +329,7 @@ export function CompareTool() {
               recipientId={selectedRecipientId}
               onShareWithFamily={handleShareWithFamily}
               shared={shared}
+              isPlus={isPlus}
             />
             <FamilyNudges
               families={families}
@@ -883,6 +888,7 @@ function WinnerCard({
   readonly recipientId: string | null
   readonly onShareWithFamily: () => void
   readonly shared: boolean
+  readonly isPlus: boolean
 }) {
   if (!winner || !routing) {
     return (
@@ -895,7 +901,8 @@ function WinnerCard({
     )
   }
 
-  const buddyFee = amount * 0.005
+  // Buddy Plus perk: zero platform fee on sends. Free tier: 0.5%.
+  const buddyFee = isPlus ? 0 : amount * 0.005
   const total = amount + winner.fee + buddyFee
   const isBuddyRoute = routing.action === 'buddy-executes'
 
@@ -945,7 +952,10 @@ function WinnerCard({
       <div className="relative mt-7 space-y-2.5 rounded-2xl border border-border bg-background p-4">
         <MathRow label="You send" value={`$${amount.toFixed(2)}`} />
         <MathRow label={`${winner.provider} fee`} value={`$${winner.fee.toFixed(2)}`} />
-        <MathRow label="Buddy service fee · 0.5%" value={`$${buddyFee.toFixed(2)}`} />
+        <MathRow
+          label={isPlus ? 'Buddy service fee · waived for Plus' : 'Buddy service fee · 0.5%'}
+          value={isPlus ? '$0.00' : `$${buddyFee.toFixed(2)}`}
+        />
         <div className="border-t border-dashed border-border pt-2.5">
           <MathRow label="You pay in total" value={`$${total.toFixed(2)}`} bold />
         </div>

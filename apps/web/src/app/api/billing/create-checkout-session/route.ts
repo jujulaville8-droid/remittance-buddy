@@ -9,6 +9,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import * as Sentry from '@sentry/nextjs'
+import { createClient as createSupabaseServerClient } from '@/lib/supabase/server'
 
 // Using a stable API version the type defs know about; the installed
 // @types/stripe@2026-03-25.dahlia is fine but we pin to avoid drift
@@ -41,6 +42,13 @@ export async function POST(req: Request) {
     const body = (await req.json().catch(() => ({}))) as { plan?: string; email?: string }
     const origin = new URL(req.url).origin
 
+    // Attach the authenticated Supabase user ID so the Stripe webhook
+    // can flip buddy_plus_state for the right account.
+    const supabase = await createSupabaseServerClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -50,16 +58,22 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
+      metadata: {
+        tier: 'buddy_plus',
+        userId: user?.id ?? '',
+      },
       subscription_data: {
         trial_period_days: 7,
         metadata: {
           plan: body.plan ?? 'buddy-plus-monthly',
           source: 'pricing-page',
+          tier: 'buddy_plus',
+          userId: user?.id ?? '',
         },
       },
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
-      customer_email: body.email ?? undefined,
+      customer_email: body.email ?? user?.email ?? undefined,
       success_url: `${origin}/pricing/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
     })

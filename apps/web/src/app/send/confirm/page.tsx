@@ -11,8 +11,9 @@ import {
   type LocalRecipient,
 } from '@/lib/local-db'
 import { useLiveQuotes } from '@/components/landing/useLiveQuotes'
+import { useBuddyPlus } from '@/lib/hooks/useBuddyPlus'
 
-const BUDDY_FEE_BPS = 50 // 0.5%
+const BUDDY_FEE_BPS = 50 // 0.5%  — free tier; Plus users pay 0
 
 export default function ConfirmPage() {
   return (
@@ -63,8 +64,10 @@ function ConfirmPageInner() {
     return () => clearInterval(id)
   }, [])
 
+  const { isActive: isPlus } = useBuddyPlus()
   const winner = quotes[0]
-  const buddyFee = amount * (BUDDY_FEE_BPS / 10000)
+  // Buddy Plus perk: zero platform fee. Free tier pays 0.5%.
+  const buddyFee = isPlus ? 0 : amount * (BUDDY_FEE_BPS / 10000)
   const totalCost = winner ? amount + winner.fee + buddyFee : amount + buddyFee
 
   async function handleConfirm() {
@@ -193,12 +196,18 @@ function ConfirmPageInner() {
               label={
                 <span className="inline-flex items-center gap-1">
                   Buddy service fee
-                  <span className="text-[9px] font-bold px-1 py-px rounded bg-coral/15 text-coral uppercase tracking-wider">
-                    0.5%
-                  </span>
+                  {isPlus ? (
+                    <span className="text-[9px] font-bold px-1 py-px rounded bg-teal/15 text-teal uppercase tracking-wider">
+                      Plus · waived
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-bold px-1 py-px rounded bg-coral/15 text-coral uppercase tracking-wider">
+                      0.5%
+                    </span>
+                  )}
                 </span>
               }
-              value={`$${buddyFee.toFixed(2)}`}
+              value={isPlus ? '$0.00' : `$${buddyFee.toFixed(2)}`}
             />
             <div className="border-t border-dashed border-border pt-2.5" />
             <Row

@@ -4,7 +4,31 @@ import { eq } from 'drizzle-orm'
 import { constructStripeEvent } from '@/lib/stripe'
 import { createQuote, createRecipient, createTransfer, fundTransfer } from '@/lib/wise'
 import { logAuditEvent } from '@/lib/audit'
+import { createServiceClient } from '@/lib/supabase/service'
 import type Stripe from 'stripe'
+
+async function markBuddyPlus(
+  userId: string,
+  active: boolean,
+  fields: { subscriptionId?: string; checkoutSessionId?: string; periodEnd?: number } = {},
+) {
+  if (!userId) return
+  try {
+    const supa = createServiceClient()
+    await supa.from('buddy_plus_state').upsert(
+      {
+        user_id: userId,
+        active,
+        subscription_id: fields.subscriptionId ?? null,
+        checkout_session_id: fields.checkoutSessionId ?? null,
+        period_end: fields.periodEnd ? new Date(fields.periodEnd * 1000).toISOString() : null,
+      },
+      { onConflict: 'user_id' },
+    )
+  } catch (err) {
+    console.warn('[stripe webhook] buddy_plus_state upsert failed:', err)
+  }
+}
 
 export async function POST(req: Request) {
   const headerPayload = await headers()
@@ -23,9 +47,44 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid signature' }, { status: 401 })
   }
 
-  // Checkout Session completed — chat-driven flow: create Wise transfer then fund
+  // ========= Buddy Plus subscription lifecycle =========
+  if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
+    const sub = event.data.object as Stripe.Subscription
+    const userId = (sub.metadata?.userId ?? '').trim()
+    const isPlus =
+      sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due'
+    // Stripe types mark current_period_end as mandatory number; be defensive
+    const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end
+    await markBuddyPlus(userId, isPlus, {
+      subscriptionId: sub.id,
+      periodEnd,
+    })
+    return Response.json({ received: true })
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object as Stripe.Subscription
+    const userId = (sub.metadata?.userId ?? '').trim()
+    await markBuddyPlus(userId, false, { subscriptionId: sub.id })
+    return Response.json({ received: true })
+  }
+
+  // Checkout Session completed — either Buddy Plus subscription OR chat-driven transfer
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
+
+    // Buddy Plus subscription path — we stamp Plus active as soon as
+    // checkout lands; subscription.created will also fire shortly and
+    // give us the full period_end.
+    if (session.metadata?.tier === 'buddy_plus') {
+      const userId = (session.metadata?.userId ?? '').trim()
+      await markBuddyPlus(userId, true, {
+        checkoutSessionId: session.id,
+        subscriptionId: typeof session.subscription === 'string' ? session.subscription : undefined,
+      })
+      return Response.json({ received: true })
+    }
+
     const transferId = session.metadata?.transferId
 
     if (!transferId) {
