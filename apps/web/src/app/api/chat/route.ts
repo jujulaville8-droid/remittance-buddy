@@ -5,37 +5,80 @@ import { z } from 'zod'
 import { chatRateLimiter } from '@/lib/rate-limit'
 import { db, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
+import { fetchAllQuotes } from '@remit/api'
 
-const PROVIDER_DATA = [
-  { provider: 'Remitly',        rate: 57.98, fee: 1.99, speed: 'Minutes',  gcash: true,  cashPickup: true,  trust: 9 },
-  { provider: 'Wise',           rate: 58.33, fee: 4.14, speed: '1-2 days', gcash: false, cashPickup: false, trust: 10 },
-  { provider: 'Xoom',           rate: 57.57, fee: 0,    speed: 'Hours',    gcash: true,  cashPickup: true,  trust: 8 },
-  { provider: 'Western Union',  rate: 56.99, fee: 5.00, speed: 'Minutes',  gcash: true,  cashPickup: true,  trust: 9 },
-  { provider: 'MoneyGram',      rate: 57.28, fee: 4.99, speed: 'Minutes',  gcash: true,  cashPickup: true,  trust: 8 },
-  { provider: 'WorldRemit',     rate: 57.75, fee: 2.99, speed: 'Minutes',  gcash: true,  cashPickup: false, trust: 7 },
-  { provider: 'Pangea',         rate: 57.87, fee: 3.95, speed: 'Same day', gcash: true,  cashPickup: false, trust: 6 },
-] as const;
+type PayoutFilter = 'all' | 'gcash' | 'cash_pickup' | 'fast'
 
-function computeComparison(amountUsd: number, filter?: string) {
-  let providers = PROVIDER_DATA.map(p => {
-    const receiveAmount = Math.round((amountUsd - p.fee) * p.rate);
-    const totalCost = amountUsd + p.fee;
-    return { ...p, receiveAmount, totalCost, sendAmount: amountUsd };
-  });
+/**
+ * Compare providers using the same live-quote aggregator the /compare
+ * tool uses. The payout filter maps the chat's user-facing filter to
+ * the underlying payoutMethod param; `fast` post-filters by delivery
+ * speed since it's not a payout method per se.
+ */
+async function computeComparison(amountUsd: number, filter: PayoutFilter = 'all') {
+  const payoutMethod: 'gcash' | 'bank' | 'cash_pickup' =
+    filter === 'gcash'
+      ? 'gcash'
+      : filter === 'cash_pickup'
+        ? 'cash_pickup'
+        : 'bank' // default — widest coverage
 
-  if (filter === 'gcash') providers = providers.filter(p => p.gcash);
-  if (filter === 'cash_pickup') providers = providers.filter(p => p.cashPickup);
-  if (filter === 'fast') providers = providers.filter(p => p.speed === 'Minutes');
+  let result
+  try {
+    result = await fetchAllQuotes({
+      corridor: 'US-PH',
+      sourceCurrency: 'USD',
+      targetCurrency: 'PHP',
+      sourceAmount: amountUsd,
+      payoutMethod,
+    })
+  } catch (err) {
+    console.warn('[chat] quote fetch failed:', err)
+    return {
+      recommended: null,
+      alternatives: [],
+      savings: null,
+      error: 'Rates unavailable right now. Try again in a moment.',
+    }
+  }
 
-  const sorted = [...providers].sort((a, b) => b.receiveAmount - a.receiveAmount);
-  const best = sorted[0];
-  const worst = sorted[sorted.length - 1];
+  let providers = result.quotes.map((q) => ({
+    provider: q.provider,
+    rate: Number(q.exchangeRate.toFixed(2)),
+    fee: Number(q.fee.toFixed(2)),
+    speed: q.deliveryTime,
+    gcash: payoutMethod === 'gcash' || q.supportsGcash === true,
+    cashPickup: payoutMethod === 'cash_pickup' || q.supportsCashPickup === true,
+    trust: q.trustScore ?? 7,
+    receiveAmount: Math.round(q.targetAmount),
+    totalCost: Number((amountUsd + q.fee).toFixed(2)),
+    sendAmount: amountUsd,
+  }))
+
+  if (filter === 'fast') {
+    providers = providers.filter((p) => /min/i.test(p.speed))
+  }
+
+  const sorted = [...providers].sort((a, b) => b.receiveAmount - a.receiveAmount)
+  const best = sorted[0]
+  const worst = sorted[sorted.length - 1]
 
   return {
-    recommended: best ? { ...best, reason: `Best value — recipient gets the most pesos (₱${best.receiveAmount.toLocaleString()})` } : null,
-    alternatives: sorted.slice(1, 4).map(p => ({ ...p })),
-    savings: best && worst ? { feeSaved: worst.totalCost - best.totalCost, extraPesos: best.receiveAmount - worst.receiveAmount } : null,
-  };
+    recommended: best
+      ? {
+          ...best,
+          reason: `Best value — recipient gets the most pesos (₱${best.receiveAmount.toLocaleString()})`,
+        }
+      : null,
+    alternatives: sorted.slice(1, 4).map((p) => ({ ...p })),
+    savings:
+      best && worst
+        ? {
+            feeSaved: worst.totalCost - best.totalCost,
+            extraPesos: best.receiveAmount - worst.receiveAmount,
+          }
+        : null,
+  }
 }
 
 export const maxDuration = 30
@@ -142,7 +185,7 @@ STYLE:
           filter: z.enum(['all', 'gcash', 'cash_pickup', 'fast']).optional().describe('Optional filter: gcash (GCash only), cash_pickup (cash pickup only), fast (instant delivery only)'),
         }),
         execute: async ({ amountUsd, filter }) => {
-          return computeComparison(amountUsd, filter === 'all' ? undefined : filter);
+          return await computeComparison(amountUsd, (filter ?? 'all') as PayoutFilter)
         },
       }),
     },

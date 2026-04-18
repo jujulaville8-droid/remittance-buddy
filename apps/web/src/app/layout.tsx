@@ -6,6 +6,7 @@ import { Plus_Jakarta_Sans, DM_Serif_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import MigrationBridge from '@/components/MigrationBridge'
+import InstallPrompt from '@/components/InstallPrompt'
 import './globals.css'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -67,6 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <MigrationBridge />
         {children}
+        <InstallPrompt />
         <Analytics />
         <SpeedInsights />
         <Script id="sw-register" strategy="afterInteractive">
