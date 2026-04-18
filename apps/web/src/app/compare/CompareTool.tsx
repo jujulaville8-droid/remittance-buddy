@@ -361,14 +361,14 @@ function Greeting({ recipientFirstName }: { readonly recipientFirstName: string 
         <span className="text-sm leading-none">🇵🇭</span>
         Built for Filipino families abroad
       </div>
-      <h1 className="mt-5 font-display text-5xl lg:text-[4.25rem] leading-[0.95] text-foreground text-balance max-w-4xl">
+      <h1 className="mt-5 font-sans font-semibold text-4xl lg:text-[3.25rem] tracking-tight leading-[1.05] text-foreground text-balance max-w-4xl">
         {localGreeting},{' '}
-        <span className="italic text-coral">
+        <span className="font-display italic font-normal text-coral">
           {recipientFirstName
             ? `sending home to ${recipientFirstName}`
             : 'padalahan natin ang pamilya mo'}
-          .
         </span>
+        .
       </h1>
       <p className="mt-5 text-lg text-muted-foreground max-w-2xl leading-relaxed">
         {recipientFirstName

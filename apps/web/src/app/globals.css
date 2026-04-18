@@ -42,10 +42,6 @@
     --gold: 39 77% 56%;                /* #E6A93A */
     --gold-light: 42 76% 91%;          /* #FAEFD6 */
 
-    /* Body / UI sans = Geist. Exposed as --font-sans so every
-       component using Tailwind's `font-sans` utility picks it up
-       without needing to touch the config. */
-    --font-sans: var(--font-geist-sans);
   }
 
   .dark {
@@ -93,8 +89,16 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-    font-feature-settings: 'ss01', 'cv11';
+    /* Inter stylistic sets: cv11 single-storey a, ss01 alt 1/4/9 */
+    font-feature-settings: 'cv11', 'ss01';
+    /* Wise-style body size — a touch larger than Tailwind's default
+       (15–16px) to feel product-grade, not marketing-page. */
+    font-size: 16px;
+    line-height: 1.5;
   }
+  /* Tabular figures everywhere currency or counts appear.
+     Applies automatically to any element using the `tabular-nums` class. */
+  .tabular-nums { font-variant-numeric: tabular-nums; }
   ::selection {
     background: hsl(var(--coral) / 0.2);
     color: hsl(var(--foreground));

@@ -133,7 +133,7 @@ function Stats({
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {item.label}
           </div>
-          <div className="mt-5 font-display text-4xl lg:text-5xl leading-none text-foreground tabular-nums">
+          <div className="mt-5 font-sans font-semibold text-4xl lg:text-5xl leading-none tracking-tight text-foreground tabular-nums">
             {item.value}
           </div>
           <div className="mt-3 text-xs text-muted-foreground">{item.hint}</div>
