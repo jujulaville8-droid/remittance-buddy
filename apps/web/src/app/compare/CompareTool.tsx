@@ -363,7 +363,7 @@ function Greeting({ recipientFirstName }: { readonly recipientFirstName: string 
       </div>
       <h1 className="mt-5 font-sans font-semibold text-4xl lg:text-[3.25rem] tracking-tight leading-[1.05] text-foreground text-balance max-w-4xl">
         {localGreeting},{' '}
-        <span className="font-display italic font-normal text-coral">
+        <span className="font-editorial italic font-normal text-coral">
           {recipientFirstName
             ? `sending home to ${recipientFirstName}`
             : 'padalahan natin ang pamilya mo'}

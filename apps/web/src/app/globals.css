@@ -106,8 +106,13 @@
 }
 
 @layer utilities {
+  /* font-display now = Inter semibold tight — Wise-style heading weight.
+     If you need the editorial serif for a specific element, use
+     `font-editorial` (Tailwind class defined in tailwind.config). */
   .font-display {
-    font-family: var(--font-heading), Georgia, serif;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
   }
   .bg-grid {
     background-image:

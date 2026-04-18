@@ -72,7 +72,7 @@ export default function FamilyHubPage() {
     <div className="space-y-10">
       <header className="space-y-3">
         <div className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">Family Hub</div>
-        <h1 className="font-display text-4xl sm:text-5xl">Send as a family, save as one.</h1>
+        <h1 className="font-sans font-semibold tracking-tight text-4xl sm:text-5xl leading-[1.05]">Send as a family, save as one.</h1>
         <p className="max-w-2xl text-muted-foreground">
           Create a family group, pool recipients, set a shared savings goal, and watch progress as
           each of you sends money home. Everything stays on this device until your account is
@@ -101,7 +101,7 @@ export default function FamilyHubPage() {
       {hasGroups ? (
         <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-2xl">Your groups</h2>
+            <h2 className="font-sans font-semibold tracking-tight text-2xl">Your groups</h2>
             {!showForm ? (
               <button
                 type="button"
@@ -140,7 +140,7 @@ function EmptyState({
       <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10 text-2xl">
         👨‍👩‍👧
       </div>
-      <h2 className="font-display text-2xl">No family groups yet</h2>
+      <h2 className="font-sans font-semibold tracking-tight text-2xl">No family groups yet</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
         {hasRecipients
           ? 'Bundle your existing recipients into a group and track savings toward a shared goal.'
@@ -313,7 +313,7 @@ function FamilyGroupCard({
   return (
     <article className="space-y-5 rounded-2xl border border-border bg-card p-6 shadow-sm">
       <div className="space-y-1">
-        <h3 className="font-display text-xl">{group.name}</h3>
+        <h3 className="font-sans font-semibold tracking-tight text-xl">{group.name}</h3>
         <p className="text-xs text-muted-foreground">
           {members.length} {members.length === 1 ? 'member' : 'members'} ·{' '}
           {groupRecipients.length} {groupRecipients.length === 1 ? 'recipient' : 'recipients'}
@@ -345,15 +345,15 @@ function FamilyGroupCard({
       <dl className="grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-3 text-center">
         <div>
           <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Sends</dt>
-          <dd className="font-display text-lg">{stats.sendCount}</dd>
+          <dd className="font-sans font-semibold tabular-nums text-lg">{stats.sendCount}</dd>
         </div>
         <div>
           <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Sent</dt>
-          <dd className="font-display text-lg">${stats.totalSent.toFixed(0)}</dd>
+          <dd className="font-sans font-semibold tabular-nums text-lg">${stats.totalSent.toFixed(0)}</dd>
         </div>
         <div>
           <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Saved</dt>
-          <dd className="font-display text-lg text-teal">${stats.totalSaved.toFixed(0)}</dd>
+          <dd className="font-sans font-semibold tabular-nums text-lg text-teal">${stats.totalSaved.toFixed(0)}</dd>
         </div>
       </dl>
 
