@@ -349,6 +349,12 @@ export function CompareTool() {
 // ─────────────────────────────────────────────────────────────
 
 function Greeting({ recipientFirstName }: { readonly recipientFirstName: string | null }) {
+  // Avoid hydration mismatch: server renders the neutral fallback,
+  // then the client swaps in the time-of-day greeting after mount.
+  const [localGreeting, setLocalGreeting] = useState('Kumusta')
+  useEffect(() => {
+    setLocalGreeting(greeting())
+  }, [])
   return (
     <header className="container max-w-6xl">
       <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-coral">
@@ -356,7 +362,7 @@ function Greeting({ recipientFirstName }: { readonly recipientFirstName: string 
         Built for Filipino families abroad
       </div>
       <h1 className="mt-5 font-display text-5xl lg:text-[4.25rem] leading-[0.95] text-foreground text-balance max-w-4xl">
-        {greeting()},{' '}
+        {localGreeting},{' '}
         <span className="italic text-coral">
           {recipientFirstName
             ? `sending home to ${recipientFirstName}`
@@ -876,6 +882,7 @@ function WinnerCard({
   recipientId,
   onShareWithFamily,
   shared,
+  isPlus,
 }: {
   readonly winner: LiveQuote | undefined
   readonly routing: ReturnType<typeof decideRouting> | null

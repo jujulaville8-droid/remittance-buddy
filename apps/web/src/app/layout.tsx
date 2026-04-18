@@ -2,21 +2,26 @@ import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
-import { Plus_Jakarta_Sans, DM_Serif_Display } from 'next/font/google'
+import { Instrument_Sans, Instrument_Serif } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import MigrationBridge from '@/components/MigrationBridge'
 import InstallPrompt from '@/components/InstallPrompt'
 import './globals.css'
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+// Matches the landing's editorial type system:
+// - Instrument Sans for body / UI labels
+// - Instrument Serif (regular + italic) for every display number and headline
+const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-sans',
   display: 'swap',
 })
 
-const dmSerifDisplay = DM_Serif_Display({
+const instrumentSerif = Instrument_Serif({
   weight: '400',
+  style: ['normal', 'italic'],
   subsets: ['latin'],
   variable: '--font-heading',
   display: 'swap',
@@ -63,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${GeistSans.variable} ${GeistMono.variable} ${plusJakartaSans.variable} ${dmSerifDisplay.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSans.variable} ${instrumentSerif.variable}`}
     >
       <body>
         <MigrationBridge />

@@ -4,64 +4,77 @@
 
 @layer base {
   :root {
-    /* Blue Authority palette */
-    --background: 210 40% 98%;         /* cool white */
-    --foreground: 220 30% 12%;         /* deep navy text */
-    --card: 0 0% 100%;                 /* pure white */
-    --card-foreground: 220 30% 12%;
+    /* Warm editorial palette — matches the landing (LandingReceipt).
+       Cream paper + warm near-black ink + terracotta accent.
+       Source of truth: apps/web/src/components/landing/LandingReceipt.tsx
+       and the design bundle at ~/remittance-buddy-landing. */
+    --background: 41 60% 93%;          /* #F8F2E3 — cream */
+    --foreground: 30 13% 6%;           /* #12100E — warm near-black */
+    --card: 42 61% 95%;                /* #FBF7EC — paper */
+    --card-foreground: 30 13% 6%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 30% 12%;
-    --primary: 218 85% 55%;            /* vivid blue */
+    --popover-foreground: 30 13% 6%;
+
+    --primary: 13 47% 48%;             /* #B35940 — terracotta */
     --primary-foreground: 0 0% 100%;
-    --secondary: 215 25% 93%;          /* muted cool surface */
-    --secondary-foreground: 220 30% 12%;
-    --muted: 215 25% 93%;
-    --muted-foreground: 215 15% 42%;   /* cool gray text */
-    --accent: 195 85% 42%;             /* cyan accent */
+    --secondary: 38 40% 91%;           /* #F2ECDF — subtle warm surface */
+    --secondary-foreground: 30 13% 6%;
+    --muted: 38 40% 91%;
+    --muted-foreground: 26 8% 39%;     /* #6B645C — ink-500 */
+
+    --accent: 171 80% 29%;             /* #0F8373 — teal (trust / live) */
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
+    --destructive: 6 73% 45%;          /* #C8321F */
     --destructive-foreground: 0 0% 98%;
-    --border: 215 25% 89%;             /* cool border */
-    --input: 215 25% 89%;
-    --ring: 218 85% 55%;               /* blue ring */
+
+    --border: 34 26% 86%;               /* #E6DFD3 — warm hairline */
+    --input: 34 26% 86%;
+    --ring: 13 47% 48%;
     --radius: 0.75rem;
 
-    /* Aliases kept under old names so existing class names stay blue */
-    --coral: 218 85% 55%;              /* now blue */
-    --coral-light: 218 100% 96%;
-    --teal: 195 85% 42%;               /* kept as cyan accent */
-    --teal-light: 195 60% 95%;
-    --gold: 38 92% 50%;
-    --gold-light: 38 92% 95%;
+    /* Brand accents — class names match landing tokens so
+       text-coral / bg-coral / text-teal / bg-gold all read the same
+       in tool and landing. */
+    --coral: 13 47% 48%;               /* #B35940 */
+    --coral-light: 20 59% 92%;         /* #F5E6DF — coral-soft */
+    --teal: 171 80% 29%;
+    --teal-light: 164 36% 93%;
+    --gold: 39 77% 56%;                /* #E6A93A */
+    --gold-light: 42 76% 91%;          /* #FAEFD6 */
   }
 
   .dark {
-    --background: 220 30% 6%;
-    --foreground: 210 30% 94%;
-    --card: 220 30% 9%;
-    --card-foreground: 210 30% 94%;
-    --popover: 220 30% 9%;
-    --popover-foreground: 210 30% 94%;
-    --primary: 218 85% 62%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 25% 15%;
-    --secondary-foreground: 210 30% 94%;
-    --muted: 220 25% 15%;
-    --muted-foreground: 215 15% 62%;
-    --accent: 195 85% 48%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 25% 17%;
-    --input: 220 25% 17%;
-    --ring: 218 85% 62%;
+    /* Editorial night — the inverted look used by the landing's hero,
+       corridors, and final-CTA sections. Warm ink bg, cream text. */
+    --background: 34 20% 7%;           /* #14110D */
+    --foreground: 41 60% 93%;          /* #F8F2E3 */
+    --card: 30 13% 10%;
+    --card-foreground: 41 60% 93%;
+    --popover: 30 13% 10%;
+    --popover-foreground: 41 60% 93%;
 
-    --coral: 218 85% 62%;
-    --coral-light: 218 40% 18%;
-    --teal: 195 85% 48%;
-    --teal-light: 195 40% 18%;
-    --gold: 38 92% 55%;
-    --gold-light: 38 40% 18%;
+    --primary: 13 57% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 30 10% 14%;
+    --secondary-foreground: 41 60% 93%;
+    --muted: 30 10% 14%;
+    --muted-foreground: 27 9% 65%;
+
+    --accent: 171 70% 40%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 6 73% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 15% 18%;
+    --input: 30 15% 18%;
+    --ring: 13 57% 56%;
+
+    --coral: 13 57% 56%;
+    --coral-light: 13 30% 18%;
+    --teal: 171 70% 40%;
+    --teal-light: 171 30% 14%;
+    --gold: 39 77% 56%;
+    --gold-light: 39 30% 16%;
   }
 }
 
