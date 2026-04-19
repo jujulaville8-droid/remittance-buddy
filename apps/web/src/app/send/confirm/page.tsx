@@ -12,7 +12,8 @@ import {
 } from '@/lib/local-db'
 import { useLiveQuotes } from '@/components/landing/useLiveQuotes'
 
-const BUDDY_FEE_BPS = 50 // 0.5%
+// V1 reality: no platform fee. We hand users off to providers via
+// affiliate links; the fee they pay is the provider's fee only.
 
 export default function ConfirmPage() {
   return (
@@ -64,8 +65,8 @@ function ConfirmPageInner() {
   }, [])
 
   const winner = quotes[0]
-  const buddyFee = amount * (BUDDY_FEE_BPS / 10000)
-  const totalCost = winner ? amount + winner.fee + buddyFee : amount + buddyFee
+  const buddyFee = 0 // no platform fee — Buddy is affiliate-only in V1
+  const totalCost = winner ? amount + winner.fee : amount
 
   async function handleConfirm() {
     if (!recipient || !winner) return
@@ -188,17 +189,6 @@ function ConfirmPageInner() {
             <Row
               label={winner?.provider ? `${winner.provider} fee` : 'Provider fee'}
               value={winner ? `$${winner.fee.toFixed(2)}` : '—'}
-            />
-            <Row
-              label={
-                <span className="inline-flex items-center gap-1">
-                  Buddy service fee
-                  <span className="text-[9px] font-bold px-1 py-px rounded bg-coral/15 text-coral uppercase tracking-wider">
-                    0.5%
-                  </span>
-                </span>
-              }
-              value={`$${buddyFee.toFixed(2)}`}
             />
             <div className="border-t border-dashed border-border pt-2.5" />
             <Row

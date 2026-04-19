@@ -1,13 +1,12 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Check, Plus, User } from 'lucide-react'
-import {
-  recipientsStore,
-  activeTransferStore,
-  type LocalRecipient,
-} from '@/lib/local-db'
+import { activeTransferStore, type LocalRecipient } from '@/lib/local-db'
+import { useRecipients } from '@/lib/hooks/useRecipients'
+import { isPlanLimitError } from '@/lib/plan-limits'
 
 export default function RecipientPage() {
   return (
@@ -24,8 +23,8 @@ function RecipientPageInner() {
   const corridor = searchParams.get('corridor') ?? 'US-PH'
   const payout = (searchParams.get('payout') ?? 'gcash') as LocalRecipient['payoutMethod']
 
-  const [recipients, setRecipients] = useState<LocalRecipient[]>([])
-  const [mode, setMode] = useState<'select' | 'new'>('select')
+  const { recipients, create: createRecipient } = useRecipients()
+  const [mode, setMode] = useState<'select' | 'new'>(recipients.length === 0 ? 'new' : 'select')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     fullName: '',
@@ -35,15 +34,11 @@ function RecipientPageInner() {
     bankCode: '',
   })
   const [error, setError] = useState<string | null>(null)
+  const [upgradeNotice, setUpgradeNotice] = useState<string | null>(null)
 
-  useEffect(() => {
-    const list = recipientsStore.list()
-    setRecipients(list)
-    if (list.length === 0) setMode('new')
-  }, [])
-
-  function handleContinue() {
+  async function handleContinue() {
     setError(null)
+    setUpgradeNotice(null)
 
     let recipientId: string | null = selectedId
     if (mode === 'new') {
@@ -60,16 +55,25 @@ function RecipientPageInner() {
         return
       }
 
-      const created = recipientsStore.create({
-        fullName: formData.fullName.trim(),
-        relationship: formData.relationship.trim() || null,
-        country: 'PH',
-        payoutMethod: payout,
-        gcashNumber: payout === 'gcash' ? formData.gcashNumber.trim() : undefined,
-        bankCode: payout === 'bank' ? formData.bankCode.trim() : undefined,
-        bankAccountNumber: payout === 'bank' ? formData.bankAccountNumber.trim() : undefined,
-      })
-      recipientId = created.id
+      try {
+        const created = await createRecipient({
+          fullName: formData.fullName.trim(),
+          relationship: formData.relationship.trim() || null,
+          country: 'PH',
+          payoutMethod: payout,
+          gcashNumber: payout === 'gcash' ? formData.gcashNumber.trim() : undefined,
+          bankCode: payout === 'bank' ? formData.bankCode.trim() : undefined,
+          bankAccountNumber: payout === 'bank' ? formData.bankAccountNumber.trim() : undefined,
+        })
+        recipientId = created.id
+      } catch (err) {
+        if (isPlanLimitError(err)) {
+          setUpgradeNotice(err.message)
+          return
+        }
+        setError(err instanceof Error ? err.message : 'Could not save recipient')
+        return
+      }
     }
 
     if (!recipientId) {
@@ -256,6 +260,19 @@ function RecipientPageInner() {
       {error && (
         <div className="mb-4 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm px-4 py-3">
           {error}
+        </div>
+      )}
+
+      {upgradeNotice && (
+        <div className="mb-4 rounded-lg border border-coral/40 bg-coral/5 px-4 py-3 text-sm">
+          <p className="font-semibold text-coral">Free plan limit reached</p>
+          <p className="mt-1 text-muted-foreground">{upgradeNotice}</p>
+          <Link
+            href="/pricing"
+            className="mt-3 inline-flex items-center rounded-full bg-coral px-4 py-1.5 text-xs font-semibold text-white"
+          >
+            Upgrade to Buddy Plus →
+          </Link>
         </div>
       )}
 

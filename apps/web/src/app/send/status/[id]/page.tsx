@@ -81,8 +81,17 @@ export default function StatusPage() {
   return (
     <div>
       <div className="text-xs font-bold uppercase tracking-[0.2em] text-coral mb-2">Step 3 of 3</div>
-      <h1 className="font-display text-4xl lg:text-5xl leading-tight text-foreground mb-2">
-        {isDelivered ? '🎉 Sent!' : 'Sending your transfer.'}
+      <h1 className="font-display text-4xl lg:text-5xl leading-tight text-foreground mb-2 inline-flex items-center gap-3">
+        {isDelivered ? (
+          <>
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-teal text-white">
+              <Check className="h-5 w-5" strokeWidth={2.25} />
+            </span>
+            Sent.
+          </>
+        ) : (
+          'Sending your transfer.'
+        )}
       </h1>
       <p className="text-muted-foreground mb-8">
         {isDelivered
@@ -133,10 +142,6 @@ export default function StatusPage() {
               <span className="font-mono tabular-nums">
                 1 USD = {transfer.exchangeRate.toFixed(4)} PHP
               </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Buddy service fee</span>
-              <span className="font-mono tabular-nums">${transfer.buddyFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Total charged</span>

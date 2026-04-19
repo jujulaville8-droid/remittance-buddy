@@ -886,17 +886,17 @@ const HTML = String.raw`
 <!-- ===== NAV ===== -->
 <nav class="top" data-screen-label="Nav">
   <div class="wrap">
-    <a href="#" class="wordmark"><span class="mk">R</span><span class="nm">Remittance Buddy</span></a>
+    <a href="/" class="wordmark"><span class="mk">R</span><span class="nm">Remittance Buddy</span></a>
     <div class="links">
-      <a href="#split">Compare</a>
+      <a href="/compare">Compare</a>
       <a href="#how">How it works</a>
       <a href="#corridors">Corridors</a>
-      <a href="#plus">Buddy Plus</a>
+      <a href="/pricing">Buddy Plus</a>
       <a href="#faq">FAQ</a>
     </div>
     <div class="actions">
-      <a href="#" class="btn btn-ghost-inv">Sign in</a>
-      <a href="#split" class="btn btn-coral">Compare rates →</a>
+      <a href="/sign-in" class="btn btn-ghost-inv">Sign in</a>
+      <a href="/compare" class="btn btn-coral">Compare rates →</a>
     </div>
   </div>
 </nav>
@@ -918,7 +918,7 @@ const HTML = String.raw`
     </p>
 
     <div class="ctas">
-      <a href="#split" class="btn btn-coral">Compare rates now →</a>
+      <a href="/compare" class="btn btn-coral">Compare rates now →</a>
       <a href="#how" class="btn btn-outline-inv">See how it works</a>
       <span class="meta-inline">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -988,7 +988,7 @@ const HTML = String.raw`
 
       <div class="line"><span class="l">Rate via <span id="r-provider">Remitly</span></span><span class="v tab">₱<span id="r-rate">56.82</span> / $1</span></div>
       <div class="line deduct"><span class="l">Provider fee</span><span class="v tab">−$<span id="r-provider-fee">0.00</span></span></div>
-      <div class="line deduct"><span class="l">Buddy platform fee (0.5%)</span><span class="v tab">−$<span id="r-platform-fee">2.50</span></span></div>
+      <div class="line"><span class="l">Buddy fee</span><span class="v tab" style="color:var(--teal)">Always $0</span></div>
 
       <div class="line total">
         <span class="l">Mama gets</span>
@@ -1054,7 +1054,7 @@ const HTML = String.raw`
         <div class="rows">
           <div class="r"><span class="l">Rate</span><span class="v good">₱56.82</span></div>
           <div class="r"><span class="l">Provider fee</span><span class="v good">$0.00</span></div>
-          <div class="r"><span class="l">Buddy platform fee</span><span class="v good">$2.50</span></div>
+          <div class="r"><span class="l">Buddy fee</span><span class="v good">Always $0</span></div>
           <div class="r"><span class="l">Delivery</span><span class="v">2 min · direct to GCash</span></div>
         </div>
         <div class="bottom">
@@ -1284,8 +1284,8 @@ const HTML = String.raw`
           <h2>For the ones who send <em>every payday</em>.</h2>
           <p>Built for regular senders — lock in lower FX, get first access to new corridors, earn credit every time you refer a kabayan who's still paying the Western Union tax.</p>
           <div class="actions">
-            <a href="#" class="btn btn-ink">Join Buddy Plus →</a>
-            <a href="#" class="btn btn-outline-ink">Refer &amp; earn</a>
+            <a href="/pricing" class="btn btn-ink">Join Buddy Plus →</a>
+            <a href="/sign-up" class="btn btn-outline-ink">Refer &amp; earn</a>
           </div>
         </div>
         <div class="punch-card">
@@ -1378,7 +1378,7 @@ const HTML = String.raw`
     <div class="list">
       <details open>
         <summary>Is Remittance Buddy free? <span class="plus-ic">+</span></summary>
-        <p>Yes, completely free to compare. We charge a flat 0.5% platform fee only when you choose to send through our rail — shown on screen before you confirm. If you pick an affiliate provider instead, we earn a referral fee from them, not from you.</p>
+        <p>Completely free, and that won't change. We earn a referral fee from the providers you choose to send with — paid by them, never by you. Your transfer goes through the provider's own rail, not ours. We're a comparison tool, not a money transmitter.</p>
       </details>
       <details>
         <summary>How do you get the live rates? <span class="plus-ic">+</span></summary>
@@ -1415,7 +1415,7 @@ const HTML = String.raw`
     <div class="side">
       <p>Free to compare. No account needed. Join 47,218 kabayans using live data to beat the system — and send more home every month.</p>
       <div class="actions">
-        <a href="#split" class="btn btn-coral">Compare rates now →</a>
+        <a href="/compare" class="btn btn-coral">Compare rates now →</a>
         <a href="#how" class="btn btn-outline-inv">See how it works</a>
       </div>
     </div>
@@ -1429,46 +1429,42 @@ const HTML = String.raw`
   <div class="wrap">
     <div class="top">
       <div class="brand">
-        <a href="#" class="wordmark"><span class="mk">R</span><span class="nm">Remittance Buddy</span></a>
+        <a href="/" class="wordmark"><span class="mk">R</span><span class="nm">Remittance Buddy</span></a>
         <p>Building financial transparency for the global diaspora. Every cent counts when it's going home.</p>
       </div>
       <div class="col">
         <h4>Product</h4>
         <ul>
-          <li><a href="#split">Compare rates</a></li>
+          <li><a href="/compare">Compare rates</a></li>
           <li><a href="#how">How it works</a></li>
-          <li><a href="#">Rate alerts</a></li>
-          <li><a href="#">Family hub</a></li>
-          <li><a href="#">Chrome extension</a></li>
+          <li><a href="/alerts">Rate alerts</a></li>
+          <li><a href="/family">Family hub</a></li>
+          <li><a href="/extension-privacy">Chrome extension</a></li>
         </ul>
       </div>
       <div class="col">
         <h4>Corridors</h4>
         <ul>
-          <li><a href="#">US → Philippines</a></li>
-          <li><a href="#">UK → Philippines</a></li>
-          <li><a href="#">Singapore → PH</a></li>
-          <li><a href="#">UAE → Philippines</a></li>
-          <li><a href="#">Request a corridor</a></li>
+          <li><a href="/compare?corridor=US-PH">US → Philippines</a></li>
+          <li><a href="/compare?corridor=UK-PH">UK → Philippines</a></li>
+          <li><a href="/compare?corridor=SG-PH">Singapore → PH</a></li>
+          <li><a href="/compare?corridor=AE-PH">UAE → Philippines</a></li>
+          <li><a href="/compare">Request a corridor</a></li>
         </ul>
       </div>
       <div class="col">
         <h4>Company</h4>
         <ul>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Pricing</a></li>
-          <li><a href="#">Blog</a></li>
-          <li><a href="#">Press kit</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="/pricing">Pricing</a></li>
+          <li><a href="/sign-up">Sign up</a></li>
+          <li><a href="/sign-in">Sign in</a></li>
         </ul>
       </div>
       <div class="col">
         <h4>Legal</h4>
         <ul>
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Terms</a></li>
-          <li><a href="#">Disclosures</a></li>
-          <li><a href="#">Affiliate policy</a></li>
+          <li><a href="/privacy">Privacy</a></li>
+          <li><a href="/terms">Terms</a></li>
         </ul>
       </div>
     </div>

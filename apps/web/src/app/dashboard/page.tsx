@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import {
   ArrowUpRight,
   Bell,
@@ -14,33 +13,25 @@ import {
   Users,
   Wallet,
 } from 'lucide-react'
-import {
-  buddyPlusStore,
-  familyGroupsStore,
-  rateAlertsStore,
-  recipientsStore,
-  transfersStore,
-  type LocalBuddyPlusState,
-  type LocalFamilyGroup,
-  type LocalRateAlert,
-  type LocalRecipient,
-  type LocalTransfer,
+import type {
+  LocalBuddyPlusState,
+  LocalFamilyGroup,
+  LocalRateAlert,
+  LocalRecipient,
+  LocalTransfer,
 } from '@/lib/local-db'
+import { useRecipients } from '@/lib/hooks/useRecipients'
+import { useTransfers } from '@/lib/hooks/useTransfers'
+import { useRateAlerts } from '@/lib/hooks/useRateAlerts'
+import { useFamilyGroups } from '@/lib/hooks/useFamilyGroups'
+import { useBuddyPlus } from '@/lib/hooks/useBuddyPlus'
 
 export default function DashboardPage() {
-  const [recipients, setRecipients] = useState<LocalRecipient[]>([])
-  const [transfers, setTransfers] = useState<LocalTransfer[]>([])
-  const [alerts, setAlerts] = useState<LocalRateAlert[]>([])
-  const [families, setFamilies] = useState<LocalFamilyGroup[]>([])
-  const [buddyPlus, setBuddyPlus] = useState<LocalBuddyPlusState | null>(null)
-
-  useEffect(() => {
-    setRecipients(recipientsStore.list())
-    setTransfers(transfersStore.list())
-    setAlerts(rateAlertsStore.list())
-    setFamilies(familyGroupsStore.list())
-    setBuddyPlus(buddyPlusStore.get())
-  }, [])
+  const { recipients } = useRecipients()
+  const { transfers } = useTransfers()
+  const { alerts } = useRateAlerts()
+  const { groups: families } = useFamilyGroups()
+  const { state: buddyPlus } = useBuddyPlus()
 
   const totalSent = transfers.reduce((sum, t) => sum + t.sourceAmount, 0)
   const completedTransfers = transfers.filter((t) => t.status === 'delivered').length
@@ -142,7 +133,7 @@ function Stats({
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {item.label}
           </div>
-          <div className="mt-5 font-display text-4xl lg:text-5xl leading-none text-foreground tabular-nums">
+          <div className="mt-5 font-sans font-semibold text-4xl lg:text-5xl leading-none tracking-tight text-foreground tabular-nums">
             {item.value}
           </div>
           <div className="mt-3 text-xs text-muted-foreground">{item.hint}</div>
@@ -235,8 +226,8 @@ function BuddyPlusCard({ buddyPlus }: { readonly buddyPlus: LocalBuddyPlusState 
       </div>
       <p className={`mt-4 text-sm leading-relaxed ${isActive ? 'text-background/70' : 'text-muted-foreground'}`}>
         {isActive
-          ? 'Unlimited sends, rate alerts, family hub, and priority routing are active on this device.'
-          : '$1.99 / month. Unlimited sends, unlimited alerts, family hub, and priority routing. 7-day free trial.'}
+          ? 'Unlimited recipients, unlimited alerts, 20-second rate refresh, and early corridor access are active.'
+          : '$1.99 / month. Unlimited recipients + alerts, priority rate refresh, weekly savings digest, early corridor access. 7-day free trial.'}
       </p>
       {isActive ? (
         <div

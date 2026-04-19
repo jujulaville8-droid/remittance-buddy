@@ -340,6 +340,13 @@ export const familyGroupsStore = {
     write(LOCAL_DB_KEYS.familyGroups, [group, ...this.list()])
     return group
   },
+
+  remove(id: string): void {
+    write(
+      LOCAL_DB_KEYS.familyGroups,
+      this.list().filter((g) => g.id !== id),
+    )
+  },
 }
 
 // ────────────────────────────────────────────────────────────

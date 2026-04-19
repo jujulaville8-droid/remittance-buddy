@@ -7,8 +7,7 @@
  *   3. DEFAULT_API_BASE_URL (production Vercel deployment)
  */
 
-export const DEFAULT_API_BASE_URL =
-  'https://remitance-buddy-ey2a2pix9-jujulaville8-droids-projects.vercel.app';
+export const DEFAULT_API_BASE_URL = 'https://remitance-buddy.vercel.app';
 
 export const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL;

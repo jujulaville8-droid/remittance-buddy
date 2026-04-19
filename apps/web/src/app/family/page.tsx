@@ -1,15 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import {
-  familyGroupsStore,
-  recipientsStore,
-  transfersStore,
-  type LocalFamilyGroup,
-  type LocalRecipient,
-  type LocalTransfer,
-} from '@/lib/local-db'
+import { Users } from 'lucide-react'
+import type { LocalFamilyGroup, LocalRecipient, LocalTransfer } from '@/lib/local-db'
+import { useFamilyGroups } from '@/lib/hooks/useFamilyGroups'
+import { useRecipients } from '@/lib/hooks/useRecipients'
+import { useTransfers } from '@/lib/hooks/useTransfers'
+import { isPlanLimitError } from '@/lib/plan-limits'
 
 interface NewGroupDraft {
   name: string
@@ -26,17 +24,12 @@ const EMPTY_DRAFT: NewGroupDraft = {
 }
 
 export default function FamilyHubPage() {
-  const [groups, setGroups] = useState<LocalFamilyGroup[]>([])
-  const [recipients, setRecipients] = useState<LocalRecipient[]>([])
-  const [transfers, setTransfers] = useState<LocalTransfer[]>([])
+  const { groups, create: createGroup } = useFamilyGroups()
+  const { recipients } = useRecipients()
+  const { transfers } = useTransfers()
   const [showForm, setShowForm] = useState(false)
   const [draft, setDraft] = useState<NewGroupDraft>(EMPTY_DRAFT)
-
-  useEffect(() => {
-    setGroups(familyGroupsStore.list())
-    setRecipients(recipientsStore.list())
-    setTransfers(transfersStore.list())
-  }, [])
+  const [error, setError] = useState<string | null>(null)
 
   const hasGroups = groups.length > 0
   const hasRecipients = recipients.length > 0
@@ -50,35 +43,56 @@ export default function FamilyHubPage() {
     }))
   }
 
-  function handleCreate(e: React.FormEvent) {
+  async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!draft.name.trim()) return
     const targetAmount = Number(draft.goalTarget) || 0
-    const created = familyGroupsStore.create({
-      name: draft.name.trim(),
-      members: [{ id: 'owner', name: 'You', role: 'owner' }],
-      goal:
-        draft.goalLabel.trim() && targetAmount > 0
-          ? { label: draft.goalLabel.trim(), targetAmount, currency: 'USD' }
-          : null,
-      recipientIds: draft.recipientIds,
-    })
-    setGroups([created, ...groups])
-    setDraft(EMPTY_DRAFT)
-    setShowForm(false)
+    setError(null)
+    try {
+      await createGroup({
+        name: draft.name.trim(),
+        members: [{ id: 'owner', name: 'You', role: 'owner' }],
+        goal:
+          draft.goalLabel.trim() && targetAmount > 0
+            ? { label: draft.goalLabel.trim(), targetAmount, currency: 'USD' }
+            : null,
+        recipientIds: draft.recipientIds,
+      })
+      setDraft(EMPTY_DRAFT)
+      setShowForm(false)
+    } catch (err) {
+      if (isPlanLimitError(err)) {
+        setError(err.message)
+      } else {
+        setError(err instanceof Error ? err.message : 'Could not create group')
+      }
+    }
   }
 
   return (
     <div className="space-y-10">
       <header className="space-y-3">
         <div className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">Family Hub</div>
-        <h1 className="font-display text-4xl sm:text-5xl">Send as a family, save as one.</h1>
+        <h1 className="font-sans font-semibold tracking-tight text-4xl sm:text-5xl leading-[1.05]">Send as a family, save as one.</h1>
         <p className="max-w-2xl text-muted-foreground">
           Create a family group, pool recipients, set a shared savings goal, and watch progress as
           each of you sends money home. Everything stays on this device until your account is
           ready to sync.
         </p>
       </header>
+
+      {error ? (
+        <div className="rounded-2xl border border-coral/40 bg-coral/5 p-4 text-sm">
+          <p className="font-semibold text-coral">Free plan limit reached</p>
+          <p className="mt-1 text-muted-foreground">{error}</p>
+          <Link
+            href="/pricing"
+            className="mt-3 inline-flex items-center rounded-full bg-coral px-4 py-1.5 text-xs font-semibold text-white"
+          >
+            Upgrade to Buddy Plus →
+          </Link>
+        </div>
+      ) : null}
 
       {!hasGroups && !showForm ? (
         <EmptyState onStart={() => setShowForm(true)} hasRecipients={hasRecipients} />
@@ -93,6 +107,7 @@ export default function FamilyHubPage() {
           onCancel={() => {
             setShowForm(false)
             setDraft(EMPTY_DRAFT)
+            setError(null)
           }}
           onSubmit={handleCreate}
         />
@@ -101,7 +116,7 @@ export default function FamilyHubPage() {
       {hasGroups ? (
         <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-2xl">Your groups</h2>
+            <h2 className="font-sans font-semibold tracking-tight text-2xl">Your groups</h2>
             {!showForm ? (
               <button
                 type="button"
@@ -137,10 +152,10 @@ function EmptyState({
 }) {
   return (
     <section className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
-      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10 text-2xl">
-        👨‍👩‍👧
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10 text-coral">
+        <Users className="h-6 w-6" strokeWidth={1.75} />
       </div>
-      <h2 className="font-display text-2xl">No family groups yet</h2>
+      <h2 className="font-sans font-semibold tracking-tight text-2xl">No family groups yet</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
         {hasRecipients
           ? 'Bundle your existing recipients into a group and track savings toward a shared goal.'
@@ -313,7 +328,7 @@ function FamilyGroupCard({
   return (
     <article className="space-y-5 rounded-2xl border border-border bg-card p-6 shadow-sm">
       <div className="space-y-1">
-        <h3 className="font-display text-xl">{group.name}</h3>
+        <h3 className="font-sans font-semibold tracking-tight text-xl">{group.name}</h3>
         <p className="text-xs text-muted-foreground">
           {members.length} {members.length === 1 ? 'member' : 'members'} ·{' '}
           {groupRecipients.length} {groupRecipients.length === 1 ? 'recipient' : 'recipients'}
@@ -345,15 +360,15 @@ function FamilyGroupCard({
       <dl className="grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-3 text-center">
         <div>
           <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Sends</dt>
-          <dd className="font-display text-lg">{stats.sendCount}</dd>
+          <dd className="font-sans font-semibold tabular-nums text-lg">{stats.sendCount}</dd>
         </div>
         <div>
           <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Sent</dt>
-          <dd className="font-display text-lg">${stats.totalSent.toFixed(0)}</dd>
+          <dd className="font-sans font-semibold tabular-nums text-lg">${stats.totalSent.toFixed(0)}</dd>
         </div>
         <div>
           <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Saved</dt>
-          <dd className="font-display text-lg text-teal">${stats.totalSaved.toFixed(0)}</dd>
+          <dd className="font-sans font-semibold tabular-nums text-lg text-teal">${stats.totalSaved.toFixed(0)}</dd>
         </div>
       </dl>
 

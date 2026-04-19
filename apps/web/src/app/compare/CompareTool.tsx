@@ -19,24 +19,25 @@ import {
   Users,
 } from 'lucide-react'
 import { useLiveQuotes, type LiveQuote } from '@/components/landing/useLiveQuotes'
-import { decideRouting } from '@/lib/affiliate-routing'
+import { decideRouting, trackAffiliateClick } from '@/lib/affiliate-routing'
 import {
   familyGroupsStore,
   recipientsStore,
   type LocalFamilyGroup,
   type LocalRecipient,
 } from '@/lib/local-db'
+import { useBuddyPlus } from '@/lib/hooks/useBuddyPlus'
 
 // ─────────────────────────────────────────────────────────────
 // Constants — corridors/payouts tuned for OFW Philippines-first
 // ─────────────────────────────────────────────────────────────
 
 const CORRIDORS = [
-  { id: 'US-PH', label: 'US → PH', sourceCurrency: 'USD', targetCurrency: 'PHP', flag: '🇺🇸' },
-  { id: 'UK-PH', label: 'UK → PH', sourceCurrency: 'GBP', targetCurrency: 'PHP', flag: '🇬🇧' },
-  { id: 'SG-PH', label: 'SG → PH', sourceCurrency: 'SGD', targetCurrency: 'PHP', flag: '🇸🇬' },
-  { id: 'AE-PH', label: 'UAE → PH', sourceCurrency: 'AED', targetCurrency: 'PHP', flag: '🇦🇪' },
-  { id: 'SA-PH', label: 'SA → PH', sourceCurrency: 'SAR', targetCurrency: 'PHP', flag: '🇸🇦' },
+  { id: 'US-PH', label: 'US → PH', sourceCurrency: 'USD', targetCurrency: 'PHP' },
+  { id: 'UK-PH', label: 'UK → PH', sourceCurrency: 'GBP', targetCurrency: 'PHP' },
+  { id: 'SG-PH', label: 'SG → PH', sourceCurrency: 'SGD', targetCurrency: 'PHP' },
+  { id: 'AE-PH', label: 'UAE → PH', sourceCurrency: 'AED', targetCurrency: 'PHP' },
+  { id: 'SA-PH', label: 'SA → PH', sourceCurrency: 'SAR', targetCurrency: 'PHP' },
 ] as const
 
 const PAYOUT_METHODS = [
@@ -108,6 +109,9 @@ export function CompareTool() {
   const [recipients, setRecipients] = useState<readonly LocalRecipient[]>([])
   const [families, setFamilies] = useState<readonly LocalFamilyGroup[]>([])
   const [selectedRecipientId, setSelectedRecipientId] = useState<string | null>(initialRecipientId)
+
+  // Buddy Plus state — enables the "fee waived" perk in WinnerCard
+  const { isActive: isPlus } = useBuddyPlus()
 
   useEffect(() => {
     setRecipients(recipientsStore.list())
@@ -190,7 +194,7 @@ export function CompareTool() {
     if (typeof window === 'undefined') return
     const name = recipientFirstName ?? 'the family'
     const php = Math.round(winner.targetAmount).toLocaleString()
-    const message = `Sending ₱${php} home to ${name} via ${winner.provider}, arriving in ${winner.deliveryTime}. I'll let you know when it lands 🇵🇭`
+    const message = `Sending ₱${php} home to ${name} via ${winner.provider}, arriving in ${winner.deliveryTime}. I'll let you know when it lands.`
 
     const flash = () => {
       setShared(true)
@@ -250,7 +254,7 @@ export function CompareTool() {
                 {' '}
                 home to{' '}
                 <span className="font-semibold text-foreground">
-                  {corridor.targetCurrency === 'PHP' ? 'the Philippines 🇵🇭' : 'your family'}
+                  {corridor.targetCurrency === 'PHP' ? 'the Philippines' : 'your family'}
                 </span>
               </>
             )}
@@ -325,6 +329,7 @@ export function CompareTool() {
               recipientId={selectedRecipientId}
               onShareWithFamily={handleShareWithFamily}
               shared={shared}
+              isPlus={isPlus}
             />
             <FamilyNudges
               families={families}
@@ -344,20 +349,26 @@ export function CompareTool() {
 // ─────────────────────────────────────────────────────────────
 
 function Greeting({ recipientFirstName }: { readonly recipientFirstName: string | null }) {
+  // Avoid hydration mismatch: server renders the neutral fallback,
+  // then the client swaps in the time-of-day greeting after mount.
+  const [localGreeting, setLocalGreeting] = useState('Kumusta')
+  useEffect(() => {
+    setLocalGreeting(greeting())
+  }, [])
   return (
     <header className="container max-w-6xl">
       <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-coral">
-        <span className="text-sm leading-none">🇵🇭</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-coral" />
         Built for Filipino families abroad
       </div>
-      <h1 className="mt-5 font-display text-5xl lg:text-[4.25rem] leading-[0.95] text-foreground text-balance max-w-4xl">
-        {greeting()},{' '}
-        <span className="italic text-coral">
+      <h1 className="mt-5 font-sans font-semibold text-4xl lg:text-[3.25rem] tracking-tight leading-[1.05] text-foreground text-balance max-w-4xl">
+        {localGreeting},{' '}
+        <span className="font-editorial italic font-normal text-coral">
           {recipientFirstName
             ? `sending home to ${recipientFirstName}`
             : 'padalahan natin ang pamilya mo'}
-          .
         </span>
+        .
       </h1>
       <p className="mt-5 text-lg text-muted-foreground max-w-2xl leading-relaxed">
         {recipientFirstName
@@ -594,7 +605,6 @@ function ControlBar({
                       : 'border-border bg-background text-foreground hover:border-foreground/30'
                   }`}
                 >
-                  <span className="text-sm">{c.flag}</span>
                   <span>{c.label}</span>
                 </button>
               )
@@ -871,6 +881,7 @@ function WinnerCard({
   recipientId,
   onShareWithFamily,
   shared,
+  isPlus,
 }: {
   readonly winner: LiveQuote | undefined
   readonly routing: ReturnType<typeof decideRouting> | null
@@ -883,6 +894,7 @@ function WinnerCard({
   readonly recipientId: string | null
   readonly onShareWithFamily: () => void
   readonly shared: boolean
+  readonly isPlus: boolean
 }) {
   if (!winner || !routing) {
     return (
@@ -895,9 +907,9 @@ function WinnerCard({
     )
   }
 
-  const buddyFee = amount * 0.005
-  const total = amount + winner.fee + buddyFee
-  const isBuddyRoute = routing.action === 'buddy-executes'
+  // No Buddy platform fee — we route to the provider, user pays them
+  // directly. Our revenue comes from the affiliate relationship.
+  const total = amount + winner.fee
 
   const sendHref = `/send/recipient?amount=${amount}&corridor=${corridor.id}&payout=${payout}${
     recipientId ? `&recipient=${recipientId}` : ''
@@ -945,7 +957,6 @@ function WinnerCard({
       <div className="relative mt-7 space-y-2.5 rounded-2xl border border-border bg-background p-4">
         <MathRow label="You send" value={`$${amount.toFixed(2)}`} />
         <MathRow label={`${winner.provider} fee`} value={`$${winner.fee.toFixed(2)}`} />
-        <MathRow label="Buddy service fee · 0.5%" value={`$${buddyFee.toFixed(2)}`} />
         <div className="border-t border-dashed border-border pt-2.5">
           <MathRow label="You pay in total" value={`$${total.toFixed(2)}`} bold />
         </div>
@@ -955,16 +966,26 @@ function WinnerCard({
         />
       </div>
 
-      {/* Primary action — changes copy based on routing decision */}
-      <Link
-        href={sendHref}
+      {/* Primary action — hand off to the provider's affiliate URL.
+          Opens in a new tab so users can still compare, and logs the
+          click for attribution. We never take their money directly. */}
+      <a
+        href={routing.affiliateUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() =>
+          trackAffiliateClick({
+            provider: winner.provider,
+            amount,
+            affiliateUrl: routing.affiliateUrl,
+            context: 'compare',
+          })
+        }
         className="relative mt-6 group flex items-center justify-center gap-2 w-full h-14 rounded-full bg-coral text-white text-sm font-semibold transition-all hover:-translate-y-0.5"
       >
-        {isBuddyRoute
-          ? `Send ${name}\u2019s money now`
-          : `Continue with ${winner.provider}`}
+        Continue with {winner.provider}
         <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-      </Link>
+      </a>
 
       {/* Secondary action — let the family know */}
       <button
@@ -977,7 +998,7 @@ function WinnerCard({
       </button>
 
       <p className="relative mt-4 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
-        Rate locked 30 min · Best-price guarantee
+        We earn a referral fee from providers · never from you
       </p>
     </div>
   )
