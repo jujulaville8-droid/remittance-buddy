@@ -63,15 +63,11 @@ function DashboardHeader() {
   return (
     <header className="flex flex-wrap items-end justify-between gap-4 pb-6 sm:pb-10 border-b border-border">
       <div>
-        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">
-          Your command center
-        </div>
-        <h1 className="mt-3 font-display text-3xl sm:text-5xl lg:text-6xl leading-[0.95] text-foreground">
-          Welcome back.
+        <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl leading-[0.95] text-foreground">
+          Padala home.
         </h1>
         <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-xl">
-          Every send, recipient, alert and family group in one place. Start a transfer or jump
-          into any tool below.
+          Recent sends, saved recipients, alerts and family pools — kept in one place.
         </p>
       </div>
       <Link
@@ -100,27 +96,22 @@ function Stats({
     {
       label: 'Sent to date',
       value: `$${totalSent.toLocaleString()}`,
-      hint: `${completedTransfers} completed transfers`,
+      hint: `${completedTransfers} sends`,
     },
     {
       label: 'Recipients',
       value: recipientCount.toString(),
-      hint: 'Saved across all corridors',
+      hint: 'People you send to',
     },
     {
       label: 'Active alerts',
       value: activeAlerts.toString(),
-      hint: 'Watching for your target rate',
-    },
-    {
-      label: 'Savings vs Wise',
-      value: totalSent > 0 ? `$${Math.round(totalSent * 0.0046).toLocaleString()}` : '$0',
-      hint: 'Estimated based on live spreads',
+      hint: 'Rate watches',
     },
   ]
 
   return (
-    <section className="mt-6 sm:mt-10 grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-border">
+    <section className="mt-6 sm:mt-10 grid grid-cols-3 gap-px rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-border">
       {items.map((item) => (
         <div key={item.label} className="bg-background p-4 sm:p-8">
           <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">

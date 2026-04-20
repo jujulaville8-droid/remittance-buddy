@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, Home, Menu, Scale, Users } from 'lucide-react'
+import { Bell, Home, Menu, MessageCircle, Scale, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const TABS = [
   { href: '/dashboard', label: 'Home', icon: Home, match: ['/dashboard'] },
   { href: '/compare', label: 'Compare', icon: Scale, match: ['/compare'] },
+  { href: '/chat', label: 'Chat', icon: MessageCircle, match: ['/chat'] },
   { href: '/alerts', label: 'Alerts', icon: Bell, match: ['/alerts'] },
   { href: '/family', label: 'Family', icon: Users, match: ['/family', '/recipients'] },
   { href: '/menu', label: 'Menu', icon: Menu, match: ['/menu'] },

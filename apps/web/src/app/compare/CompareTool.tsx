@@ -547,19 +547,20 @@ function ControlBar({
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
             How much?
           </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 sm:px-5 h-14 sm:h-16 focus-within:border-foreground/40 transition-colors">
-            <span className="font-mono text-lg sm:text-xl text-muted-foreground">
+          <div className="flex items-center gap-2 sm:gap-3 rounded-2xl border border-border bg-background px-3 sm:px-5 h-14 sm:h-16 focus-within:border-foreground/40 transition-colors overflow-hidden">
+            <span className="shrink-0 font-mono text-base sm:text-xl text-muted-foreground">
               {currencySymbol(corridor.sourceCurrency)}
             </span>
             <input
               type="number"
+              inputMode="numeric"
               min={1}
               value={amount}
               onChange={(e) => setAmount(Math.max(0, Number(e.target.value) || 0))}
-              className="flex-1 min-w-0 bg-transparent font-display text-2xl sm:text-4xl text-foreground outline-none tabular-nums"
+              className="w-0 flex-1 min-w-0 bg-transparent font-display text-xl sm:text-3xl lg:text-4xl text-foreground outline-none tabular-nums"
               aria-label="Amount to send"
             />
-            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+            <span className="shrink-0 text-[11px] sm:text-sm font-medium text-muted-foreground uppercase">
               {corridor.sourceCurrency}
             </span>
           </div>
