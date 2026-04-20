@@ -82,7 +82,8 @@ export function CurrencyPicker({ open, selectedCode, excludeCode, onSelect, onCl
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search currency"
-              className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              className="flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+              style={{ fontSize: '16px' }}
               autoFocus
             />
           </label>
