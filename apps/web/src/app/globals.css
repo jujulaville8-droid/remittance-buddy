@@ -4,9 +4,10 @@
 
 @layer base {
   /* iOS safe areas: top for Dynamic Island/notch, bottom for home indicator
-     + fixed BottomTabBar (approx 64px). */
+     + fixed BottomTabBar (approx 64px). Hardcoded 54px fallback because
+     env(safe-area-inset-top) returns 0 in some Capacitor WebView configs. */
   body {
-    padding-top: env(safe-area-inset-top);
+    padding-top: max(env(safe-area-inset-top), 54px);
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 }

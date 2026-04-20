@@ -55,9 +55,10 @@ export default function ChatPage() {
   return (
     <main className="flex flex-col min-h-screen bg-background">
       <header
-        className={`sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-md transition-transform duration-200 ${
+        className={`sticky z-10 border-b border-border bg-background/95 backdrop-blur-md transition-transform duration-200 ${
           headerHidden ? '-translate-y-full' : 'translate-y-0'
         }`}
+        style={{ top: 0 }}
       >
         <div className="container max-w-2xl flex items-center gap-2.5 py-2.5">
           <div className="grid h-7 w-7 place-items-center rounded-full bg-coral/10 text-coral">
