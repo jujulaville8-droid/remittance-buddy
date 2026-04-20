@@ -39,13 +39,7 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const isProtected =
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/api/transfers') ||
-    pathname.startsWith('/api/kyc') ||
-    pathname.startsWith('/api/chat') ||
-    pathname.startsWith('/api/recipients') ||
-    pathname.startsWith('/api/payments')
+  const isProtected = pathname.startsWith('/api/recipients')
 
   // If the request has a Bearer token (from Chrome extension), let it through
   // — the route handler will validate the token via auth-helper

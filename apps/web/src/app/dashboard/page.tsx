@@ -42,16 +42,16 @@ export default function DashboardPage() {
         activeAlerts={activeAlerts}
       />
 
-      <div className="mt-10">
+      <div className="mt-6 sm:mt-10">
         <QuickActions />
       </div>
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-2">
+      <div className="mt-6 sm:mt-10 grid gap-8 lg:grid-cols-2">
         <RecentTransfers transfers={transfers} />
         <SavedRecipients recipients={recipients} />
       </div>
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-2">
+      <div className="mt-6 sm:mt-10 grid gap-8 lg:grid-cols-2">
         <ActiveAlerts alerts={alerts} />
         <FamilyGroups families={families} />
       </div>
@@ -61,22 +61,22 @@ export default function DashboardPage() {
 
 function DashboardHeader() {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-6 pb-10 border-b border-border">
+    <header className="flex flex-wrap items-end justify-between gap-4 pb-6 sm:pb-10 border-b border-border">
       <div>
         <div className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">
           Your command center
         </div>
-        <h1 className="mt-4 font-display text-5xl lg:text-6xl leading-[0.95] text-foreground">
+        <h1 className="mt-3 font-display text-3xl sm:text-5xl lg:text-6xl leading-[0.95] text-foreground">
           Welcome back.
         </h1>
-        <p className="mt-4 text-muted-foreground max-w-xl">
+        <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-xl">
           Every send, recipient, alert and family group in one place. Start a transfer or jump
           into any tool below.
         </p>
       </div>
       <Link
         href="/compare?amount=500&corridor=US-PH&payout=gcash"
-        className="group inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-4 text-sm font-semibold text-background transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+        className="group inline-flex items-center gap-2 rounded-full bg-foreground px-5 sm:px-7 py-3 sm:py-4 text-sm font-semibold text-background transition-all hover:-translate-y-0.5 active:scale-[0.98]"
       >
         Compare providers
         <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -120,16 +120,16 @@ function Stats({
   ]
 
   return (
-    <section className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-px rounded-[1.75rem] overflow-hidden bg-border">
+    <section className="mt-6 sm:mt-10 grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-border">
       {items.map((item) => (
-        <div key={item.label} className="bg-background p-8">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <div key={item.label} className="bg-background p-4 sm:p-8">
+          <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {item.label}
           </div>
-          <div className="mt-5 font-sans font-semibold text-4xl lg:text-5xl leading-none tracking-tight text-foreground tabular-nums">
+          <div className="mt-3 sm:mt-5 font-sans font-semibold text-2xl sm:text-4xl lg:text-5xl leading-none tracking-tight text-foreground tabular-nums">
             {item.value}
           </div>
-          <div className="mt-3 text-xs text-muted-foreground">{item.hint}</div>
+          <div className="mt-2 sm:mt-3 text-[11px] sm:text-xs text-muted-foreground">{item.hint}</div>
         </div>
       ))}
     </section>
@@ -159,7 +159,7 @@ function QuickActions() {
   ]
 
   return (
-    <section className="rounded-[2rem] border border-border bg-card p-8">
+    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-6">
         Quick actions
       </div>
@@ -190,7 +190,7 @@ function QuickActions() {
 function RecentTransfers({ transfers }: { readonly transfers: readonly LocalTransfer[] }) {
   const recent = transfers.slice(0, 4)
   return (
-    <section className="rounded-[2rem] border border-border bg-card p-8">
+    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Recent transfers
@@ -241,7 +241,7 @@ function RecentTransfers({ transfers }: { readonly transfers: readonly LocalTran
 function SavedRecipients({ recipients }: { readonly recipients: readonly LocalRecipient[] }) {
   const recent = recipients.slice(0, 4)
   return (
-    <section className="rounded-[2rem] border border-border bg-card p-8">
+    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Saved recipients
@@ -293,7 +293,7 @@ function SavedRecipients({ recipients }: { readonly recipients: readonly LocalRe
 function ActiveAlerts({ alerts }: { readonly alerts: readonly LocalRateAlert[] }) {
   const active = alerts.filter((a) => a.active).slice(0, 3)
   return (
-    <section className="rounded-[2rem] border border-border bg-card p-8">
+    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Rate alerts
@@ -337,7 +337,7 @@ function ActiveAlerts({ alerts }: { readonly alerts: readonly LocalRateAlert[] }
 function FamilyGroups({ families }: { readonly families: readonly LocalFamilyGroup[] }) {
   const recent = families.slice(0, 3)
   return (
-    <section className="rounded-[2rem] border border-border bg-card p-8">
+    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Family groups

@@ -217,10 +217,10 @@ export function CompareTool() {
     : null
 
   return (
-    <div className="pt-28 pb-20">
+    <div className="pt-20 sm:pt-28 pb-20">
       <Greeting recipientFirstName={recipientFirstName} />
 
-      <div className="container max-w-6xl mt-10">
+      <div className="container max-w-6xl mt-6 sm:mt-10">
         <RecipientStrip
           recipients={recipients}
           selectedId={selectedRecipientId}
@@ -356,7 +356,7 @@ function Greeting({ recipientFirstName }: { readonly recipientFirstName: string 
         <span className="h-1.5 w-1.5 rounded-full bg-coral" />
         Built for Filipino families abroad
       </div>
-      <h1 className="mt-5 font-sans font-semibold text-4xl lg:text-[3.25rem] tracking-tight leading-[1.05] text-foreground text-balance max-w-4xl">
+      <h1 className="mt-5 font-sans font-semibold text-3xl sm:text-4xl lg:text-[3.25rem] tracking-tight leading-[1.05] text-foreground text-balance max-w-4xl">
         {localGreeting},{' '}
         <span className="font-editorial italic font-normal text-coral">
           {recipientFirstName
@@ -541,14 +541,14 @@ function ControlBar({
   readonly corridor: (typeof CORRIDORS)[number]
 }) {
   return (
-    <section className="mt-6 rounded-[2rem] border border-border bg-card p-8 shadow-level-1">
-      <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr_1fr]">
+    <section className="mt-6 rounded-[2rem] border border-border bg-card p-5 sm:p-8 shadow-level-1">
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1.2fr_1fr_1fr]">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
             How much?
           </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-5 h-16 focus-within:border-foreground/40 transition-colors">
-            <span className="font-mono text-xl text-muted-foreground">
+          <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 sm:px-5 h-14 sm:h-16 focus-within:border-foreground/40 transition-colors">
+            <span className="font-mono text-lg sm:text-xl text-muted-foreground">
               {currencySymbol(corridor.sourceCurrency)}
             </span>
             <input
@@ -556,10 +556,10 @@ function ControlBar({
               min={1}
               value={amount}
               onChange={(e) => setAmount(Math.max(0, Number(e.target.value) || 0))}
-              className="flex-1 bg-transparent font-display text-4xl text-foreground outline-none tabular-nums"
+              className="flex-1 min-w-0 bg-transparent font-display text-2xl sm:text-4xl text-foreground outline-none tabular-nums"
               aria-label="Amount to send"
             />
-            <span className="text-sm font-medium text-muted-foreground">
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
               {corridor.sourceCurrency}
             </span>
           </div>
@@ -922,7 +922,7 @@ function WinnerCard({
 
       {/* Conversational headline — "Nanay gets ₱28,500 via Wise in 2 minutes" */}
       <div className="relative mt-6">
-        <div className="font-display text-[2.25rem] leading-[1.05] text-foreground text-balance">
+        <div className="font-display text-2xl sm:text-[2.25rem] leading-[1.05] text-foreground text-balance">
           <span className="font-semibold">{name}</span> gets{' '}
           <span className="text-coral italic">
             {currencySymbol(corridor.targetCurrency)}

@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  /* Reserve space at the bottom for the fixed BottomTabBar (approx 64px +
+     iPhone safe-area inset). Landing page overrides body styles inline so
+     this doesn't affect its editorial layout. */
+  body {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+
+@layer base {
   :root {
     /* Warm editorial palette — matches the landing (LandingReceipt).
        Cream paper + warm near-black ink + terracotta accent.

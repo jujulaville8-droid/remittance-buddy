@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import MigrationBridge from '@/components/MigrationBridge'
 import InstallPrompt from '@/components/InstallPrompt'
+import { BottomTabBar } from '@/components/BottomTabBar'
 import './globals.css'
 
 // Type system (Wise-inspired for the tool, editorial serif kept for hero):
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <MigrationBridge />
         {children}
+        <BottomTabBar />
         <InstallPrompt />
         <Analytics />
         <SpeedInsights />

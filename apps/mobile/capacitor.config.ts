@@ -11,7 +11,7 @@ const config: CapacitorConfig = {
   appName: 'My Remittance Pal',
   webDir: 'www',
   server: {
-    url: 'https://my-remittance-pal.vercel.app',
+    url: 'https://my-remittance-pal.vercel.app/dashboard',
     cleartext: false,
   },
   ios: {
