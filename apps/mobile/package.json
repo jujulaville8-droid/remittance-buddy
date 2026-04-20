@@ -2,7 +2,7 @@
   "name": "@remit/mobile",
   "version": "0.0.0",
   "private": true,
-  "description": "Remittance Buddy — native mobile shell (iOS + Android via Capacitor)",
+  "description": "My Remittance Pal — native mobile shell (iOS + Android via Capacitor)",
   "scripts": {
     "sync": "cap sync",
     "ios": "cap open ios",

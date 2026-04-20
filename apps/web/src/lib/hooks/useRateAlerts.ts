@@ -4,9 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { rateAlertsStore, type LocalRateAlert } from '@/lib/local-db'
 import * as rateAlertsDb from '@/lib/db/rate-alerts'
 import type { RateAlertRow, PayoutMethod } from '@/lib/db/types'
-import { FREE_LIMITS, PlanLimitError } from '@/lib/plan-limits'
 import { useSessionUser } from './useSessionUser'
-import { useBuddyPlus } from './useBuddyPlus'
 
 function rowToLocal(row: RateAlertRow): LocalRateAlert {
   return {
@@ -39,7 +37,6 @@ export interface UseRateAlertsResult {
 
 export function useRateAlerts(): UseRateAlertsResult {
   const { user, loading: sessionLoading } = useSessionUser()
-  const { isActive: isPlus } = useBuddyPlus()
   const [alerts, setAlerts] = useState<LocalRateAlert[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -67,11 +64,6 @@ export function useRateAlerts(): UseRateAlertsResult {
 
   const create = useCallback(
     async (input: RateAlertInput): Promise<LocalRateAlert> => {
-      // Free-tier cap: 3 active alerts. Plus = unlimited.
-      const activeCount = alerts.filter((a) => a.active).length
-      if (!isPlus && activeCount >= FREE_LIMITS.rateAlerts) {
-        throw new PlanLimitError('rateAlerts')
-      }
       if (user) {
         const row = await rateAlertsDb.createRateAlert({
           email: input.email,
@@ -89,7 +81,7 @@ export function useRateAlerts(): UseRateAlertsResult {
       setAlerts((prev) => [created, ...prev])
       return created
     },
-    [user, isPlus, alerts],
+    [user],
   )
 
   const toggle = useCallback(

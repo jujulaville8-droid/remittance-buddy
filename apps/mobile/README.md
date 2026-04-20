@@ -62,8 +62,8 @@ Anything inside `ios/` or `android/` (bundle ID, signing config, native plugin c
 
 ## App metadata
 
-- **Bundle ID / App ID:** `com.remittancebuddy.app`
-- **App name:** Remittance Buddy
+- **Bundle ID / App ID:** `com.myremittancepal.app`
+- **App name:** My Remittance Pal
 - **Theme color:** `#14110D` (warm ink)
 - **Splash bg:** `#14110D`
 

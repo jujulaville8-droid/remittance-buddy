@@ -26,7 +26,6 @@ import {
   type LocalFamilyGroup,
   type LocalRecipient,
 } from '@/lib/local-db'
-import { useBuddyPlus } from '@/lib/hooks/useBuddyPlus'
 
 // ─────────────────────────────────────────────────────────────
 // Constants — corridors/payouts tuned for OFW Philippines-first
@@ -109,9 +108,6 @@ export function CompareTool() {
   const [recipients, setRecipients] = useState<readonly LocalRecipient[]>([])
   const [families, setFamilies] = useState<readonly LocalFamilyGroup[]>([])
   const [selectedRecipientId, setSelectedRecipientId] = useState<string | null>(initialRecipientId)
-
-  // Buddy Plus state — enables the "fee waived" perk in WinnerCard
-  const { isActive: isPlus } = useBuddyPlus()
 
   useEffect(() => {
     setRecipients(recipientsStore.list())
@@ -329,7 +325,6 @@ export function CompareTool() {
               recipientId={selectedRecipientId}
               onShareWithFamily={handleShareWithFamily}
               shared={shared}
-              isPlus={isPlus}
             />
             <FamilyNudges
               families={families}
@@ -425,7 +420,7 @@ function RecipientStrip({
             </div>
           </div>
           <Link
-            href="/send/recipient?amount=500"
+            href="/recipients"
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:border-foreground/30"
           >
             <Plus className="h-3 w-3" />
@@ -477,7 +472,7 @@ function RecipientStrip({
             )
           })}
           <Link
-            href="/send/recipient?amount=500"
+            href="/recipients"
             className="flex items-center gap-2 rounded-full border border-dashed border-border bg-background px-4 py-2.5 shrink-0 text-xs font-semibold text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-colors snap-start"
           >
             <Plus className="h-3.5 w-3.5" />
@@ -878,10 +873,9 @@ function WinnerCard({
   corridor,
   payout,
   recipientFirstName,
-  recipientId,
+  recipientId: _recipientId,
   onShareWithFamily,
   shared,
-  isPlus,
 }: {
   readonly winner: LiveQuote | undefined
   readonly routing: ReturnType<typeof decideRouting> | null
@@ -894,7 +888,6 @@ function WinnerCard({
   readonly recipientId: string | null
   readonly onShareWithFamily: () => void
   readonly shared: boolean
-  readonly isPlus: boolean
 }) {
   if (!winner || !routing) {
     return (
@@ -907,13 +900,7 @@ function WinnerCard({
     )
   }
 
-  // No Buddy platform fee — we route to the provider, user pays them
-  // directly. Our revenue comes from the affiliate relationship.
   const total = amount + winner.fee
-
-  const sendHref = `/send/recipient?amount=${amount}&corridor=${corridor.id}&payout=${payout}${
-    recipientId ? `&recipient=${recipientId}` : ''
-  }`
 
   const name = recipientFirstName ?? 'Your family'
   const human = humanizeSavings(savingsPhp)

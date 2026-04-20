@@ -1,6 +1,5 @@
 export * from './users'
 export * from './transfers'
-export * from './compliance'
 export * from './notifications'
 export * from './audit'
 export * from './recipients'

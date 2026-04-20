@@ -1,13 +1,14 @@
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
+type Duration = Parameters<typeof Ratelimit.slidingWindow>[1]
+
 const isConfigured = process.env.UPSTASH_REDIS_REST_URL && !process.env.UPSTASH_REDIS_REST_URL.includes('placeholder')
 
 const redis = isConfigured ? Redis.fromEnv() : null
 
-function createLimiter(requests: number, window: string) {
+function createLimiter(requests: number, window: Duration) {
   if (!redis) {
-    // No-op rate limiter for local dev without Redis
     return { limit: async (_id: string) => ({ success: true, limit: requests, remaining: requests, reset: 0 }) }
   }
   return new Ratelimit({

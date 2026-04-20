@@ -4,9 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { familyGroupsStore, type LocalFamilyGroup } from '@/lib/local-db'
 import * as familyGroupsDb from '@/lib/db/family-groups'
 import type { FamilyGroupRow } from '@/lib/db/types'
-import { FREE_LIMITS, PlanLimitError } from '@/lib/plan-limits'
 import { useSessionUser } from './useSessionUser'
-import { useBuddyPlus } from './useBuddyPlus'
 
 function rowToLocal(row: FamilyGroupRow): LocalFamilyGroup {
   return {
@@ -38,7 +36,6 @@ export interface UseFamilyGroupsResult {
 
 export function useFamilyGroups(): UseFamilyGroupsResult {
   const { user, loading: sessionLoading } = useSessionUser()
-  const { isActive: isPlus } = useBuddyPlus()
   const [groups, setGroups] = useState<LocalFamilyGroup[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -66,10 +63,6 @@ export function useFamilyGroups(): UseFamilyGroupsResult {
 
   const create = useCallback(
     async (input: FamilyGroupInput): Promise<LocalFamilyGroup> => {
-      // Free-tier cap: 1 family group. Plus = unlimited.
-      if (!isPlus && groups.length >= FREE_LIMITS.familyGroups) {
-        throw new PlanLimitError('familyGroups')
-      }
       if (user) {
         const row = await familyGroupsDb.createFamilyGroup({
           name: input.name,
@@ -85,7 +78,7 @@ export function useFamilyGroups(): UseFamilyGroupsResult {
       setGroups((prev) => [created, ...prev])
       return created
     },
-    [user, isPlus, groups.length],
+    [user],
   )
 
   const remove = useCallback(

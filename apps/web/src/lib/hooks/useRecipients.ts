@@ -4,9 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { recipientsStore, type LocalRecipient } from '@/lib/local-db'
 import * as recipientsDb from '@/lib/db/recipients'
 import type { RecipientRow, PayoutMethod } from '@/lib/db/types'
-import { FREE_LIMITS, PlanLimitError } from '@/lib/plan-limits'
 import { useSessionUser } from './useSessionUser'
-import { useBuddyPlus } from './useBuddyPlus'
 
 /**
  * Unified recipients hook. Uses Supabase when the user is signed in;
@@ -51,7 +49,6 @@ export interface UseRecipientsResult {
 
 export function useRecipients(): UseRecipientsResult {
   const { user, loading: sessionLoading } = useSessionUser()
-  const { isActive: isPlus } = useBuddyPlus()
   const [recipients, setRecipients] = useState<LocalRecipient[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -79,10 +76,6 @@ export function useRecipients(): UseRecipientsResult {
 
   const create = useCallback(
     async (input: RecipientInput): Promise<LocalRecipient> => {
-      // Free-tier cap: 3 recipients. Plus = unlimited.
-      if (!isPlus && recipients.length >= FREE_LIMITS.recipients) {
-        throw new PlanLimitError('recipients')
-      }
       if (user) {
         const row = await recipientsDb.createRecipient({
           full_name: input.fullName,
@@ -102,7 +95,7 @@ export function useRecipients(): UseRecipientsResult {
       setRecipients((prev) => [created, ...prev])
       return created
     },
-    [user, isPlus, recipients.length],
+    [user],
   )
 
   const update = useCallback(

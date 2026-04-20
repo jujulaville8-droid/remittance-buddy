@@ -107,12 +107,3 @@ export interface AuditLogRow {
   readonly metadata: Record<string, unknown>
   readonly created_at: string
 }
-
-export interface BuddyPlusRow {
-  readonly user_id: string
-  readonly active: boolean
-  readonly checkout_session_id: string | null
-  readonly subscription_id: string | null
-  readonly period_end: string | null
-  readonly updated_at: string
-}

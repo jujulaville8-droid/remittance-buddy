@@ -7,7 +7,6 @@ import type { LocalFamilyGroup, LocalRecipient, LocalTransfer } from '@/lib/loca
 import { useFamilyGroups } from '@/lib/hooks/useFamilyGroups'
 import { useRecipients } from '@/lib/hooks/useRecipients'
 import { useTransfers } from '@/lib/hooks/useTransfers'
-import { isPlanLimitError } from '@/lib/plan-limits'
 
 interface NewGroupDraft {
   name: string
@@ -61,11 +60,7 @@ export default function FamilyHubPage() {
       setDraft(EMPTY_DRAFT)
       setShowForm(false)
     } catch (err) {
-      if (isPlanLimitError(err)) {
-        setError(err.message)
-      } else {
-        setError(err instanceof Error ? err.message : 'Could not create group')
-      }
+      setError(err instanceof Error ? err.message : 'Could not create group')
     }
   }
 
@@ -83,14 +78,8 @@ export default function FamilyHubPage() {
 
       {error ? (
         <div className="rounded-2xl border border-coral/40 bg-coral/5 p-4 text-sm">
-          <p className="font-semibold text-coral">Free plan limit reached</p>
+          <p className="font-semibold text-coral">Couldn't create group</p>
           <p className="mt-1 text-muted-foreground">{error}</p>
-          <Link
-            href="/pricing"
-            className="mt-3 inline-flex items-center rounded-full bg-coral px-4 py-1.5 text-xs font-semibold text-white"
-          >
-            Upgrade to Buddy Plus →
-          </Link>
         </div>
       ) : null}
 
@@ -171,7 +160,7 @@ function EmptyState({
         </button>
         {!hasRecipients ? (
           <Link
-            href="/send/recipient"
+            href="/recipients"
             className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
           >
             Add a recipient

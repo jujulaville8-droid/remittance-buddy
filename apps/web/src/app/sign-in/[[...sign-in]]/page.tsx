@@ -39,7 +39,7 @@ export default function SignInPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Sign in</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Sign in to your Remittance Buddy account
+            Sign in to your My Remittance Pal account
           </p>
         </div>
 

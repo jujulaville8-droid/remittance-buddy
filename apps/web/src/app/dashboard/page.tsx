@@ -4,17 +4,13 @@ import Link from 'next/link'
 import {
   ArrowUpRight,
   Bell,
-  CheckCircle2,
   Clock,
   Plus,
   Send,
-  Sparkles,
   TrendingUp,
   Users,
-  Wallet,
 } from 'lucide-react'
 import type {
-  LocalBuddyPlusState,
   LocalFamilyGroup,
   LocalRateAlert,
   LocalRecipient,
@@ -24,14 +20,12 @@ import { useRecipients } from '@/lib/hooks/useRecipients'
 import { useTransfers } from '@/lib/hooks/useTransfers'
 import { useRateAlerts } from '@/lib/hooks/useRateAlerts'
 import { useFamilyGroups } from '@/lib/hooks/useFamilyGroups'
-import { useBuddyPlus } from '@/lib/hooks/useBuddyPlus'
 
 export default function DashboardPage() {
   const { recipients } = useRecipients()
   const { transfers } = useTransfers()
   const { alerts } = useRateAlerts()
   const { groups: families } = useFamilyGroups()
-  const { state: buddyPlus } = useBuddyPlus()
 
   const totalSent = transfers.reduce((sum, t) => sum + t.sourceAmount, 0)
   const completedTransfers = transfers.filter((t) => t.status === 'delivered').length
@@ -39,7 +33,7 @@ export default function DashboardPage() {
 
   return (
     <div className="container max-w-6xl">
-      <DashboardHeader buddyPlus={buddyPlus} />
+      <DashboardHeader />
 
       <Stats
         totalSent={totalSent}
@@ -48,9 +42,8 @@ export default function DashboardPage() {
         activeAlerts={activeAlerts}
       />
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+      <div className="mt-10">
         <QuickActions />
-        <BuddyPlusCard buddyPlus={buddyPlus} />
       </div>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-2">
@@ -66,7 +59,7 @@ export default function DashboardPage() {
   )
 }
 
-function DashboardHeader({ buddyPlus: _buddyPlus }: { readonly buddyPlus: LocalBuddyPlusState | null }) {
+function DashboardHeader() {
   return (
     <header className="flex flex-wrap items-end justify-between gap-6 pb-10 border-b border-border">
       <div>
@@ -82,10 +75,10 @@ function DashboardHeader({ buddyPlus: _buddyPlus }: { readonly buddyPlus: LocalB
         </p>
       </div>
       <Link
-        href="/send/recipient?amount=500&corridor=US-PH&payout=gcash"
+        href="/compare?amount=500&corridor=US-PH&payout=gcash"
         className="group inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-4 text-sm font-semibold text-background transition-all hover:-translate-y-0.5 active:scale-[0.98]"
       >
-        Start a transfer
+        Compare providers
         <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
       </Link>
     </header>
@@ -148,8 +141,8 @@ function QuickActions() {
     {
       icon: Send,
       title: 'Send money',
-      body: 'Compare live rates and start a transfer',
-      href: '/send/recipient?amount=500&corridor=US-PH&payout=gcash',
+      body: 'Compare live rates and jump to the best provider',
+      href: '/compare?amount=500&corridor=US-PH&payout=gcash',
     },
     {
       icon: Bell,
@@ -162,12 +155,6 @@ function QuickActions() {
       title: 'Family hub',
       body: 'Pool sends and track shared goals',
       href: '/family',
-    },
-    {
-      icon: Wallet,
-      title: 'Pricing',
-      body: 'Compare Free and Buddy Plus',
-      href: '/pricing',
     },
   ]
 
@@ -200,57 +187,6 @@ function QuickActions() {
   )
 }
 
-function BuddyPlusCard({ buddyPlus }: { readonly buddyPlus: LocalBuddyPlusState | null }) {
-  const isActive = buddyPlus?.active === true
-
-  return (
-    <section
-      className={`relative overflow-hidden rounded-[2rem] p-8 ${
-        isActive ? 'bg-foreground text-background' : 'border border-border bg-card'
-      }`}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <div
-            className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${
-              isActive ? 'text-teal/80' : 'text-coral'
-            }`}
-          >
-            Buddy Plus
-          </div>
-          <div className={`mt-4 font-display text-3xl leading-[1.05] ${isActive ? '' : 'text-foreground'}`}>
-            {isActive ? 'You’re in.' : 'Go unlimited.'}
-          </div>
-        </div>
-        <Sparkles className={`h-5 w-5 ${isActive ? 'text-teal' : 'text-coral'}`} />
-      </div>
-      <p className={`mt-4 text-sm leading-relaxed ${isActive ? 'text-background/70' : 'text-muted-foreground'}`}>
-        {isActive
-          ? 'Unlimited recipients, unlimited alerts, 20-second rate refresh, and early corridor access are active.'
-          : '$1.99 / month. Unlimited recipients + alerts, priority rate refresh, weekly savings digest, early corridor access. 7-day free trial.'}
-      </p>
-      {isActive ? (
-        <div
-          className={`mt-6 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
-            isActive ? 'border-background/20 text-background/80' : 'border-border text-foreground'
-          }`}
-        >
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          Active until {buddyPlus?.periodEnd ? new Date(buddyPlus.periodEnd).toLocaleDateString() : '—'}
-        </div>
-      ) : (
-        <Link
-          href="/pricing"
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-coral px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
-        >
-          Start free trial
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
-      )}
-    </section>
-  )
-}
-
 function RecentTransfers({ transfers }: { readonly transfers: readonly LocalTransfer[] }) {
   const recent = transfers.slice(0, 4)
   return (
@@ -271,7 +207,7 @@ function RecentTransfers({ transfers }: { readonly transfers: readonly LocalTran
           icon={Send}
           title="No transfers yet"
           body="Your sent transfers will show up here with live delivery status."
-          cta={{ href: '/send/recipient?amount=500', label: 'Start your first transfer' }}
+          cta={{ href: '/compare?amount=500', label: 'Compare providers' }}
         />
       ) : (
         <ul className="divide-y divide-border">
@@ -320,7 +256,7 @@ function SavedRecipients({ recipients }: { readonly recipients: readonly LocalRe
           icon={Plus}
           title="No recipients saved"
           body="Add a recipient once and we’ll remember them for every future transfer."
-          cta={{ href: '/send/recipient?amount=500', label: 'Add a recipient' }}
+          cta={{ href: '/recipients', label: 'Manage recipients' }}
         />
       ) : (
         <div className="space-y-2">

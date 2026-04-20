@@ -71,7 +71,7 @@ export function buildTrackedUrl(
 ): string {
   try {
     const url = new URL(baseUrl)
-    url.searchParams.set('utm_source', 'remittance-buddy')
+    url.searchParams.set('utm_source', 'my-remittance-pal')
     url.searchParams.set('utm_medium', params.context ?? 'compare')
     url.searchParams.set('utm_campaign', 'ofw-remittance')
     url.searchParams.set('utm_content', params.corridor)

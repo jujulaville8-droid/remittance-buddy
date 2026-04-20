@@ -19,7 +19,6 @@ export const LOCAL_DB_KEYS = {
   familyGroups: `${LOCAL_DB_VERSION}:family_groups`,
   rateAlerts: `${LOCAL_DB_VERSION}:rate_alerts`,
   user: `${LOCAL_DB_VERSION}:user`,
-  buddyPlus: `${LOCAL_DB_VERSION}:buddy_plus`,
 } as const
 
 // ────────────────────────────────────────────────────────────
@@ -102,13 +101,6 @@ export interface LocalRateAlert {
   readonly active: boolean
   readonly createdAt: string
   readonly lastTriggeredAt: string | null
-}
-
-export interface LocalBuddyPlusState {
-  readonly active: boolean
-  readonly checkoutSessionId: string | null
-  readonly subscriptionId: string | null
-  readonly periodEnd: string | null
 }
 
 // ────────────────────────────────────────────────────────────
@@ -389,43 +381,6 @@ export const rateAlertsStore = {
 }
 
 // ────────────────────────────────────────────────────────────
-// Buddy Plus subscription state
-// ────────────────────────────────────────────────────────────
-
-export const buddyPlusStore = {
-  get(): LocalBuddyPlusState {
-    return read<LocalBuddyPlusState>(LOCAL_DB_KEYS.buddyPlus, {
-      active: false,
-      checkoutSessionId: null,
-      subscriptionId: null,
-      periodEnd: null,
-    })
-  },
-
-  set(state: LocalBuddyPlusState): void {
-    write(LOCAL_DB_KEYS.buddyPlus, state)
-  },
-
-  activate(subscriptionId: string, periodEnd: string): void {
-    this.set({
-      active: true,
-      checkoutSessionId: null,
-      subscriptionId,
-      periodEnd,
-    })
-  },
-
-  cancel(): void {
-    this.set({
-      active: false,
-      checkoutSessionId: null,
-      subscriptionId: null,
-      periodEnd: null,
-    })
-  },
-}
-
-// ────────────────────────────────────────────────────────────
 // Export a namespace for convenient imports
 // ────────────────────────────────────────────────────────────
 
@@ -436,5 +391,4 @@ export const localDb = {
   affiliateClicks: affiliateClicksStore,
   familyGroups: familyGroupsStore,
   rateAlerts: rateAlertsStore,
-  buddyPlus: buddyPlusStore,
 }

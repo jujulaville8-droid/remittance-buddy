@@ -1,5 +1,5 @@
 {
-  "name": "remittance-buddy",
+  "name": "my-remittance-pal",
   "private": true,
   "workspaces": [
     "apps/*",

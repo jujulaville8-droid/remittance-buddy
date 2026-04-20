@@ -1,10 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
 import type { LocalRateAlert } from '@/lib/local-db'
 import { useRateAlerts } from '@/lib/hooks/useRateAlerts'
-import { isPlanLimitError } from '@/lib/plan-limits'
 
 const CORRIDORS = [
   { corridor: 'US-PH', source: 'USD', target: 'PHP', label: 'USD → PHP' },
@@ -34,7 +32,7 @@ export default function RateAlertsPage() {
   const { alerts, create: createAlert, remove: removeAlert } = useRateAlerts()
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [submitting, setSubmitting] = useState(false)
-  const [message, setMessage] = useState<{ type: 'ok' | 'error' | 'upgrade'; text: string } | null>(null)
+  const [message, setMessage] = useState<{ type: 'ok' | 'error'; text: string } | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -62,14 +60,10 @@ export default function RateAlertsPage() {
       setForm({ ...INITIAL_FORM, email: form.email })
       setMessage({ type: 'ok', text: "Alert created — we'll email you when the rate hits." })
     } catch (err) {
-      if (isPlanLimitError(err)) {
-        setMessage({ type: 'upgrade', text: err.message })
-      } else {
-        setMessage({
-          type: 'error',
-          text: err instanceof Error ? err.message : 'Failed to create alert',
-        })
-      }
+      setMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Failed to create alert',
+      })
     } finally {
       setSubmitting(false)
     }
@@ -149,26 +143,13 @@ export default function RateAlertsPage() {
         </div>
 
         {message ? (
-          message.type === 'upgrade' ? (
-            <div className="rounded-lg border border-coral/40 bg-coral/5 px-4 py-3 text-sm">
-              <p className="font-semibold text-coral">Free plan limit reached</p>
-              <p className="mt-1 text-muted-foreground">{message.text}</p>
-              <Link
-                href="/pricing"
-                className="mt-3 inline-flex items-center rounded-full bg-coral px-4 py-1.5 text-xs font-semibold text-white"
-              >
-                Upgrade to Buddy Plus →
-              </Link>
-            </div>
-          ) : (
-            <div
-              className={`rounded-lg px-4 py-3 text-sm ${
-                message.type === 'ok' ? 'bg-teal/10 text-teal' : 'bg-coral/10 text-coral'
-              }`}
-            >
-              {message.text}
-            </div>
-          )
+          <div
+            className={`rounded-lg px-4 py-3 text-sm ${
+              message.type === 'ok' ? 'bg-teal/10 text-teal' : 'bg-coral/10 text-coral'
+            }`}
+          >
+            {message.text}
+          </div>
         ) : null}
 
         <button

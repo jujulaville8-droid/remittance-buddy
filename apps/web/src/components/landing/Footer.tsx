@@ -25,7 +25,6 @@ const COLUMNS = [
     title: 'Company',
     links: [
       { href: '#', label: 'About' },
-      { href: '/pricing', label: 'Pricing' },
       { href: '#', label: 'Blog' },
       { href: '#', label: 'Press kit' },
       { href: '#', label: 'Contact' },
@@ -53,7 +52,7 @@ export function Footer() {
                 <span className="font-display text-background text-base leading-none">R</span>
               </div>
               <span className="font-display text-xl leading-none tracking-tight text-foreground">
-                Remittance Buddy
+                My Remittance Pal
               </span>
             </Link>
             <p className="mt-6 text-sm text-muted-foreground max-w-sm leading-relaxed">
@@ -61,7 +60,7 @@ export function Footer() {
               is going home.
             </p>
             <p className="mt-8 text-xs text-muted-foreground/80 max-w-sm leading-relaxed">
-              Remittance Buddy is a comparison tool, not a money transmitter. We earn affiliate
+              My Remittance Pal is a comparison tool, not a money transmitter. We earn affiliate
               fees from partners when you send through them. This never affects our rankings.
             </p>
           </div>
@@ -90,7 +89,7 @@ export function Footer() {
         </div>
 
         <div className="mt-20 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div>© {new Date().getFullYear()} Remittance Buddy Technologies Inc.</div>
+          <div>© {new Date().getFullYear()} My Remittance Pal Technologies Inc.</div>
           <div className="flex items-center gap-6">
             <span>Made for the diaspora</span>
             <span className="h-1 w-1 rounded-full bg-border" />

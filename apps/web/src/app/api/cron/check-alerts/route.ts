@@ -43,7 +43,7 @@ function verifyCronSecret(req: Request): boolean {
 
 async function sendAlertEmail(alert: StoredAlert, currentRate: number): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY
-  const from = process.env.ALERTS_FROM_EMAIL ?? 'alerts@remittancebuddy.com'
+  const from = process.env.ALERTS_FROM_EMAIL ?? 'alerts@myremittancepal.com'
   if (!apiKey) {
     console.warn('[check-alerts] RESEND_API_KEY missing — skipping send')
     return false
@@ -56,12 +56,12 @@ async function sendAlertEmail(alert: StoredAlert, currentRate: number): Promise<
       <p>You asked us to let you know when <strong>1 ${alert.sourceCurrency}</strong> would buy at least <strong>${alert.targetRate.toFixed(2)} ${alert.targetCurrency}</strong>.</p>
       <p>Right now the mid-market rate is <strong>${currentRate.toFixed(2)} ${alert.targetCurrency}</strong>.</p>
       <p>
-        <a href="https://remittancebuddy.com/send/recipient?corridor=${alert.corridor}"
+        <a href="https://myremittancepal.com/compare?corridor=${alert.corridor}"
            style="display:inline-block;background:#E5613F;color:white;padding:12px 20px;border-radius:999px;text-decoration:none;font-weight:600;">
           Send now
         </a>
       </p>
-      <p style="color:#888;font-size:12px;margin-top:32px;">You can manage or disable alerts at remittancebuddy.com/alerts</p>
+      <p style="color:#888;font-size:12px;margin-top:32px;">You can manage or disable alerts at myremittancepal.com/alerts</p>
     </div>
   `
 

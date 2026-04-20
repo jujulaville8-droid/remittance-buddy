@@ -886,12 +886,12 @@ const HTML = String.raw`
 <!-- ===== NAV ===== -->
 <nav class="top" data-screen-label="Nav">
   <div class="wrap">
-    <a href="/" class="wordmark"><span class="mk">R</span><span class="nm">Remittance Buddy</span></a>
+    <a href="/" class="wordmark"><span class="mk">R</span><span class="nm">My Remittance Pal</span></a>
     <div class="links">
       <a href="/compare">Compare</a>
       <a href="#how">How it works</a>
       <a href="#corridors">Corridors</a>
-      <a href="/pricing">Buddy Plus</a>
+      <a href="#plus">Buddy Plus</a>
       <a href="#faq">FAQ</a>
     </div>
     <div class="actions">
@@ -947,7 +947,7 @@ const HTML = String.raw`
     <!-- Main receipt — live, typing-style -->
     <div class="receipt">
       <div class="rc-head">
-        <div class="logo">Remittance Buddy</div>
+        <div class="logo">My Remittance Pal</div>
         <div class="sub">Ref RB-<span id="refCode">0427A</span> · <span id="dateStamp">Oct 14 · 09:41 PDT</span></div>
       </div>
 
@@ -1284,8 +1284,7 @@ const HTML = String.raw`
           <h2>For the ones who send <em>every payday</em>.</h2>
           <p>Built for regular senders — lock in lower FX, get first access to new corridors, earn credit every time you refer a kabayan who's still paying the Western Union tax.</p>
           <div class="actions">
-            <a href="/pricing" class="btn btn-ink">Join Buddy Plus →</a>
-            <a href="/sign-up" class="btn btn-outline-ink">Refer &amp; earn</a>
+            <span class="btn btn-ink" style="opacity:0.6;cursor:default">Coming soon →</span>
           </div>
         </div>
         <div class="punch-card">
@@ -1377,7 +1376,7 @@ const HTML = String.raw`
     </div>
     <div class="list">
       <details open>
-        <summary>Is Remittance Buddy free? <span class="plus-ic">+</span></summary>
+        <summary>Is My Remittance Pal free? <span class="plus-ic">+</span></summary>
         <p>Completely free, and that won't change. We earn a referral fee from the providers you choose to send with — paid by them, never by you. Your transfer goes through the provider's own rail, not ours. We're a comparison tool, not a money transmitter.</p>
       </details>
       <details>
@@ -1429,7 +1428,7 @@ const HTML = String.raw`
   <div class="wrap">
     <div class="top">
       <div class="brand">
-        <a href="/" class="wordmark"><span class="mk">R</span><span class="nm">Remittance Buddy</span></a>
+        <a href="/" class="wordmark"><span class="mk">R</span><span class="nm">My Remittance Pal</span></a>
         <p>Building financial transparency for the global diaspora. Every cent counts when it's going home.</p>
       </div>
       <div class="col">
@@ -1455,7 +1454,6 @@ const HTML = String.raw`
       <div class="col">
         <h4>Company</h4>
         <ul>
-          <li><a href="/pricing">Pricing</a></li>
           <li><a href="/sign-up">Sign up</a></li>
           <li><a href="/sign-in">Sign in</a></li>
         </ul>
@@ -1469,7 +1467,7 @@ const HTML = String.raw`
       </div>
     </div>
     <div class="btm">
-      <span>© 2026 Remittance Buddy Technologies Inc. · A comparison tool, not a money transmitter.</span>
+      <span>© 2026 My Remittance Pal Technologies Inc. · A comparison tool, not a money transmitter.</span>
       <span class="curs">Made for the diaspora · USD · PHP · GBP · AED · SGD</span>
     </div>
   </div>

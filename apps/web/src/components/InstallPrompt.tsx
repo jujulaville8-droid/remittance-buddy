@@ -96,7 +96,7 @@ export default function InstallPrompt() {
           <Plus className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex-1 min-w-0 pr-6">
-          <div className="text-sm font-semibold text-foreground">Install Remittance Buddy</div>
+          <div className="text-sm font-semibold text-foreground">Install My Remittance Pal</div>
           <div className="mt-1 text-xs text-muted-foreground flex flex-wrap items-center gap-1">
             <span>Tap</span>
             <Share className="h-3.5 w-3.5 inline -mt-0.5" strokeWidth={1.8} />
@@ -122,7 +122,7 @@ export default function InstallPrompt() {
         <Plus className="h-4 w-4" strokeWidth={2} />
       </div>
       <div className="flex-1 min-w-0 pr-6">
-        <div className="text-sm font-semibold text-foreground">Install Remittance Buddy</div>
+        <div className="text-sm font-semibold text-foreground">Install My Remittance Pal</div>
         <div className="mt-1 text-xs text-muted-foreground">
           Add to your home screen for fast access and offline-capable rate checks.
         </div>

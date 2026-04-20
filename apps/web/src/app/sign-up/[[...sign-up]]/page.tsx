@@ -45,7 +45,7 @@ export default function SignUpPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Create account</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Sign up for Remittance Buddy
+            Sign up for My Remittance Pal
           </p>
         </div>
 

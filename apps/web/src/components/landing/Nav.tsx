@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils'
 const NAV_LINKS = [
   { href: '/compare', label: 'Compare' },
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/pricing', label: 'Pricing' },
   { href: '/alerts', label: 'Alerts' },
+  { href: '/family', label: 'Family' },
 ] as const
 
 export function Nav() {
@@ -60,7 +60,7 @@ export function Nav() {
           >
             <Logo />
             <span className="font-display text-xl leading-none tracking-tight text-foreground">
-              Remittance Buddy
+              My Remittance Pal
             </span>
           </Link>
 

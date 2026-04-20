@@ -7,11 +7,11 @@ import type { CapacitorConfig } from '@capacitor/cli'
  * export and drop the url here.
  */
 const config: CapacitorConfig = {
-  appId: 'com.remittancebuddy.app',
-  appName: 'Remittance Buddy',
+  appId: 'com.myremittancepal.app',
+  appName: 'My Remittance Pal',
   webDir: 'www',
   server: {
-    url: 'https://remitance-buddy.vercel.app',
+    url: 'https://my-remittance-pal.vercel.app',
     cleartext: false,
   },
   ios: {
