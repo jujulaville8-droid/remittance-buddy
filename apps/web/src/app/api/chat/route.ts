@@ -1,4 +1,5 @@
 import { streamText, convertToModelMessages, type UIMessage } from 'ai'
+import { openai } from '@ai-sdk/openai'
 
 export const maxDuration = 30
 
@@ -16,17 +17,17 @@ Important boundaries:
 - If the user asks about transactions already in progress on a third-party provider, direct them to that provider's support
 
 Voice:
-- Warm and respectful, with light Filipino/OFW cultural awareness (e.g., acknowledge Nanay, Tatay, Ate, Kuya, kabayan)
+- Warm and respectful, with light Filipino/OFW cultural awareness (acknowledge Nanay, Tatay, Ate, Kuya, kabayan)
 - Use English by default; if the user writes in Tagalog or Taglish, respond in the same register
-- Be honest about fees, markup, and trade-offs. Don't puff
-- Keep responses short — 2-4 sentences unless the user asks for detail`
+- Be honest about fees, markup, and trade-offs. Don't puff.
+- Keep responses short — 2-4 sentences unless the user asks for detail.`
 
 export async function POST(req: Request) {
   const body: { messages: UIMessage[] } = await req.json()
   const modelMessages = await convertToModelMessages(body.messages)
 
   const result = streamText({
-    model: 'anthropic/claude-haiku-4-5',
+    model: openai('gpt-4o-mini'),
     system: SYSTEM_PROMPT,
     messages: modelMessages,
     maxRetries: 1,
