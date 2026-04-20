@@ -3,9 +3,10 @@
 @tailwind utilities;
 
 @layer base {
-  /* Reserve space at the bottom for the fixed BottomTabBar (approx 64px +
-     iPhone safe-area inset). */
+  /* iOS safe areas: top for Dynamic Island/notch, bottom for home indicator
+     + fixed BottomTabBar (approx 64px). */
   body {
+    padding-top: env(safe-area-inset-top);
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 }

@@ -126,6 +126,7 @@ export function CompareTool() {
             symbol={PHP.symbol}
             editable={false}
             loading={loading}
+            empty={!winner}
           />
         </section>
 
@@ -217,6 +218,7 @@ function AmountBlock({
   onPickCurrency,
   editable,
   loading,
+  empty,
 }: {
   readonly label: string
   readonly amount: number
@@ -227,6 +229,7 @@ function AmountBlock({
   readonly onPickCurrency?: () => void
   readonly editable: boolean
   readonly loading?: boolean
+  readonly empty?: boolean
 }) {
   return (
     <div className="flex items-center justify-between px-4 py-3.5">
@@ -251,7 +254,7 @@ function AmountBlock({
           <div className="mt-1 flex items-center gap-1 tabular-nums">
             <span className="font-mono text-base text-muted-foreground shrink-0">{symbol}</span>
             <span className={`text-2xl font-semibold text-foreground ${loading ? 'opacity-40' : ''}`}>
-              {amount.toLocaleString()}
+              {empty ? '—' : amount.toLocaleString()}
             </span>
           </div>
         )}
