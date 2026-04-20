@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronRight, FileText, Globe, Info, LogIn, LogOut, ShieldCheck, User, Users } from 'lucide-react'
+import { ChevronRight, FileText, Globe, Info, LogIn, LogOut, ShieldCheck, Trophy, User, Users } from 'lucide-react'
 import { useSessionUser } from '@/lib/hooks/useSessionUser'
 import { createBrowserClient } from '@supabase/ssr'
 import { useCallback } from 'react'
@@ -67,6 +67,10 @@ export default function MenuPage() {
           <MenuSection title="Your data">
             <MenuLink href="/recipients" icon={Users} label="Recipients" />
             <MenuLink href="/family" icon={Users} label="Family hub" />
+          </MenuSection>
+
+          <MenuSection title="Community">
+            <MenuLink href="/leaderboard" icon={Trophy} label="Leaderboard" />
           </MenuSection>
 
           <MenuSection title="About">
