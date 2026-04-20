@@ -1,5 +1,4 @@
 import { streamText, convertToModelMessages, type UIMessage } from 'ai'
-import { openai } from '@ai-sdk/openai'
 
 export const maxDuration = 30
 
@@ -27,7 +26,7 @@ export async function POST(req: Request) {
   const modelMessages = await convertToModelMessages(body.messages)
 
   const result = streamText({
-    model: openai('gpt-4o-mini'),
+    model: 'anthropic/claude-haiku-4-5',
     system: SYSTEM_PROMPT,
     messages: modelMessages,
     maxRetries: 1,
