@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ChevronLeft } from 'lucide-react'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -12,6 +13,14 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  function handleBack() {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back()
+    } else {
+      router.push('/menu')
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,7 +49,15 @@ export default function SignUpPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
+    <main className="relative flex min-h-screen items-center justify-center p-6">
+      <button
+        type="button"
+        onClick={handleBack}
+        aria-label="Back"
+        className="absolute top-4 left-4 grid h-10 w-10 place-items-center rounded-full bg-muted text-foreground active:scale-95"
+      >
+        <ChevronLeft className="h-5 w-5" strokeWidth={2} />
+      </button>
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Create account</h1>
@@ -66,7 +83,8 @@ export default function SignUpPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="mt-1 block w-full rounded-md border bg-background px-3 py-2 text-base"
+              style={{ fontSize: '16px' }}
               placeholder="Jane Doe"
             />
           </div>
@@ -81,7 +99,8 @@ export default function SignUpPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="mt-1 block w-full rounded-md border bg-background px-3 py-2 text-base"
+              style={{ fontSize: '16px' }}
               placeholder="you@example.com"
             />
           </div>
@@ -97,7 +116,8 @@ export default function SignUpPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="mt-1 block w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="mt-1 block w-full rounded-md border bg-background px-3 py-2 text-base"
+              style={{ fontSize: '16px' }}
               placeholder="At least 6 characters"
             />
           </div>
