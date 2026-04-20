@@ -241,12 +241,18 @@ function AmountBlock({
           <div className="mt-1 flex items-center gap-1">
             <span className="font-mono text-base text-muted-foreground shrink-0">{symbol}</span>
             <input
-              type="number"
+              type="text"
               inputMode="numeric"
-              min={1}
-              value={amount}
-              onChange={(e) => onAmountChange?.(Math.max(0, Number(e.target.value) || 0))}
-              className="w-0 flex-1 min-w-0 bg-transparent text-2xl font-semibold text-foreground outline-none tabular-nums"
+              pattern="[0-9]*"
+              value={amount === 0 ? '' : amount.toLocaleString('en-US')}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, '')
+                onAmountChange?.(digits === '' ? 0 : parseInt(digits, 10))
+              }}
+              onFocus={(e) => e.target.select()}
+              placeholder="0"
+              className="w-0 flex-1 min-w-0 bg-transparent text-2xl font-semibold text-foreground outline-none tabular-nums placeholder:text-muted-foreground/50"
+              style={{ fontSize: '24px' }}
               aria-label={label}
             />
           </div>
