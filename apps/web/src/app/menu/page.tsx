@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronRight, FileText, Globe, Info, LogIn, LogOut, ShieldCheck, Trophy, User, Users } from 'lucide-react'
+import { ChevronRight, FileText, Info, LogIn, LogOut, Monitor, Moon, ShieldCheck, Sun, Trophy, User, Users } from 'lucide-react'
 import { useSessionUser } from '@/lib/hooks/useSessionUser'
 import { createBrowserClient } from '@supabase/ssr'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 
 const APP_VERSION = '0.1.0'
 
@@ -29,11 +30,8 @@ export default function MenuPage() {
   return (
     <main className="min-h-screen bg-background pb-28 pt-8">
       <div className="container max-w-lg">
-        <header className="mb-8">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">Menu</div>
-          <h1 className="mt-3 font-display text-3xl sm:text-4xl leading-tight text-foreground">
-            Account &amp; settings
-          </h1>
+        <header className="mb-6">
+          <h1 className="text-xl font-semibold text-foreground">Menu</h1>
         </header>
 
         <section className="space-y-6">
@@ -80,7 +78,19 @@ export default function MenuPage() {
           </MenuSection>
 
           <MenuSection title="Preferences">
-            <MenuLink href="#" icon={Globe} label="Language · English" disabled />
+            <ThemeToggle />
+          </MenuSection>
+
+          <MenuSection title="Brand">
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-center gap-2">
+                <span className="text-base leading-none">🇵🇭</span>
+                <span className="text-sm font-semibold text-foreground">Built for the Filipino diaspora</span>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed">
+                Compare remittance providers across every major OFW corridor. Send via GCash, Maya, bank, or cash pickup.
+              </p>
+            </div>
           </MenuSection>
 
           <p className="pt-4 text-center text-xs text-muted-foreground">
@@ -127,6 +137,42 @@ function MenuLink({
   )
   if (disabled) return <div>{inner}</div>
   return <Link href={href}>{inner}</Link>
+}
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+  const current = mounted ? (theme ?? 'system') : 'system'
+
+  const options = [
+    { id: 'system', label: 'System', icon: Monitor },
+    { id: 'light', label: 'Light', icon: Sun },
+    { id: 'dark', label: 'Dark', icon: Moon },
+  ] as const
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-1">
+      <div className="grid grid-cols-3 gap-1">
+        {options.map(({ id, label, icon: Icon }) => {
+          const active = current === id
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTheme(id)}
+              className={`flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl transition-colors ${
+                active ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Icon className="h-4 w-4" strokeWidth={1.8} />
+              <span className="text-[11px] font-semibold">{label}</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 function MenuButton({

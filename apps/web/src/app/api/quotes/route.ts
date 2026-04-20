@@ -13,7 +13,8 @@ import {
 } from '@remit/api'
 
 const querySchema = z.object({
-  corridor: z.enum(['US-PH', 'UK-PH', 'SG-PH', 'AE-PH', 'SA-PH', 'CA-PH', 'AU-PH', 'JP-PH', 'HK-PH']),
+  // Accept any ISO-like corridor pattern XXX-PH to support all source currencies.
+  corridor: z.string().regex(/^[A-Z]{2,3}-PH$/),
   sourceCurrency: z.string().length(3),
   targetCurrency: z.string().length(3),
   sourceAmount: z.coerce.number().positive().max(50000),

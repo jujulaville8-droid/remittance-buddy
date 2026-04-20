@@ -1,223 +1,88 @@
 'use client'
 
 import Link from 'next/link'
-import {
-  ArrowUpRight,
-  Bell,
-  Clock,
-  Plus,
-  Send,
-  TrendingUp,
-  Users,
-} from 'lucide-react'
-import type {
-  LocalFamilyGroup,
-  LocalRateAlert,
-  LocalRecipient,
-  LocalTransfer,
-} from '@/lib/local-db'
+import { ArrowUpRight, Bell, Plus, Send, Users } from 'lucide-react'
+import type { LocalRateAlert, LocalRecipient } from '@/lib/local-db'
 import { useRecipients } from '@/lib/hooks/useRecipients'
 import { useTransfers } from '@/lib/hooks/useTransfers'
 import { useRateAlerts } from '@/lib/hooks/useRateAlerts'
-import { useFamilyGroups } from '@/lib/hooks/useFamilyGroups'
 
 export default function DashboardPage() {
   const { recipients } = useRecipients()
   const { transfers } = useTransfers()
   const { alerts } = useRateAlerts()
-  const { groups: families } = useFamilyGroups()
 
   const totalSent = transfers.reduce((sum, t) => sum + t.sourceAmount, 0)
-  const completedTransfers = transfers.filter((t) => t.status === 'delivered').length
   const activeAlerts = alerts.filter((a) => a.active).length
 
   return (
-    <div className="container max-w-6xl">
-      <DashboardHeader />
+    <main className="min-h-screen">
+      <div className="container max-w-lg pt-5 pb-24 space-y-5">
+        <header className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-semibold text-foreground">Home</h1>
+            <span className="text-base leading-none" aria-label="Philippines">🇵🇭</span>
+          </div>
+        </header>
 
-      <Stats
-        totalSent={totalSent}
-        completedTransfers={completedTransfers}
-        recipientCount={recipients.length}
-        activeAlerts={activeAlerts}
-      />
+        <SendCTA />
 
-      <div className="mt-6 sm:mt-10">
-        <QuickActions />
-      </div>
+        <StatsRow totalSent={totalSent} recipientCount={recipients.length} activeAlerts={activeAlerts} />
 
-      <div className="mt-6 sm:mt-10 grid gap-8 lg:grid-cols-2">
-        <RecentTransfers transfers={transfers} />
         <SavedRecipients recipients={recipients} />
-      </div>
 
-      <div className="mt-6 sm:mt-10 grid gap-8 lg:grid-cols-2">
         <ActiveAlerts alerts={alerts} />
-        <FamilyGroups families={families} />
       </div>
-    </div>
+    </main>
   )
 }
 
-function DashboardHeader() {
+function SendCTA() {
   return (
-    <header className="flex items-center justify-between gap-3 pb-4 sm:pb-6">
-      <h1 className="font-sans text-xl sm:text-2xl font-semibold text-foreground">Home</h1>
-      <Link
-        href="/compare?amount=500&corridor=US-PH&payout=gcash"
-        className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background active:scale-[0.98]"
-      >
-        Compare
-        <ArrowUpRight className="h-3.5 w-3.5" />
-      </Link>
-    </header>
+    <Link
+      href="/compare?from=USD&amount=500&payout=gcash"
+      className="flex items-center justify-between gap-3 rounded-2xl bg-foreground text-background px-5 py-4 active:scale-[0.99]"
+    >
+      <div className="flex items-center gap-3">
+        <div className="grid h-9 w-9 place-items-center rounded-full bg-background/15">
+          <Send className="h-4 w-4" />
+        </div>
+        <div>
+          <div className="text-sm font-semibold">Send money home</div>
+          <div className="text-[11px] opacity-70">Compare providers in real time</div>
+        </div>
+      </div>
+      <ArrowUpRight className="h-4 w-4" />
+    </Link>
   )
 }
 
-function Stats({
+function StatsRow({
   totalSent,
-  completedTransfers,
   recipientCount,
   activeAlerts,
 }: {
   readonly totalSent: number
-  readonly completedTransfers: number
   readonly recipientCount: number
   readonly activeAlerts: number
 }) {
   const items = [
-    {
-      label: 'Sent to date',
-      value: `$${totalSent.toLocaleString()}`,
-      hint: `${completedTransfers} sends`,
-    },
-    {
-      label: 'Recipients',
-      value: recipientCount.toString(),
-      hint: 'People you send to',
-    },
-    {
-      label: 'Active alerts',
-      value: activeAlerts.toString(),
-      hint: 'Rate watches',
-    },
+    { label: 'Sent', value: `$${totalSent.toLocaleString()}` },
+    { label: 'Recipients', value: recipientCount.toString() },
+    { label: 'Alerts', value: activeAlerts.toString() },
   ]
-
   return (
-    <section className="mt-6 sm:mt-10 grid grid-cols-3 gap-px rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-border">
+    <section className="grid grid-cols-3 gap-px rounded-2xl overflow-hidden bg-border">
       {items.map((item) => (
-        <div key={item.label} className="bg-background p-4 sm:p-8">
-          <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <div key={item.label} className="bg-card p-4">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             {item.label}
           </div>
-          <div className="mt-3 sm:mt-5 font-sans font-semibold text-2xl sm:text-4xl lg:text-5xl leading-none tracking-tight text-foreground tabular-nums">
+          <div className="mt-2 text-xl font-semibold text-foreground tabular-nums leading-none">
             {item.value}
           </div>
-          <div className="mt-2 sm:mt-3 text-[11px] sm:text-xs text-muted-foreground">{item.hint}</div>
         </div>
       ))}
-    </section>
-  )
-}
-
-function QuickActions() {
-  const actions = [
-    {
-      icon: Send,
-      title: 'Send money',
-      body: 'Compare live rates and jump to the best provider',
-      href: '/compare?amount=500&corridor=US-PH&payout=gcash',
-    },
-    {
-      icon: Bell,
-      title: 'Set a rate alert',
-      body: 'Get an email when your target rate hits',
-      href: '/alerts',
-    },
-    {
-      icon: Users,
-      title: 'Family hub',
-      body: 'Pool sends and track shared goals',
-      href: '/family',
-    },
-  ]
-
-  return (
-    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-6">
-        Quick actions
-      </div>
-      <div className="grid sm:grid-cols-2 gap-3">
-        {actions.map((action) => {
-          const Icon = action.icon
-          return (
-            <Link
-              key={action.title}
-              href={action.href}
-              className="group flex items-start gap-4 rounded-2xl border border-border bg-background p-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-foreground/15 hover:-translate-y-0.5"
-            >
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-card text-foreground transition-colors duration-500 group-hover:bg-foreground group-hover:text-background group-hover:border-foreground">
-                <Icon className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-foreground text-sm">{action.title}</div>
-                <div className="text-xs text-muted-foreground mt-1 leading-snug">{action.body}</div>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
-function RecentTransfers({ transfers }: { readonly transfers: readonly LocalTransfer[] }) {
-  const recent = transfers.slice(0, 4)
-  return (
-    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Recent transfers
-        </div>
-        {transfers.length > 0 && (
-          <Link href="/dashboard#transfers" className="text-xs font-semibold text-coral hover:underline">
-            View all
-          </Link>
-        )}
-      </div>
-
-      {recent.length === 0 ? (
-        <EmptyState
-          icon={Send}
-          title="No transfers yet"
-          body="Your sent transfers will show up here with live delivery status."
-          cta={{ href: '/compare?amount=500', label: 'Compare providers' }}
-        />
-      ) : (
-        <ul className="divide-y divide-border">
-          {recent.map((transfer) => (
-            <li key={transfer.id} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
-              <div className="min-w-0">
-                <div className="font-semibold text-foreground text-sm truncate">
-                  {transfer.recipientName}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {new Date(transfer.createdAt).toLocaleDateString()} · {transfer.provider}
-                </div>
-              </div>
-              <div className="text-right shrink-0">
-                <div className="font-display text-lg leading-none text-foreground tabular-nums">
-                  ${transfer.sourceAmount.toLocaleString()}
-                </div>
-                <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  <StatusDot status={transfer.status} />
-                  {transfer.status.replace(/_/g, ' ')}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
     </section>
   )
 }
@@ -225,45 +90,75 @@ function RecentTransfers({ transfers }: { readonly transfers: readonly LocalTran
 function SavedRecipients({ recipients }: { readonly recipients: readonly LocalRecipient[] }) {
   const recent = recipients.slice(0, 4)
   return (
-    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Saved recipients
+    <section>
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          Recipients
         </div>
-        {recipients.length > 4 && (
-          <span className="text-xs text-muted-foreground">+{recipients.length - 4} more</span>
-        )}
+        <Link href="/recipients" className="text-[11px] font-semibold text-foreground">
+          Manage
+        </Link>
       </div>
 
       {recent.length === 0 ? (
-        <EmptyState
+        <EmptyCard
           icon={Plus}
           title="No recipients saved"
-          body="Add a recipient once and we’ll remember them for every future transfer."
-          cta={{ href: '/recipients', label: 'Manage recipients' }}
+          cta={{ href: '/recipients', label: 'Add recipient' }}
         />
       ) : (
-        <div className="space-y-2">
-          {recent.map((recipient) => (
-            <div
-              key={recipient.id}
-              className="flex items-center gap-4 rounded-2xl border border-border bg-background p-4"
-            >
-              <div
-                className={`grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-bold ${recipient.avatarColor}`}
-              >
-                {recipient.fullName
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .slice(0, 2)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-foreground text-sm truncate">
-                  {recipient.fullName}
+        <div className="divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden">
+          {recent.map((r) => {
+            const initials = r.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)
+            return (
+              <div key={r.id} className="flex items-center gap-3 px-4 py-3">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-foreground text-xs font-bold">
+                  {initials}
                 </div>
-                <div className="text-xs text-muted-foreground truncate mt-0.5">
-                  {recipient.payoutMethod} · {recipient.sendCount} sends
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-foreground truncate">{r.fullName}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {r.payoutMethod} · {r.sendCount} sends
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function ActiveAlerts({ alerts }: { readonly alerts: readonly LocalRateAlert[] }) {
+  const active = alerts.filter((a) => a.active).slice(0, 3)
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          Rate alerts
+        </div>
+        <Link href="/alerts" className="text-[11px] font-semibold text-foreground">
+          Manage
+        </Link>
+      </div>
+
+      {active.length === 0 ? (
+        <EmptyCard
+          icon={Bell}
+          title="No active alerts"
+          cta={{ href: '/alerts', label: 'Create alert' }}
+        />
+      ) : (
+        <div className="divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden">
+          {active.map((a) => (
+            <div key={a.id} className="flex items-center justify-between px-4 py-3">
+              <div>
+                <div className="text-sm font-semibold text-foreground">
+                  {a.sourceCurrency} → {a.targetCurrency}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  Target {a.targetRate.toFixed(2)} · {a.payoutMethod}
                 </div>
               </div>
             </div>
@@ -274,117 +169,24 @@ function SavedRecipients({ recipients }: { readonly recipients: readonly LocalRe
   )
 }
 
-function ActiveAlerts({ alerts }: { readonly alerts: readonly LocalRateAlert[] }) {
-  const active = alerts.filter((a) => a.active).slice(0, 3)
-  return (
-    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Rate alerts
-        </div>
-        <Link href="/alerts" className="text-xs font-semibold text-coral hover:underline">
-          Manage
-        </Link>
-      </div>
-
-      {active.length === 0 ? (
-        <EmptyState
-          icon={Bell}
-          title="No active alerts"
-          body="Tell us your target rate and we’ll email you the moment it hits."
-          cta={{ href: '/alerts', label: 'Create alert' }}
-        />
-      ) : (
-        <ul className="space-y-3">
-          {active.map((alert) => (
-            <li
-              key={alert.id}
-              className="flex items-center justify-between rounded-2xl border border-border bg-background p-4"
-            >
-              <div>
-                <div className="font-semibold text-foreground text-sm">
-                  {alert.sourceCurrency} → {alert.targetCurrency}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Target {alert.targetRate.toFixed(2)} · {alert.payoutMethod}
-                </div>
-              </div>
-              <TrendingUp className="h-4 w-4 text-teal" />
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  )
-}
-
-function FamilyGroups({ families }: { readonly families: readonly LocalFamilyGroup[] }) {
-  const recent = families.slice(0, 3)
-  return (
-    <section className="rounded-2xl sm:rounded-[2rem] border border-border bg-card p-5 sm:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Family groups
-        </div>
-        <Link href="/family" className="text-xs font-semibold text-coral hover:underline">
-          Manage
-        </Link>
-      </div>
-
-      {recent.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          title="No family groups"
-          body="Bundle recipients, set a shared goal, and track progress as a family."
-          cta={{ href: '/family', label: 'Create a group' }}
-        />
-      ) : (
-        <ul className="space-y-3">
-          {recent.map((group) => (
-            <li
-              key={group.id}
-              className="rounded-2xl border border-border bg-background p-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="font-semibold text-foreground text-sm">{group.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {group.members.length} members
-                </div>
-              </div>
-              {group.goal ? (
-                <div className="mt-3 text-xs text-muted-foreground">
-                  Goal: {group.goal.label} · ${group.goal.targetAmount.toLocaleString()}
-                </div>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  )
-}
-
-function EmptyState({
+function EmptyCard({
   icon: Icon,
   title,
-  body,
   cta,
 }: {
-  readonly icon: typeof Send
+  readonly icon: typeof Users
   readonly title: string
-  readonly body: string
   readonly cta: { readonly href: string; readonly label: string }
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-background px-6 py-8 text-center">
-      <div className="mx-auto grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground">
-        <Icon className="h-4 w-4" />
+    <div className="rounded-2xl border border-dashed border-border bg-card p-5 text-center">
+      <div className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-muted text-muted-foreground">
+        <Icon className="h-4 w-4" strokeWidth={1.8} />
       </div>
-      <div className="mt-4 font-display text-lg text-foreground">{title}</div>
-      <p className="mt-2 text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">{body}</p>
+      <div className="mt-3 text-sm font-semibold text-foreground">{title}</div>
       <Link
         href={cta.href}
-        className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-coral hover:underline"
+        className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-foreground"
       >
         {cta.label}
         <ArrowUpRight className="h-3 w-3" />
@@ -392,18 +194,3 @@ function EmptyState({
     </div>
   )
 }
-
-function StatusDot({ status }: { readonly status: LocalTransfer['status'] }) {
-  const color =
-    status === 'delivered'
-      ? 'bg-teal'
-      : status === 'failed' || status === 'cancelled'
-        ? 'bg-destructive'
-        : status === 'processing' || status === 'payment_received'
-          ? 'bg-gold'
-          : 'bg-muted-foreground'
-  return <span className={`inline-block h-1.5 w-1.5 rounded-full mr-1.5 align-middle ${color}`} />
-}
-
-// Suppress unused import warning for Clock — kept for future "arriving in X min" label.
-void Clock

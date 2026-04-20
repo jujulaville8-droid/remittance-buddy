@@ -21,14 +21,9 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        // Tool uses Inter everywhere (Wise-style). `display` = same
-        // Inter at a heavier default weight so existing font-display
-        // usages still visually feel like "headings" without carrying
-        // the serif across every page.
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         display: ['var(--font-sans)', 'system-ui', 'sans-serif'],
-        // Reserved for explicit editorial moments (Compare greeting italic).
-        editorial: ['var(--font-heading)', 'Georgia', 'serif'],
+        editorial: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-geist-mono)'],
       },
       borderRadius: {
@@ -41,7 +36,7 @@ const config: Config = {
         'level-2': '0 4px 12px rgba(28,25,23,0.08)',
         'level-3': '0 8px 24px rgba(28,25,23,0.12)',
         'level-4': '0 24px 48px -12px rgba(28,25,23,0.18)',
-        'glow-coral': '0 16px 40px -12px hsla(13,47%,48%,0.45)',
+        'glow-coral': '0 8px 20px -8px rgba(0,0,0,0.20)',
       },
       colors: {
         background: 'hsl(var(--background))',

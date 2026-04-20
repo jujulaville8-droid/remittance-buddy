@@ -1,59 +1,41 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams, useRouter } from 'next/navigation'
-import { ArrowUpRight, CheckCircle2, Heart, Plus } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { ArrowUpRight, ChevronDown, Heart, Plus, RefreshCw } from 'lucide-react'
 import { useLiveQuotes, type LiveQuote } from '@/components/landing/useLiveQuotes'
 import { decideRouting, trackAffiliateClick } from '@/lib/affiliate-routing'
 import { recipientsStore, type LocalRecipient } from '@/lib/local-db'
-
-// ─────────────────────────────────────────────────────────────
-// Constants — corridors/payouts tuned for OFW Philippines-first
-// ─────────────────────────────────────────────────────────────
-
-const CORRIDORS = [
-  { id: 'US-PH', label: 'US → PH', sourceCurrency: 'USD', targetCurrency: 'PHP' },
-  { id: 'UK-PH', label: 'UK → PH', sourceCurrency: 'GBP', targetCurrency: 'PHP' },
-  { id: 'SG-PH', label: 'SG → PH', sourceCurrency: 'SGD', targetCurrency: 'PHP' },
-  { id: 'AE-PH', label: 'UAE → PH', sourceCurrency: 'AED', targetCurrency: 'PHP' },
-  { id: 'SA-PH', label: 'SA → PH', sourceCurrency: 'SAR', targetCurrency: 'PHP' },
-] as const
+import { CURRENCIES, PHP, getCurrency } from '@/lib/currencies'
+import { CurrencyPicker } from '@/components/CurrencyPicker'
 
 const PAYOUT_METHODS = [
-  { id: 'gcash', label: 'GCash', desc: 'Mobile wallet, instant' },
-  { id: 'maya', label: 'Maya', desc: 'Mobile wallet' },
-  { id: 'bank', label: 'Bank', desc: 'BPI, BDO, Metro' },
-  { id: 'cash_pickup', label: 'Cash pickup', desc: 'Cebuana, MLhuillier' },
+  { id: 'gcash', label: 'GCash' },
+  { id: 'maya', label: 'Maya' },
+  { id: 'bank', label: 'Bank' },
+  { id: 'cash_pickup', label: 'Cash pickup' },
 ] as const
 
+type PayoutId = (typeof PAYOUT_METHODS)[number]['id']
 const QUICK_AMOUNTS = [100, 200, 500, 1000, 2500] as const
-
-// ─────────────────────────────────────────────────────────────
-// Humanising helpers — turns abstract savings into concrete things
-// ─────────────────────────────────────────────────────────────
-
-// ─────────────────────────────────────────────────────────────
-// Main component
-// ─────────────────────────────────────────────────────────────
 
 export function CompareTool() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  // Seed state from URL params so the hero CTA deep-links here
-  const initialCorridor =
-    (searchParams.get('corridor') as (typeof CORRIDORS)[number]['id'] | null) ?? 'US-PH'
-  const initialPayout =
-    (searchParams.get('payout') as (typeof PAYOUT_METHODS)[number]['id'] | null) ?? 'gcash'
+  const initialSource = (searchParams.get('from') ?? 'USD').toUpperCase()
   const initialAmount = Number(searchParams.get('amount') ?? 500)
+  const initialPayout = (searchParams.get('payout') as PayoutId | null) ?? 'gcash'
   const initialRecipientId = searchParams.get('recipient')
 
-  const [corridorId, setCorridorId] = useState<(typeof CORRIDORS)[number]['id']>(initialCorridor)
-  const [payout, setPayout] = useState<(typeof PAYOUT_METHODS)[number]['id']>(initialPayout)
+  const [sourceCode, setSourceCode] = useState<string>(
+    CURRENCIES.some((c) => c.code === initialSource) ? initialSource : 'USD',
+  )
   const [amount, setAmount] = useState<number>(initialAmount)
+  const [payout, setPayout] = useState<PayoutId>(initialPayout)
+  const [pickerOpen, setPickerOpen] = useState(false)
 
-  // Recipient state loaded from localStorage on mount
   const [recipients, setRecipients] = useState<readonly LocalRecipient[]>([])
   const [selectedRecipientId, setSelectedRecipientId] = useState<string | null>(initialRecipientId)
 
@@ -61,12 +43,13 @@ export function CompareTool() {
     setRecipients(recipientsStore.list())
   }, [])
 
-  const corridor = CORRIDORS.find((c) => c.id === corridorId)!
+  const source = getCurrency(sourceCode)
+  const corridorId = `${sourceCode}-PH`
 
   const { quotes, loading, error, fetchedAt, cached, refetch } = useLiveQuotes({
-    corridor: corridor.id,
-    sourceCurrency: corridor.sourceCurrency,
-    targetCurrency: corridor.targetCurrency,
+    corridor: corridorId,
+    sourceCurrency: sourceCode,
+    targetCurrency: 'PHP',
     sourceAmount: amount,
     payoutMethod: payout,
   })
@@ -92,17 +75,15 @@ export function CompareTool() {
     )
   }, [sorted])
 
-  // Reflect current controls in the URL so the page is shareable and back/forward works
   useEffect(() => {
     const params = new URLSearchParams()
-    params.set('corridor', corridorId)
-    params.set('payout', payout)
+    params.set('from', sourceCode)
     params.set('amount', amount.toString())
+    params.set('payout', payout)
     if (selectedRecipientId) params.set('recipient', selectedRecipientId)
     router.replace(`/compare?${params.toString()}`, { scroll: false })
-  }, [corridorId, payout, amount, selectedRecipientId, router])
+  }, [sourceCode, amount, payout, selectedRecipientId, router])
 
-  // When you pick a saved recipient, auto-fill corridor + payout from them
   function handlePickRecipient(r: LocalRecipient) {
     setSelectedRecipientId(r.id)
     setPayout(r.payoutMethod)
@@ -112,9 +93,11 @@ export function CompareTool() {
     ? Math.max(0, Math.floor((Date.now() - fetchedAt.getTime()) / 1000))
     : null
 
+  const recipientGets = winner ? Math.round(winner.targetAmount) : 0
+
   return (
-    <div className="pt-4 pb-20">
-      <div className="container max-w-2xl">
+    <div className="pt-4 pb-24">
+      <div className="container max-w-lg space-y-4">
         <RecipientStrip
           recipients={recipients}
           selectedId={selectedRecipientId}
@@ -122,342 +105,243 @@ export function CompareTool() {
           onClear={() => setSelectedRecipientId(null)}
         />
 
-        <ControlBar
-          corridorId={corridorId}
-          setCorridorId={setCorridorId}
-          amount={amount}
-          setAmount={setAmount}
-          payout={payout}
-          setPayout={setPayout}
-          corridor={corridor}
-        />
-
-        <div className="mt-5 flex items-center justify-between">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {sorted.length} providers
-          </div>
-          <LiveChip
-            loading={loading}
-            cached={cached}
-            secondsAgo={secondsAgo}
-            onRefresh={refetch}
+        {/* ───── You send / Recipient gets panel (Wise-style) ───── */}
+        <section className="rounded-2xl border border-border bg-card overflow-hidden">
+          <AmountBlock
+            label="You send"
+            amount={amount}
+            onAmountChange={setAmount}
+            currencyCode={source.code}
+            currencyFlag={source.flag}
+            onPickCurrency={() => setPickerOpen(true)}
+            editable
+            symbol={source.symbol}
           />
+          <div className="h-px bg-border" />
+          <AmountBlock
+            label="Recipient gets"
+            amount={recipientGets}
+            currencyCode={PHP.code}
+            currencyFlag={PHP.flag}
+            symbol={PHP.symbol}
+            editable={false}
+            loading={loading}
+          />
+        </section>
+
+        {/* Quick amounts */}
+        <div className="flex flex-wrap gap-1.5">
+          {QUICK_AMOUNTS.map((a) => (
+            <button
+              key={a}
+              type="button"
+              onClick={() => setAmount(a)}
+              className={`h-8 rounded-full px-3.5 text-xs font-semibold transition-colors ${
+                amount === a
+                  ? 'bg-foreground text-background'
+                  : 'bg-muted text-muted-foreground hover:bg-border'
+              }`}
+            >
+              {source.symbol}{a.toLocaleString()}
+            </button>
+          ))}
         </div>
 
-        <div className="mt-3">
-          {error ? (
-            <ErrorState message={error} onRetry={refetch} />
-          ) : sorted.length === 0 && !loading ? (
-            <EmptyState />
-          ) : (
-            <WinnerCard
-              winner={winner}
-              routing={routing}
-              corridor={corridor}
-            />
-          )}
+        {/* Payout method chips */}
+        <div className="flex flex-wrap gap-1.5">
+          {PAYOUT_METHODS.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setPayout(m.id)}
+              className={`h-8 rounded-full px-3.5 text-xs font-semibold transition-colors ${
+                payout === m.id
+                  ? 'bg-foreground text-background'
+                  : 'bg-muted text-muted-foreground hover:bg-border'
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
         </div>
 
+        {/* Winner summary */}
+        {winner && routing ? (
+          <WinnerSummary winner={winner} routing={routing} />
+        ) : error ? (
+          <ErrorState message={error} onRetry={refetch} />
+        ) : !loading ? (
+          <EmptyState />
+        ) : null}
+
+        {/* Other routes */}
         {sorted.length > 1 ? (
-          <div className="mt-3 divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden">
-            {sorted.slice(1).map((quote) => (
-              <ProviderRow
-                key={quote.providerSlug}
-                quote={quote}
-                corridor={corridor}
-              />
-            ))}
-          </div>
+          <section>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Other routes
+              </div>
+              <RefreshChip loading={loading} cached={cached} secondsAgo={secondsAgo} onRefresh={refetch} />
+            </div>
+            <div className="divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden">
+              {sorted.slice(1).map((q) => (
+                <ProviderRow key={q.providerSlug} quote={q} />
+              ))}
+            </div>
+          </section>
         ) : null}
       </div>
+
+      <CurrencyPicker
+        open={pickerOpen}
+        selectedCode={sourceCode}
+        excludeCode="PHP"
+        onSelect={(code) => setSourceCode(code)}
+        onClose={() => setPickerOpen(false)}
+      />
     </div>
   )
 }
 
 // ─────────────────────────────────────────────────────────────
-// Recipient strip — the family-hub entry point
+// Amount block — "You send" / "Recipient gets" Wise-style row
 // ─────────────────────────────────────────────────────────────
 
-function RecipientStrip({
-  recipients,
-  selectedId,
-  onPick,
-  onClear,
-}: {
-  readonly recipients: readonly LocalRecipient[]
-  readonly selectedId: string | null
-  readonly onPick: (r: LocalRecipient) => void
-  readonly onClear: () => void
-}) {
-  return (
-    <section className="mt-2">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Who is this for?
-        </div>
-        {selectedId ? (
-          <button
-            type="button"
-            onClick={onClear}
-            className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Clear
-          </button>
-        ) : null}
-      </div>
-
-      {recipients.length === 0 ? (
-        <div className="flex items-center gap-4 rounded-[1.5rem] border border-dashed border-border bg-card px-5 py-4">
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-coral/10 text-coral">
-            <Heart className="h-5 w-5" strokeWidth={2.2} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-foreground text-sm">
-              Nanay, Tatay, Ate, Kuya — we\u2019ll remember them all.
-            </div>
-            <div className="text-xs text-muted-foreground mt-0.5">
-              Run a comparison below, then save whoever you\u2019re sending to. One tap next time.
-            </div>
-          </div>
-          <Link
-            href="/recipients"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:border-foreground/30"
-          >
-            <Plus className="h-3 w-3" />
-            Add
-          </Link>
-        </div>
-      ) : (
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x">
-          {recipients.map((r) => {
-            const selected = r.id === selectedId
-            const initials = r.fullName
-              .split(' ')
-              .map((n) => n[0])
-              .join('')
-              .slice(0, 2)
-            return (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => onPick(r)}
-                className={`group flex items-center gap-3 rounded-full border px-4 py-2.5 shrink-0 snap-start transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  selected
-                    ? 'border-coral bg-coral text-white'
-                    : 'border-border bg-card text-foreground hover:border-foreground/30'
-                }`}
-              >
-                <span
-                  className={`grid h-8 w-8 place-items-center rounded-full text-xs font-bold ${
-                    selected ? 'bg-white/20 text-white' : r.avatarColor
-                  }`}
-                >
-                  {initials}
-                </span>
-                <span className="text-left pr-1">
-                  <span className="block text-sm font-semibold leading-none">
-                    {r.fullName.split(' ')[0]}
-                  </span>
-                  {r.relationship ? (
-                    <span
-                      className={`block text-[10px] mt-0.5 ${
-                        selected ? 'text-white/70' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {r.relationship}
-                    </span>
-                  ) : null}
-                </span>
-              </button>
-            )
-          })}
-          <Link
-            href="/recipients"
-            className="flex items-center gap-2 rounded-full border border-dashed border-border bg-background px-4 py-2.5 shrink-0 text-xs font-semibold text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-colors snap-start"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add someone
-          </Link>
-        </div>
-      )}
-    </section>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────
-// Small live-status chip next to the sentence above the controls
-// ─────────────────────────────────────────────────────────────
-
-function LiveChip({
-  loading,
-  cached,
-  secondsAgo,
-  onRefresh,
-}: {
-  readonly loading: boolean
-  readonly cached: boolean
-  readonly secondsAgo: number | null
-  readonly onRefresh: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onRefresh}
-      className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-foreground transition-colors hover:border-foreground/30"
-    >
-      <span
-        className={`h-1.5 w-1.5 rounded-full ${
-          loading ? 'bg-gold animate-pulse' : 'bg-teal'
-        }`}
-      />
-      {loading
-        ? 'Checking live rates'
-        : secondsAgo != null
-          ? `Updated ${secondsAgo}s ago${cached ? ' · cached' : ''}`
-          : 'Tap to refresh'}
-    </button>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────
-// Control bar — same functionally, softer visually
-// ─────────────────────────────────────────────────────────────
-
-function ControlBar({
-  corridorId,
-  setCorridorId,
+function AmountBlock({
+  label,
   amount,
-  setAmount,
-  payout,
-  setPayout,
-  corridor,
+  onAmountChange,
+  currencyCode,
+  currencyFlag,
+  symbol,
+  onPickCurrency,
+  editable,
+  loading,
 }: {
-  readonly corridorId: (typeof CORRIDORS)[number]['id']
-  readonly setCorridorId: (v: (typeof CORRIDORS)[number]['id']) => void
+  readonly label: string
   readonly amount: number
-  readonly setAmount: (n: number) => void
-  readonly payout: (typeof PAYOUT_METHODS)[number]['id']
-  readonly setPayout: (v: (typeof PAYOUT_METHODS)[number]['id']) => void
-  readonly corridor: (typeof CORRIDORS)[number]
+  readonly onAmountChange?: (n: number) => void
+  readonly currencyCode: string
+  readonly currencyFlag: string
+  readonly symbol: string
+  readonly onPickCurrency?: () => void
+  readonly editable: boolean
+  readonly loading?: boolean
 }) {
   return (
-    <section className="mt-6 rounded-[2rem] border border-border bg-card p-5 sm:p-8 shadow-level-1">
-      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1.2fr_1fr_1fr]">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
-            How much?
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3 rounded-2xl border border-border bg-background px-3 sm:px-5 h-14 sm:h-16 focus-within:border-foreground/40 transition-colors overflow-hidden">
-            <span className="shrink-0 font-mono text-base sm:text-xl text-muted-foreground">
-              {currencySymbol(corridor.sourceCurrency)}
-            </span>
+    <div className="flex items-center justify-between px-4 py-3.5">
+      <div className="min-w-0 flex-1 pr-3">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          {label}
+        </div>
+        {editable ? (
+          <div className="mt-1 flex items-center gap-1">
+            <span className="font-mono text-base text-muted-foreground shrink-0">{symbol}</span>
             <input
               type="number"
               inputMode="numeric"
               min={1}
               value={amount}
-              onChange={(e) => setAmount(Math.max(0, Number(e.target.value) || 0))}
-              className="w-0 flex-1 min-w-0 bg-transparent font-display text-xl sm:text-3xl lg:text-4xl text-foreground outline-none tabular-nums"
-              aria-label="Amount to send"
+              onChange={(e) => onAmountChange?.(Math.max(0, Number(e.target.value) || 0))}
+              className="w-0 flex-1 min-w-0 bg-transparent text-2xl font-semibold text-foreground outline-none tabular-nums"
+              aria-label={label}
             />
-            <span className="shrink-0 text-[11px] sm:text-sm font-medium text-muted-foreground uppercase">
-              {corridor.sourceCurrency}
+          </div>
+        ) : (
+          <div className="mt-1 flex items-center gap-1 tabular-nums">
+            <span className="font-mono text-base text-muted-foreground shrink-0">{symbol}</span>
+            <span className={`text-2xl font-semibold text-foreground ${loading ? 'opacity-40' : ''}`}>
+              {amount.toLocaleString()}
             </span>
           </div>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {QUICK_AMOUNTS.map((a) => (
-              <button
-                key={a}
-                type="button"
-                onClick={() => setAmount(a)}
-                className={`h-8 rounded-full px-4 text-xs font-semibold transition-colors ${
-                  amount === a
-                    ? 'bg-foreground text-background'
-                    : 'bg-muted text-muted-foreground hover:bg-border'
-                }`}
-              >
-                {currencySymbol(corridor.sourceCurrency)}
-                {a.toLocaleString()}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
-            Sending from
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {CORRIDORS.map((c) => {
-              const selected = c.id === corridorId
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setCorridorId(c.id)}
-                  className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition-colors ${
-                    selected
-                      ? 'border-foreground bg-foreground text-background'
-                      : 'border-border bg-background text-foreground hover:border-foreground/30'
-                  }`}
-                >
-                  <span>{c.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
-            How they receive it
-          </div>
-          <div className="space-y-2">
-            {PAYOUT_METHODS.map((m) => {
-              const selected = m.id === payout
-              return (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => setPayout(m.id)}
-                  className={`w-full flex items-center justify-between rounded-xl border px-4 py-2.5 text-left transition-colors ${
-                    selected
-                      ? 'border-foreground bg-foreground text-background'
-                      : 'border-border bg-background text-foreground hover:border-foreground/30'
-                  }`}
-                >
-                  <div>
-                    <div className="text-xs font-semibold">{m.label}</div>
-                    <div
-                      className={`text-[10px] mt-0.5 ${
-                        selected ? 'text-background/60' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {m.desc}
-                    </div>
-                  </div>
-                  {selected ? <CheckCircle2 className="h-4 w-4" /> : null}
-                </button>
-              )
-            })}
-          </div>
-        </div>
+        )}
       </div>
-    </section>
+      {onPickCurrency ? (
+        <button
+          type="button"
+          onClick={onPickCurrency}
+          className="shrink-0 flex items-center gap-2 rounded-full border border-border bg-background px-3 h-10 text-sm font-semibold text-foreground active:scale-95"
+        >
+          <span className="text-base leading-none">{currencyFlag}</span>
+          <span>{currencyCode}</span>
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        </button>
+      ) : (
+        <div className="shrink-0 flex items-center gap-2 rounded-full border border-border bg-muted px-3 h-10 text-sm font-semibold text-foreground">
+          <span className="text-base leading-none">{currencyFlag}</span>
+          <span>{currencyCode}</span>
+        </div>
+      )}
+    </div>
   )
 }
 
 // ─────────────────────────────────────────────────────────────
-// Provider row — softened table, friendlier labels
+// Winner summary — rate / fee / arrives + Continue
 // ─────────────────────────────────────────────────────────────
 
-function ProviderRow({
-  quote,
-  corridor,
+function WinnerSummary({
+  winner,
+  routing,
 }: {
-  readonly quote: LiveQuote
-  readonly corridor: (typeof CORRIDORS)[number]
+  readonly winner: LiveQuote
+  readonly routing: NonNullable<ReturnType<typeof decideRouting>>
 }) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
+      <SummaryRow label="Best route" value={winner.provider} bold />
+      <SummaryRow
+        label={`1 ${winner.sourceCurrency}`}
+        value={`${winner.exchangeRate.toFixed(2)} ${winner.targetCurrency}`}
+      />
+      <SummaryRow label="Fee" value={`${winner.sourceCurrency} ${winner.fee.toFixed(2)}`} />
+      <SummaryRow label="Arrives in" value={winner.deliveryTime} />
+
+      <a
+        href={routing.affiliateUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() =>
+          trackAffiliateClick({
+            provider: winner.provider,
+            amount: winner.sourceAmount,
+            affiliateUrl: routing.affiliateUrl,
+            context: 'compare',
+          })
+        }
+        className="mt-1 flex items-center justify-center gap-2 w-full h-12 rounded-full bg-foreground text-background text-sm font-semibold active:scale-[0.99]"
+      >
+        Continue with {winner.provider}
+        <ArrowUpRight className="h-4 w-4" />
+      </a>
+    </section>
+  )
+}
+
+function SummaryRow({
+  label,
+  value,
+  bold = false,
+}: {
+  readonly label: string
+  readonly value: string
+  readonly bold?: boolean
+}) {
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <span className={bold ? 'font-medium text-foreground' : 'text-muted-foreground'}>{label}</span>
+      <span className={`tabular-nums ${bold ? 'font-semibold text-foreground' : 'text-foreground'}`}>
+        {value}
+      </span>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
+// Provider row — other routes list
+// ─────────────────────────────────────────────────────────────
+
+function ProviderRow({ quote }: { readonly quote: LiveQuote }) {
   const handleClick = () => {
     trackAffiliateClick({
       provider: quote.provider,
@@ -472,17 +356,17 @@ function ProviderRow({
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}
-      className="flex items-center justify-between gap-3 px-4 py-4 transition-colors hover:bg-background/60 active:bg-background"
+      className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/40"
     >
       <div className="min-w-0 flex-1">
         <div className="text-sm font-semibold text-foreground truncate">{quote.provider}</div>
         <div className="mt-0.5 text-[11px] text-muted-foreground tabular-nums">
-          Fee ${quote.fee.toFixed(2)} · {quote.deliveryTime}
+          Fee {quote.sourceCurrency} {quote.fee.toFixed(2)} · {quote.deliveryTime}
         </div>
       </div>
       <div className="text-right">
-        <div className="font-sans text-lg font-semibold text-foreground tabular-nums leading-none">
-          {currencySymbol(corridor.targetCurrency)}{Math.round(quote.targetAmount).toLocaleString()}
+        <div className="text-base font-semibold text-foreground tabular-nums">
+          {PHP.symbol}{Math.round(quote.targetAmount).toLocaleString()}
         </div>
       </div>
       <ArrowUpRight className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -491,71 +375,108 @@ function ProviderRow({
 }
 
 // ─────────────────────────────────────────────────────────────
-// Winner card — warm surface, conversational headline, share CTA
+// Recipient strip
 // ─────────────────────────────────────────────────────────────
 
-function WinnerCard({
-  winner,
-  routing,
-  corridor,
+function RecipientStrip({
+  recipients,
+  selectedId,
+  onPick,
+  onClear,
 }: {
-  readonly winner: LiveQuote | undefined
-  readonly routing: ReturnType<typeof decideRouting> | null
-  readonly corridor: (typeof CORRIDORS)[number]
+  readonly recipients: readonly LocalRecipient[]
+  readonly selectedId: string | null
+  readonly onPick: (r: LocalRecipient) => void
+  readonly onClear: () => void
 }) {
-  if (!winner || !routing) {
+  if (recipients.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
-        Enter an amount to compare providers.
+      <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-card px-4 py-3">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+          <Heart className="h-4 w-4" strokeWidth={1.8} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-foreground">Save a recipient</div>
+          <div className="text-[11px] text-muted-foreground">One-tap future sends</div>
+        </div>
+        <Link
+          href="/recipients"
+          className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground"
+        >
+          <Plus className="h-3 w-3" />
+          Add
+        </Link>
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl border border-coral/40 bg-card p-5">
-      <div className="flex items-center justify-between">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-coral">
-          Best rate
-        </div>
-        <div className="text-[11px] text-muted-foreground">{winner.deliveryTime}</div>
+    <div className="flex items-center gap-2">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Sending to
       </div>
-
-      <div className="mt-3 flex items-baseline justify-between gap-3">
-        <div className="text-lg font-semibold text-foreground">{winner.provider}</div>
-        <div className="font-sans text-3xl font-semibold text-foreground tabular-nums">
-          {currencySymbol(corridor.targetCurrency)}{Math.round(winner.targetAmount).toLocaleString()}
-        </div>
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {recipients.map((r) => {
+          const selected = r.id === selectedId
+          const initials = r.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)
+          return (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => onPick(r)}
+              className={`flex items-center gap-2 rounded-full border px-3 h-8 shrink-0 transition-colors ${
+                selected ? 'border-foreground bg-foreground text-background' : 'border-border bg-card text-foreground'
+              }`}
+            >
+              <span className="text-[10px] font-bold">{initials}</span>
+              <span className="text-xs font-semibold">{r.fullName.split(' ')[0]}</span>
+            </button>
+          )
+        })}
+        {selectedId ? (
+          <button
+            type="button"
+            onClick={onClear}
+            className="text-xs text-muted-foreground shrink-0"
+          >
+            Clear
+          </button>
+        ) : null}
       </div>
-
-      <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
-        <span>Fee ${winner.fee.toFixed(2)}</span>
-        <span>Rate {winner.exchangeRate.toFixed(2)}</span>
-      </div>
-
-      <a
-        href={routing.affiliateUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() =>
-          trackAffiliateClick({
-            provider: winner.provider,
-            amount: winner.sourceAmount,
-            affiliateUrl: routing.affiliateUrl,
-            context: 'compare',
-          })
-        }
-        className="mt-4 flex items-center justify-center gap-2 w-full h-12 rounded-full bg-coral text-white text-sm font-semibold active:scale-[0.99]"
-      >
-        Continue
-        <ArrowUpRight className="h-4 w-4" />
-      </a>
     </div>
   )
 }
 
 // ─────────────────────────────────────────────────────────────
-// Error / empty states
+// Refresh chip + error/empty states
 // ─────────────────────────────────────────────────────────────
+
+function RefreshChip({
+  loading,
+  cached,
+  secondsAgo,
+  onRefresh,
+}: {
+  readonly loading: boolean
+  readonly cached: boolean
+  readonly secondsAgo: number | null
+  readonly onRefresh: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onRefresh}
+      className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+    >
+      <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+      {loading
+        ? 'Checking'
+        : secondsAgo != null
+          ? `${secondsAgo}s ago${cached ? ' · cached' : ''}`
+          : 'Refresh'}
+    </button>
+  )
+}
 
 function ErrorState({
   message,
@@ -565,15 +486,13 @@ function ErrorState({
   readonly onRetry: () => void
 }) {
   return (
-    <div className="rounded-[2rem] border border-dashed border-destructive/30 bg-card p-10 text-center">
-      <div className="text-sm font-semibold text-destructive mb-2">
-        We couldn\u2019t reach live rates
-      </div>
-      <div className="text-xs text-muted-foreground mb-5">{message}</div>
+    <div className="rounded-2xl border border-destructive/30 bg-card p-6 text-center">
+      <div className="text-sm font-semibold text-destructive mb-1">Couldn't fetch live rates</div>
+      <div className="text-xs text-muted-foreground mb-4">{message}</div>
       <button
         type="button"
         onClick={onRetry}
-        className="inline-flex items-center rounded-full bg-foreground px-5 py-2.5 text-xs font-semibold text-background"
+        className="inline-flex items-center rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background"
       >
         Try again
       </button>
@@ -583,35 +502,8 @@ function ErrorState({
 
 function EmptyState() {
   return (
-    <div className="rounded-[2rem] border border-dashed border-border bg-card p-10 text-center">
-      <div className="text-sm text-muted-foreground">
-        Enter an amount above and we\u2019ll show every route.
-      </div>
+    <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
+      Enter an amount to compare providers.
     </div>
   )
-}
-
-// ─────────────────────────────────────────────────────────────
-// Utilities
-// ─────────────────────────────────────────────────────────────
-
-function currencySymbol(code: string): string {
-  switch (code) {
-    case 'USD':
-      return '$'
-    case 'GBP':
-      return '£'
-    case 'EUR':
-      return '€'
-    case 'SGD':
-      return 'S$'
-    case 'AED':
-      return 'د.إ '
-    case 'SAR':
-      return '﷼ '
-    case 'PHP':
-      return '₱'
-    default:
-      return ''
-  }
 }

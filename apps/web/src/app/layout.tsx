@@ -1,32 +1,19 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import { GeistMono } from 'geist/font/mono'
-import { Inter, Instrument_Serif } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import MigrationBridge from '@/components/MigrationBridge'
 import InstallPrompt from '@/components/InstallPrompt'
 import { BottomTabBar } from '@/components/BottomTabBar'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 
-// Type system (Wise-inspired for the tool, editorial serif kept for hero):
-// - Inter for body + UI + numbers (tall x-height, excellent tabular digits,
-//   same font Wise uses across their whole product)
-// - Instrument Serif kept for display italics on the landing and the
-//   /compare greeting (the one editorial moment inside the tool)
-// - Geist Mono still used for receipt-style code
 const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-sans',
-  display: 'swap',
-})
-
-const instrumentSerif = Instrument_Serif({
-  weight: '400',
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  variable: '--font-heading',
   display: 'swap',
 })
 
@@ -35,12 +22,12 @@ export const metadata: Metadata = {
     default: 'My Remittance Pal',
     template: '%s | My Remittance Pal',
   },
-  description: 'AI-powered international money transfers',
+  description: 'Compare remittance rates. Built for the Filipino diaspora.',
   manifest: '/manifest.webmanifest',
   applicationName: 'My Remittance Pal',
   appleWebApp: {
     capable: true,
-    title: 'Remit Buddy',
+    title: 'My Remittance Pal',
     statusBarStyle: 'black-translucent',
   },
   formatDetection: {
@@ -62,8 +49,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#faf8f4' },
-    { media: '(prefers-color-scheme: dark)', color: '#120f0e' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0d0d0d' },
   ],
 }
 
@@ -71,13 +58,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}
+      className={`${inter.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
     >
       <body>
-        <MigrationBridge />
-        {children}
-        <BottomTabBar />
-        <InstallPrompt />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <MigrationBridge />
+          {children}
+          <BottomTabBar />
+          <InstallPrompt />
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
         <Script id="sw-register" strategy="afterInteractive">
