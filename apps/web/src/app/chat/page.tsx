@@ -14,11 +14,28 @@ const STARTER_QUESTIONS = [
 export default function ChatPage() {
   const { messages, sendMessage, status } = useChat()
   const [input, setInput] = useState('')
+  const [headerHidden, setHeaderHidden] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const lastScrollY = useRef(0)
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const onScroll = () => {
+      const y = el.scrollTop
+      const dy = y - lastScrollY.current
+      if (Math.abs(dy) < 4) return
+      if (dy > 0 && y > 40) setHeaderHidden(true)
+      else if (dy < 0) setHeaderHidden(false)
+      lastScrollY.current = y
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -37,7 +54,11 @@ export default function ChatPage() {
 
   return (
     <main className="flex flex-col min-h-screen bg-background">
-      <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-md">
+      <header
+        className={`sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-md transition-transform duration-200 ${
+          headerHidden ? '-translate-y-full' : 'translate-y-0'
+        }`}
+      >
         <div className="container max-w-2xl flex items-center gap-2.5 py-2.5">
           <div className="grid h-7 w-7 place-items-center rounded-full bg-coral/10 text-coral">
             <MessageCircle className="h-4 w-4" strokeWidth={1.8} />
