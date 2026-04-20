@@ -3,29 +3,10 @@
 import { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
-import {
-  ArrowUpRight,
-  Bell,
-  CheckCircle2,
-  ChevronDown,
-  Clock,
-  Copy,
-  Heart,
-  Plus,
-  Share2,
-  Shield,
-  Sparkles,
-  TrendingUp,
-  Users,
-} from 'lucide-react'
+import { ArrowUpRight, CheckCircle2, Heart, Plus } from 'lucide-react'
 import { useLiveQuotes, type LiveQuote } from '@/components/landing/useLiveQuotes'
 import { decideRouting, trackAffiliateClick } from '@/lib/affiliate-routing'
-import {
-  familyGroupsStore,
-  recipientsStore,
-  type LocalFamilyGroup,
-  type LocalRecipient,
-} from '@/lib/local-db'
+import { recipientsStore, type LocalRecipient } from '@/lib/local-db'
 
 // ─────────────────────────────────────────────────────────────
 // Constants — corridors/payouts tuned for OFW Philippines-first
@@ -47,38 +28,10 @@ const PAYOUT_METHODS = [
 ] as const
 
 const QUICK_AMOUNTS = [100, 200, 500, 1000, 2500] as const
-type SortMode = 'recipient' | 'fee' | 'speed'
 
 // ─────────────────────────────────────────────────────────────
 // Humanising helpers — turns abstract savings into concrete things
 // ─────────────────────────────────────────────────────────────
-
-/**
- * Translate a PHP savings amount into a concrete household item.
- * Rough 2026 Philippine household reference prices — intentionally simple,
- * because the goal is a vibe, not a financial statement.
- */
-function humanizeSavings(savingsPhp: number): string | null {
-  if (savingsPhp < 30) return null
-  if (savingsPhp < 70) return 'about a cup of kape at the kapeteria'
-  if (savingsPhp < 200) return 'a jeepney ride to school for the week'
-  if (savingsPhp < 500) return "a Jollibee lunch for the whole family"
-  if (savingsPhp < 1000) return 'a week of rice money'
-  if (savingsPhp < 2500) return 'a month of mobile load for the kids'
-  return 'a big chunk of the electric bill'
-}
-
-/**
- * Friendly greeting based on time of day, with a light Tagalog touch.
- * Keeps it subtle — the vision doc warns against gimmicky AI.
- */
-function greeting(): string {
-  if (typeof window === 'undefined') return 'Kumusta'
-  const h = new Date().getHours()
-  if (h < 12) return 'Magandang umaga'
-  if (h < 18) return 'Magandang hapon'
-  return 'Magandang gabi'
-}
 
 // ─────────────────────────────────────────────────────────────
 // Main component
@@ -99,25 +52,14 @@ export function CompareTool() {
   const [corridorId, setCorridorId] = useState<(typeof CORRIDORS)[number]['id']>(initialCorridor)
   const [payout, setPayout] = useState<(typeof PAYOUT_METHODS)[number]['id']>(initialPayout)
   const [amount, setAmount] = useState<number>(initialAmount)
-  const [sortMode, setSortMode] = useState<SortMode>('recipient')
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
-  const [shared, setShared] = useState(false)
 
-  // Family/recipient state loaded from localStorage on mount
+  // Recipient state loaded from localStorage on mount
   const [recipients, setRecipients] = useState<readonly LocalRecipient[]>([])
-  const [families, setFamilies] = useState<readonly LocalFamilyGroup[]>([])
   const [selectedRecipientId, setSelectedRecipientId] = useState<string | null>(initialRecipientId)
 
   useEffect(() => {
     setRecipients(recipientsStore.list())
-    setFamilies(familyGroupsStore.list())
   }, [])
-
-  const selectedRecipient = recipients.find((r) => r.id === selectedRecipientId) ?? null
-  const recipientFirstName = selectedRecipient
-    ? selectedRecipient.fullName.split(' ')[0] ?? selectedRecipient.fullName
-    : null
 
   const corridor = CORRIDORS.find((c) => c.id === corridorId)!
 
@@ -131,17 +73,10 @@ export function CompareTool() {
 
   const sorted = useMemo<readonly LiveQuote[]>(() => {
     if (quotes.length === 0) return quotes
-    const copy = [...quotes]
-    if (sortMode === 'recipient') copy.sort((a, b) => b.targetAmount - a.targetAmount)
-    else if (sortMode === 'fee') copy.sort((a, b) => a.totalCost - b.totalCost)
-    else copy.sort((a, b) => a.deliveryMinutes - b.deliveryMinutes)
-    return copy
-  }, [quotes, sortMode])
+    return [...quotes].sort((a, b) => b.targetAmount - a.targetAmount)
+  }, [quotes])
 
   const winner = sorted[0]
-  const worst = sorted[sorted.length - 1]
-  const savingsPhp = winner && worst ? winner.targetAmount - worst.targetAmount : 0
-  const savingsUsd = winner ? savingsPhp / winner.exchangeRate : 0
 
   const routing = useMemo(() => {
     if (sorted.length === 0) return null
@@ -171,45 +106,6 @@ export function CompareTool() {
   function handlePickRecipient(r: LocalRecipient) {
     setSelectedRecipientId(r.id)
     setPayout(r.payoutMethod)
-    // keep current corridor unless the recipient has a hint
-  }
-
-  function handleCopyLink() {
-    if (typeof window === 'undefined') return
-    navigator.clipboard.writeText(window.location.href).then(
-      () => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
-      },
-      () => {},
-    )
-  }
-
-  function handleShareWithFamily() {
-    if (!winner) return
-    if (typeof window === 'undefined') return
-    const name = recipientFirstName ?? 'the family'
-    const php = Math.round(winner.targetAmount).toLocaleString()
-    const message = `Sending ₱${php} home to ${name} via ${winner.provider}, arriving in ${winner.deliveryTime}. I'll let you know when it lands.`
-
-    const flash = () => {
-      setShared(true)
-      setTimeout(() => setShared(false), 1500)
-    }
-
-    const copyToClipboard = () => {
-      window.navigator.clipboard.writeText(message).then(flash, flash)
-    }
-
-    // Use the native share sheet on mobile when available; fall back to clipboard on desktop
-    const nav = window.navigator as Navigator & {
-      share?: (data: ShareData) => Promise<void>
-    }
-    if (typeof nav.share === 'function') {
-      nav.share({ text: message, title: 'Money on the way' }).then(flash, copyToClipboard)
-    } else {
-      copyToClipboard()
-    }
   }
 
   const secondsAgo = fetchedAt
@@ -217,52 +113,14 @@ export function CompareTool() {
     : null
 
   return (
-    <div className="pt-20 sm:pt-28 pb-20">
-      <Greeting recipientFirstName={recipientFirstName} />
-
-      <div className="container max-w-6xl mt-6 sm:mt-10">
+    <div className="pt-4 pb-20">
+      <div className="container max-w-2xl">
         <RecipientStrip
           recipients={recipients}
           selectedId={selectedRecipientId}
           onPick={handlePickRecipient}
           onClear={() => setSelectedRecipientId(null)}
         />
-
-        <div className="mt-8 flex items-center justify-between flex-wrap gap-3">
-          <p className="text-lg lg:text-xl text-foreground leading-snug max-w-2xl">
-            Sending{' '}
-            <span className="font-display italic text-coral">
-              {currencySymbol(corridor.sourceCurrency)}
-              {amount.toLocaleString()} {corridor.sourceCurrency}
-            </span>{' '}
-            via{' '}
-            <span className="font-semibold">
-              {PAYOUT_METHODS.find((m) => m.id === payout)?.label}
-            </span>
-            {recipientFirstName ? (
-              <>
-                {' '}
-                to{' '}
-                <span className="font-semibold text-foreground">{recipientFirstName}</span>
-              </>
-            ) : (
-              <>
-                {' '}
-                home to{' '}
-                <span className="font-semibold text-foreground">
-                  {corridor.targetCurrency === 'PHP' ? 'the Philippines' : 'your family'}
-                </span>
-              </>
-            )}
-          </p>
-
-          <LiveChip
-            loading={loading}
-            cached={cached}
-            secondsAgo={secondsAgo}
-            onRefresh={refetch}
-          />
-        </div>
 
         <ControlBar
           corridorId={corridorId}
@@ -274,103 +132,45 @@ export function CompareTool() {
           corridor={corridor}
         />
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
-          <div className="space-y-6">
-            <ResultsToolbar
-              sortMode={sortMode}
-              setSortMode={setSortMode}
-              count={sorted.length}
-              onCopy={handleCopyLink}
-              copied={copied}
-              recipientFirstName={recipientFirstName}
-            />
-
-            {error ? (
-              <ErrorState message={error} onRetry={refetch} />
-            ) : sorted.length === 0 && !loading ? (
-              <EmptyState />
-            ) : (
-              <div className="space-y-3">
-                {sorted.map((quote, i) => (
-                  <ProviderRow
-                    key={quote.providerSlug}
-                    quote={quote}
-                    rank={i + 1}
-                    isWinner={i === 0}
-                    isExpanded={expandedId === quote.providerSlug}
-                    onToggle={() =>
-                      setExpandedId(
-                        expandedId === quote.providerSlug ? null : quote.providerSlug,
-                      )
-                    }
-                    corridor={corridor}
-                    recipientFirstName={recipientFirstName}
-                  />
-                ))}
-              </div>
-            )}
+        <div className="mt-5 flex items-center justify-between">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {sorted.length} providers
           </div>
+          <LiveChip
+            loading={loading}
+            cached={cached}
+            secondsAgo={secondsAgo}
+            onRefresh={refetch}
+          />
+        </div>
 
-          {/* Right rail: warm winner card + family nudges */}
-          <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start">
+        <div className="mt-3">
+          {error ? (
+            <ErrorState message={error} onRetry={refetch} />
+          ) : sorted.length === 0 && !loading ? (
+            <EmptyState />
+          ) : (
             <WinnerCard
               winner={winner}
               routing={routing}
-              amount={amount}
-              savingsPhp={savingsPhp}
-              savingsUsd={savingsUsd}
               corridor={corridor}
-              payout={payout}
-              recipientFirstName={recipientFirstName}
-              recipientId={selectedRecipientId}
-              onShareWithFamily={handleShareWithFamily}
-              shared={shared}
             />
-            <FamilyNudges
-              families={families}
-              corridor={corridor}
-              amount={amount}
-              hasRecipient={Boolean(selectedRecipient)}
-            />
-          </aside>
+          )}
         </div>
+
+        {sorted.length > 1 ? (
+          <div className="mt-3 divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden">
+            {sorted.slice(1).map((quote) => (
+              <ProviderRow
+                key={quote.providerSlug}
+                quote={quote}
+                corridor={corridor}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────
-// Greeting header — warm, personalised, Tagalog-tinted
-// ─────────────────────────────────────────────────────────────
-
-function Greeting({ recipientFirstName }: { readonly recipientFirstName: string | null }) {
-  // Avoid hydration mismatch: server renders the neutral fallback,
-  // then the client swaps in the time-of-day greeting after mount.
-  const [localGreeting, setLocalGreeting] = useState('Kumusta')
-  useEffect(() => {
-    setLocalGreeting(greeting())
-  }, [])
-  return (
-    <header className="container max-w-6xl">
-      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-coral">
-        <span className="h-1.5 w-1.5 rounded-full bg-coral" />
-        Built for Filipino families abroad
-      </div>
-      <h1 className="mt-5 font-sans font-semibold text-3xl sm:text-4xl lg:text-[3.25rem] tracking-tight leading-[1.05] text-foreground text-balance max-w-4xl">
-        {localGreeting},{' '}
-        <span className="font-editorial italic font-normal text-coral">
-          {recipientFirstName
-            ? `sending home to ${recipientFirstName}`
-            : 'padalahan natin ang pamilya mo'}
-        </span>
-        .
-      </h1>
-      <p className="mt-5 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-        {recipientFirstName
-          ? `We\u2019ll find the best route for ${recipientFirstName} across every major provider — live rates from every OFW corridor, the math all on screen.`
-          : 'For Filipino OFWs sending home from the US, UK, Singapore, UAE and Saudi. We compare every major provider in real time and tell you which route lands the most pesos — GCash, Maya, bank, or cash pickup.'}
-      </p>
-    </header>
   )
 }
 
@@ -648,216 +448,45 @@ function ControlBar({
 }
 
 // ─────────────────────────────────────────────────────────────
-// Results toolbar — conversational section heading
-// ─────────────────────────────────────────────────────────────
-
-function ResultsToolbar({
-  sortMode,
-  setSortMode,
-  count,
-  onCopy,
-  copied,
-  recipientFirstName,
-}: {
-  readonly sortMode: SortMode
-  readonly setSortMode: (m: SortMode) => void
-  readonly count: number
-  readonly onCopy: () => void
-  readonly copied: boolean
-  readonly recipientFirstName: string | null
-}) {
-  const sorts: readonly { id: SortMode; label: string }[] = [
-    { id: 'recipient', label: 'Most delivered' },
-    { id: 'fee', label: 'Cheapest total' },
-    { id: 'speed', label: 'Fastest' },
-  ]
-  return (
-    <div>
-      <div className="mb-4 font-display text-2xl lg:text-3xl text-foreground leading-[1.1]">
-        {recipientFirstName
-          ? `How everyone stacks up for ${recipientFirstName} today.`
-          : 'How everyone stacks up today.'}
-      </div>
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Sort
-          </span>
-          <div className="flex items-center gap-1 rounded-full border border-border bg-card p-1">
-            {sorts.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setSortMode(s.id)}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  sortMode === s.id
-                    ? 'bg-foreground text-background'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">
-            {count} provider{count === 1 ? '' : 's'} compared
-          </span>
-          <button
-            type="button"
-            onClick={onCopy}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-foreground/30"
-          >
-            <Copy className="h-3 w-3" />
-            {copied ? 'Link copied' : 'Share compare'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────
 // Provider row — softened table, friendlier labels
 // ─────────────────────────────────────────────────────────────
 
 function ProviderRow({
   quote,
-  rank,
-  isWinner,
-  isExpanded,
-  onToggle,
   corridor,
-  recipientFirstName,
 }: {
   readonly quote: LiveQuote
-  readonly rank: number
-  readonly isWinner: boolean
-  readonly isExpanded: boolean
-  readonly onToggle: () => void
   readonly corridor: (typeof CORRIDORS)[number]
-  readonly recipientFirstName: string | null
 }) {
-  const deliveredLabel = recipientFirstName ? `${recipientFirstName} gets` : 'They get'
+  const handleClick = () => {
+    trackAffiliateClick({
+      provider: quote.provider,
+      amount: quote.sourceAmount,
+      affiliateUrl: quote.affiliateUrl,
+      context: 'compare',
+    })
+  }
   return (
-    <div
-      className={`rounded-2xl border bg-card transition-colors ${
-        isWinner ? 'border-coral' : 'border-border hover:border-foreground/20'
-      }`}
+    <a
+      href={quote.affiliateUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={handleClick}
+      className="flex items-center justify-between gap-3 px-4 py-4 transition-colors hover:bg-background/60 active:bg-background"
     >
-      <button type="button" onClick={onToggle} className="w-full text-left p-5">
-        <div className="grid items-center gap-4 grid-cols-[auto_1fr_auto_auto]">
-          <div className="font-mono text-xs font-semibold text-muted-foreground tabular-nums w-6">
-            {rank.toString().padStart(2, '0')}
-          </div>
-
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-display text-xl text-foreground leading-none">
-                {quote.provider}
-              </span>
-              {isWinner ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-coral px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">
-                  <Sparkles className="h-2.5 w-2.5" />
-                  Today's winner
-                </span>
-              ) : null}
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                Arrives in {quote.deliveryTime}
-              </span>
-              <span>Rate {quote.exchangeRate.toFixed(4)}</span>
-              <span>Hidden markup {(quote.spread * 100).toFixed(2)}%</span>
-              <span className="inline-flex items-center gap-1">
-                <Shield className="h-3 w-3" />
-                Trust {quote.trustScore.toFixed(1)}/10
-              </span>
-            </div>
-          </div>
-
-          <div className="text-right">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Their fee
-            </div>
-            <div className="mt-1 font-mono text-sm text-foreground tabular-nums">
-              ${quote.fee.toFixed(2)}
-            </div>
-          </div>
-
-          <div className="text-right pl-2">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {deliveredLabel}
-            </div>
-            <div
-              className={`mt-1 font-display text-2xl leading-none tabular-nums ${
-                isWinner ? 'text-coral' : 'text-foreground'
-              }`}
-            >
-              {currencySymbol(corridor.targetCurrency)}
-              {Math.round(quote.targetAmount).toLocaleString()}
-            </div>
-          </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-semibold text-foreground truncate">{quote.provider}</div>
+        <div className="mt-0.5 text-[11px] text-muted-foreground tabular-nums">
+          Fee ${quote.fee.toFixed(2)} · {quote.deliveryTime}
         </div>
-
-        <ChevronDown
-          className={`mt-3 h-4 w-4 text-muted-foreground transition-transform ${
-            isExpanded ? 'rotate-180' : ''
-          }`}
-        />
-      </button>
-
-      {isExpanded ? (
-        <div className="border-t border-border px-5 py-5 bg-background/60 rounded-b-2xl">
-          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
-            <Row
-              label="Mid-market rate"
-              value={`1 ${quote.sourceCurrency} = ${quote.midMarketRate.toFixed(4)} ${quote.targetCurrency}`}
-            />
-            <Row
-              label="What they quote you"
-              value={`1 ${quote.sourceCurrency} = ${quote.exchangeRate.toFixed(4)} ${quote.targetCurrency}`}
-            />
-            <Row
-              label="Hidden FX markup"
-              value={`${(quote.spread * 100).toFixed(2)}%`}
-            />
-            <Row label="Provider fee" value={`$${quote.fee.toFixed(2)}`} />
-            <Row label="Your total cost" value={`$${quote.totalCost.toFixed(2)}`} />
-            <Row
-              label="Delivery"
-              value={`${quote.deliveryTime} (${quote.deliveryMinutes} min)`}
-            />
-            <Row
-              label="Supports"
-              value={
-                [
-                  quote.supportsGcash && 'GCash',
-                  quote.supportsMaya && 'Maya',
-                  quote.supportsBank && 'Bank',
-                  quote.supportsCashPickup && 'Cash pickup',
-                ]
-                  .filter(Boolean)
-                  .join(' · ') || '—'
-              }
-            />
-            <Row label="Rate source" value={quote.source} />
-          </div>
+      </div>
+      <div className="text-right">
+        <div className="font-sans text-lg font-semibold text-foreground tabular-nums leading-none">
+          {currencySymbol(corridor.targetCurrency)}{Math.round(quote.targetAmount).toLocaleString()}
         </div>
-      ) : null}
-    </div>
-  )
-}
-
-function Row({ label, value }: { readonly label: string; readonly value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-mono text-xs text-foreground tabular-nums">{value}</span>
-    </div>
+      </div>
+      <ArrowUpRight className="h-4 w-4 text-muted-foreground shrink-0" />
+    </a>
   )
 }
 
@@ -868,95 +497,41 @@ function Row({ label, value }: { readonly label: string; readonly value: string 
 function WinnerCard({
   winner,
   routing,
-  amount,
-  savingsPhp,
-  savingsUsd,
   corridor,
-  payout,
-  recipientFirstName,
-  recipientId: _recipientId,
-  onShareWithFamily,
-  shared,
 }: {
   readonly winner: LiveQuote | undefined
   readonly routing: ReturnType<typeof decideRouting> | null
-  readonly amount: number
-  readonly savingsPhp: number
-  readonly savingsUsd: number
   readonly corridor: (typeof CORRIDORS)[number]
-  readonly payout: (typeof PAYOUT_METHODS)[number]['id']
-  readonly recipientFirstName: string | null
-  readonly recipientId: string | null
-  readonly onShareWithFamily: () => void
-  readonly shared: boolean
 }) {
   if (!winner || !routing) {
     return (
-      <div className="rounded-[2rem] border border-dashed border-border bg-card p-10 text-center">
-        <Heart className="mx-auto h-5 w-5 text-coral/60 mb-3" strokeWidth={1.8} />
-        <div className="text-sm text-muted-foreground">
-          Pick an amount above and we\u2019ll find the best route for your family.
-        </div>
+      <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
+        Enter an amount to compare providers.
       </div>
     )
   }
 
-  const total = amount + winner.fee
-
-  const name = recipientFirstName ?? 'Your family'
-  const human = humanizeSavings(savingsPhp)
-
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-coral/30 bg-card p-8 shadow-level-3">
-      {/* Soft coral wash at the top edge */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-coral/10 to-transparent pointer-events-none"
-      />
-
-      <div className="relative flex items-center justify-between">
+    <div className="rounded-2xl border border-coral/40 bg-card p-5">
+      <div className="flex items-center justify-between">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-coral">
-          Today\u2019s best route
+          Best rate
         </div>
-        <Sparkles className="h-4 w-4 text-coral" />
+        <div className="text-[11px] text-muted-foreground">{winner.deliveryTime}</div>
       </div>
 
-      {/* Conversational headline — "Nanay gets ₱28,500 via Wise in 2 minutes" */}
-      <div className="relative mt-6">
-        <div className="font-display text-2xl sm:text-[2.25rem] leading-[1.05] text-foreground text-balance">
-          <span className="font-semibold">{name}</span> gets{' '}
-          <span className="text-coral italic">
-            {currencySymbol(corridor.targetCurrency)}
-            {Math.round(winner.targetAmount).toLocaleString()}
-          </span>{' '}
-          via {winner.provider} in {winner.deliveryTime}.
+      <div className="mt-3 flex items-baseline justify-between gap-3">
+        <div className="text-lg font-semibold text-foreground">{winner.provider}</div>
+        <div className="font-sans text-3xl font-semibold text-foreground tabular-nums">
+          {currencySymbol(corridor.targetCurrency)}{Math.round(winner.targetAmount).toLocaleString()}
         </div>
-        {savingsUsd > 0.5 ? (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-teal/10 px-3 py-1.5 text-[11px] font-semibold text-teal">
-            <TrendingUp className="h-3 w-3" />
-            Saves {currencySymbol(corridor.targetCurrency)}
-            {Math.round(savingsPhp).toLocaleString()} vs the worst option
-            {human ? <span className="text-teal/80">· {human}</span> : null}
-          </div>
-        ) : null}
       </div>
 
-      {/* Math breakdown — quiet, confidence-building */}
-      <div className="relative mt-7 space-y-2.5 rounded-2xl border border-border bg-background p-4">
-        <MathRow label="You send" value={`$${amount.toFixed(2)}`} />
-        <MathRow label={`${winner.provider} fee`} value={`$${winner.fee.toFixed(2)}`} />
-        <div className="border-t border-dashed border-border pt-2.5">
-          <MathRow label="You pay in total" value={`$${total.toFixed(2)}`} bold />
-        </div>
-        <MathRow
-          label={`Arrives at ${PAYOUT_METHODS.find((m) => m.id === payout)?.label}`}
-          value={winner.deliveryTime}
-        />
+      <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
+        <span>Fee ${winner.fee.toFixed(2)}</span>
+        <span>Rate {winner.exchangeRate.toFixed(2)}</span>
       </div>
 
-      {/* Primary action — hand off to the provider's affiliate URL.
-          Opens in a new tab so users can still compare, and logs the
-          click for attribution. We never take their money directly. */}
       <a
         href={routing.affiliateUrl}
         target="_blank"
@@ -964,132 +539,16 @@ function WinnerCard({
         onClick={() =>
           trackAffiliateClick({
             provider: winner.provider,
-            amount,
+            amount: winner.sourceAmount,
             affiliateUrl: routing.affiliateUrl,
             context: 'compare',
           })
         }
-        className="relative mt-6 group flex items-center justify-center gap-2 w-full h-14 rounded-full bg-coral text-white text-sm font-semibold transition-all hover:-translate-y-0.5"
+        className="mt-4 flex items-center justify-center gap-2 w-full h-12 rounded-full bg-coral text-white text-sm font-semibold active:scale-[0.99]"
       >
-        Continue with {winner.provider}
-        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        Continue
+        <ArrowUpRight className="h-4 w-4" />
       </a>
-
-      {/* Secondary action — let the family know */}
-      <button
-        type="button"
-        onClick={onShareWithFamily}
-        className="relative mt-3 group flex items-center justify-center gap-2 w-full h-12 rounded-full border border-border bg-background text-xs font-semibold text-foreground transition-colors hover:border-foreground/30"
-      >
-        <Share2 className="h-3.5 w-3.5" />
-        {shared ? 'Message copied — paste in Messenger' : 'Tell the family it\u2019s coming'}
-      </button>
-
-      <p className="relative mt-4 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
-        We earn a referral fee from providers · never from you
-      </p>
-    </div>
-  )
-}
-
-function MathRow({
-  label,
-  value,
-  bold = false,
-}: {
-  readonly label: string
-  readonly value: string
-  readonly bold?: boolean
-}) {
-  return (
-    <div className="flex items-center justify-between text-xs">
-      <span className="text-muted-foreground">{label}</span>
-      <span
-        className={`font-mono tabular-nums ${
-          bold ? 'font-bold text-foreground' : 'text-foreground/90'
-        }`}
-      >
-        {value}
-      </span>
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────
-// Family nudges — shared goals and rate alerts
-// ─────────────────────────────────────────────────────────────
-
-function FamilyNudges({
-  families,
-  corridor,
-  amount: _amount,
-  hasRecipient,
-}: {
-  readonly families: readonly LocalFamilyGroup[]
-  readonly corridor: (typeof CORRIDORS)[number]
-  readonly amount: number
-  readonly hasRecipient: boolean
-}) {
-  const firstGroupWithGoal = families.find((f) => f.goal != null) ?? null
-
-  return (
-    <div className="rounded-[2rem] border border-border bg-card p-6 space-y-2">
-      {firstGroupWithGoal && firstGroupWithGoal.goal ? (
-        <Link
-          href="/family"
-          className="group flex items-start gap-4 rounded-2xl border border-transparent p-4 transition-colors hover:border-border hover:bg-background"
-        >
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-background text-foreground transition-colors group-hover:bg-coral group-hover:text-white group-hover:border-coral">
-            <Users className="h-4 w-4" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-foreground">
-              Pool this into {firstGroupWithGoal.name}
-            </div>
-            <div className="mt-1 text-[11px] text-muted-foreground leading-snug">
-              Working towards <strong>{firstGroupWithGoal.goal.label}</strong>. Contribute this
-              send.
-            </div>
-          </div>
-          <ArrowUpRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
-        </Link>
-      ) : (
-        <Link
-          href="/family"
-          className="group flex items-start gap-4 rounded-2xl border border-transparent p-4 transition-colors hover:border-border hover:bg-background"
-        >
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-background text-foreground transition-colors group-hover:bg-coral group-hover:text-white group-hover:border-coral">
-            <Users className="h-4 w-4" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-foreground">Build a family hub</div>
-            <div className="mt-1 text-[11px] text-muted-foreground leading-snug">
-              Pool sends with your siblings, set a shared goal like a roof fund or tuition.
-            </div>
-          </div>
-          <ArrowUpRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
-        </Link>
-      )}
-
-      <Link
-        href="/alerts"
-        className="group flex items-start gap-4 rounded-2xl border border-transparent p-4 transition-colors hover:border-border hover:bg-background"
-      >
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-background text-foreground transition-colors group-hover:bg-coral group-hover:text-white group-hover:border-coral">
-          <Bell className="h-4 w-4" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold text-foreground">
-            Wait for a better {corridor.sourceCurrency} → {corridor.targetCurrency} rate
-          </div>
-          <div className="mt-1 text-[11px] text-muted-foreground leading-snug">
-            {hasRecipient
-              ? 'We\u2019ll email you the moment it hits your target — no chart-watching.'
-              : 'Set a target and we\u2019ll email you the moment it hits.'}
-          </div>
-        </div>
-        <ArrowUpRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
-      </Link>
     </div>
   )
 }

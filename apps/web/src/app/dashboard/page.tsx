@@ -61,21 +61,14 @@ export default function DashboardPage() {
 
 function DashboardHeader() {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-4 pb-6 sm:pb-10 border-b border-border">
-      <div>
-        <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl leading-[0.95] text-foreground">
-          Padala home.
-        </h1>
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-xl">
-          Recent sends, saved recipients, alerts and family pools — kept in one place.
-        </p>
-      </div>
+    <header className="flex items-center justify-between gap-3 pb-4 sm:pb-6">
+      <h1 className="font-sans text-xl sm:text-2xl font-semibold text-foreground">Home</h1>
       <Link
         href="/compare?amount=500&corridor=US-PH&payout=gcash"
-        className="group inline-flex items-center gap-2 rounded-full bg-foreground px-5 sm:px-7 py-3 sm:py-4 text-sm font-semibold text-background transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+        className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background active:scale-[0.98]"
       >
-        Compare providers
-        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        Compare
+        <ArrowUpRight className="h-3.5 w-3.5" />
       </Link>
     </header>
   )
