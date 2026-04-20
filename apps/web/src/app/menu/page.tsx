@@ -28,13 +28,13 @@ export default function MenuPage() {
   }, [router])
 
   return (
-    <main className="min-h-screen bg-background pb-28 pt-8">
+    <main className="min-h-screen bg-background pt-4 pb-6">
       <div className="container max-w-lg">
-        <header className="mb-6">
-          <h1 className="text-xl font-semibold text-foreground">Menu</h1>
+        <header className="mb-3">
+          <h1 className="text-lg font-semibold text-foreground">Menu</h1>
         </header>
 
-        <section className="space-y-6">
+        <section className="space-y-3">
           <MenuSection title="Account">
             {loading ? (
               <div className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
@@ -104,11 +104,11 @@ export default function MenuPage() {
 
 function MenuSection({ title, children }: { readonly title: string; readonly children: React.ReactNode }) {
   return (
-    <div className="space-y-2">
-      <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+    <div className="space-y-1.5">
+      <div className="px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {title}
       </div>
-      <div className="space-y-1.5">{children}</div>
+      <div className="divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden">{children}</div>
     </div>
   )
 }
@@ -126,11 +126,11 @@ function MenuLink({
 }) {
   const inner = (
     <div
-      className={`flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 transition-colors ${
-        disabled ? 'opacity-50' : 'hover:border-foreground/30 active:scale-[0.99]'
+      className={`flex items-center gap-2.5 px-3.5 py-2.5 transition-colors ${
+        disabled ? 'opacity-50' : 'active:bg-muted/40'
       }`}
     >
-      <Icon className="h-5 w-5 text-foreground/70" strokeWidth={1.8} />
+      <Icon className="h-4 w-4 text-foreground/70 shrink-0" strokeWidth={1.8} />
       <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
       {!disabled && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
     </div>
@@ -188,9 +188,9 @@ function MenuButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition-colors hover:border-foreground/30 active:scale-[0.99]"
+      className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left transition-colors active:bg-muted/40"
     >
-      <Icon className="h-5 w-5 text-foreground/70" strokeWidth={1.8} />
+      <Icon className="h-4 w-4 text-foreground/70 shrink-0" strokeWidth={1.8} />
       <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
     </button>
