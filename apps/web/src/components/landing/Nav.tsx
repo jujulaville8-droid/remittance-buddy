@@ -56,12 +56,18 @@ export function Nav() {
         <div className="container flex h-20 items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-2.5 group"
+            className="flex items-center gap-3 shrink-0"
             onClick={() => setMenuOpen(false)}
           >
-            <Logo />
-            <span className="font-display text-xl leading-none tracking-tight text-foreground">
-              Remittance Buddy
+            <img src="/brand/icon.png" alt="" aria-hidden className="h-14 w-auto" />
+            <span className="leading-none">
+              <span className="block text-xl font-extrabold tracking-tight">
+                <span className="text-[#0A1F4E]">My Remittance </span>
+                <span className="text-blue-600">Pal</span>
+              </span>
+              <span className="mt-1 block text-[11px] font-medium text-slate-500">
+                Closer to them, no matter where.
+              </span>
             </span>
           </Link>
 
@@ -158,10 +164,3 @@ function MobileMenu({ open, onClose }: MobileMenuProps) {
   )
 }
 
-function Logo() {
-  return (
-    <div className="relative w-9 h-9 rounded-full bg-foreground grid place-items-center overflow-hidden">
-      <span className="relative font-display text-background text-base leading-none">R</span>
-    </div>
-  )
-}
