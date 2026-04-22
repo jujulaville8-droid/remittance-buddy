@@ -41,7 +41,7 @@ const config: Config = {
         'level-2': '0 4px 12px rgba(28,25,23,0.08)',
         'level-3': '0 8px 24px rgba(28,25,23,0.12)',
         'level-4': '0 24px 48px -12px rgba(28,25,23,0.18)',
-        'glow-coral': '0 16px 40px -12px hsla(13,47%,48%,0.45)',
+        'glow-coral': '0 16px 40px -12px hsla(221,83%,53%,0.45)',
       },
       colors: {
         background: 'hsl(var(--background))',
