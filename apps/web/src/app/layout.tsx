@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import MigrationBridge from '@/components/MigrationBridge'
 import InstallPrompt from '@/components/InstallPrompt'
+import AskPal from '@/components/AskPal'
 import './globals.css'
 
 // Type system (Wise-inspired for the tool, editorial serif kept for hero):
@@ -61,8 +62,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#faf8f4' },
-    { media: '(prefers-color-scheme: dark)', color: '#120f0e' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b1220' },
   ],
 }
 
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <MigrationBridge />
         {children}
+        <AskPal />
         <InstallPrompt />
         <Analytics />
         <SpeedInsights />
