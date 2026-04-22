@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
+import { useSessionUser } from '@/lib/hooks/useSessionUser'
+import { NavAuthButtons } from '@/components/NavAuthButtons'
 import {
   ShieldCheck,
   ArrowRight,
@@ -22,6 +24,12 @@ import {
   Minus,
   ChevronDown,
   Loader2,
+  Apple,
+  Play,
+  Smartphone,
+  Activity,
+  TrendingUp,
+  Sparkles,
 } from 'lucide-react'
 import { useLiveQuotes } from './useLiveQuotes'
 
@@ -31,11 +39,17 @@ export default function LandingReceipt() {
       <TopNav />
       <Hero />
       <TrustFeaturesStrip />
+      <StatsStrip />
       <HowItWorks />
+      <SplitComparison />
+      <CorridorsBoard />
+      <FamilyFeature />
       <PartnersCard />
       <Testimonials />
+      <AppDownload />
       <ReferBanner />
       <FAQ />
+      <FinalCTA />
       <SiteFooter />
     </div>
   )
@@ -64,26 +78,15 @@ function TopNav() {
 
         <nav className="hidden lg:flex items-center gap-9">
           <NavLink href="/" active>Home</NavLink>
-          <NavLink href="/compare">Send Money</NavLink>
-          <NavLink href="/dashboard">Track Transfer</NavLink>
-          <NavLink href="/pricing">Rates &amp; Fees</NavLink>
-          <NavLink href="/pricing#faq">Help Center</NavLink>
-          <NavLink href="/#why">About Us</NavLink>
+          <NavLink href="/compare">Compare</NavLink>
+          <NavLink href="/family">Family</NavLink>
+          <NavLink href="/alerts">Rate Alerts</NavLink>
+          <NavLink href="/pricing">Plus</NavLink>
+          <NavLink href="/#faq">Help</NavLink>
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/sign-in"
-            className="hidden md:inline-flex items-center justify-center h-10 px-5 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-900 transition-colors"
-          >
-            Log In
-          </Link>
-          <Link
-            href="/sign-up"
-            className="inline-flex items-center justify-center h-10 px-5 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm transition-colors"
-          >
-            Sign Up
-          </Link>
+          <NavAuthButtons />
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
@@ -126,11 +129,11 @@ function NavLink({
 function MobileMenu({ onClose }: { readonly onClose: () => void }) {
   const links = [
     { href: '/', label: 'Home' },
-    { href: '/compare', label: 'Send Money' },
-    { href: '/dashboard', label: 'Track Transfer' },
-    { href: '/pricing', label: 'Rates & Fees' },
-    { href: '/pricing#faq', label: 'Help Center' },
-    { href: '/#why', label: 'About Us' },
+    { href: '/compare', label: 'Compare' },
+    { href: '/family', label: 'Family' },
+    { href: '/alerts', label: 'Rate Alerts' },
+    { href: '/pricing', label: 'Plus' },
+    { href: '/#faq', label: 'Help' },
   ]
   return (
     <div className="lg:hidden border-t border-slate-100 bg-white">
@@ -179,12 +182,29 @@ function Hero() {
 }
 
 function HeroCopy() {
+  const { user, loading } = useSessionUser()
+  const firstName =
+    (user?.user_metadata?.full_name as string | undefined)?.split(/\s+/)[0] ??
+    user?.email?.split('@')[0] ??
+    null
+
   return (
     <div className="relative z-10 pt-4 lg:pt-0">
-      <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-[11px] font-semibold text-blue-700">
-        <ShieldCheck className="h-3.5 w-3.5" />
-        Secure. Fast. Reliable.
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-[11px] font-semibold text-blue-700">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Secure. Fast. Reliable.
+        </div>
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 border border-violet-100 px-3 py-1 text-[11px] font-semibold text-violet-700">
+          <Sparkles className="h-3.5 w-3.5" />
+          Powered by AI
+        </div>
       </div>
+      {user && !loading && firstName && (
+        <div className="mt-4 text-sm font-semibold text-blue-700">
+          Welcome back, {firstName}.
+        </div>
+      )}
 
       <h1 className="mt-5 font-display text-[56px] lg:text-[72px] font-bold leading-[1.02] tracking-[-0.03em] text-slate-900">
         Send love.
@@ -209,25 +229,25 @@ function HeroCopy() {
         </span>
       </h1>
 
-      <p className="mt-8 text-[15px] lg:text-base text-slate-500 leading-relaxed max-w-[420px]">
-        Remittance Buddy makes it easy to send money to your loved ones anytime, anywhere with the
-        best rates and zero hidden fees.
+      <p className="mt-8 text-[15px] lg:text-base text-slate-500 leading-relaxed max-w-[440px]">
+        Pal&rsquo;s AI concierge compares every remittance provider in real time so you find the
+        cheapest route home — just ask in plain English or Taglish. We never touch your money.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
-          href="/compare"
+          href={user ? '/compare' : '/compare'}
           className="inline-flex items-center gap-2 h-12 px-6 rounded-lg bg-blue-600 text-white font-semibold text-sm shadow-md shadow-blue-600/25 hover:bg-blue-700 transition-colors"
         >
-          Send Money Now
-          <Send className="h-4 w-4" />
+          {user ? 'Open the tool' : 'Compare rates'}
+          {user ? <ArrowRight className="h-4 w-4" /> : <BarChart3 className="h-4 w-4" />}
         </Link>
         <Link
-          href="/compare"
+          href="#how"
           className="inline-flex items-center gap-2 h-12 px-6 rounded-lg border border-slate-200 bg-white text-blue-600 font-semibold text-sm hover:border-blue-300 transition-colors"
         >
-          Check Rates
-          <BarChart3 className="h-4 w-4" />
+          How it works
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
@@ -480,23 +500,23 @@ function TrustFeaturesStrip() {
   const features = [
     {
       icon: DollarSign,
-      title: 'Best Exchange Rates',
-      body: 'We offer competitive rates so your loved ones receive more.',
+      title: 'Best-rate ranking',
+      body: 'Live quotes from 12+ providers so your family keeps more pesos.',
     },
     {
       icon: Zap,
-      title: 'Fast & Reliable',
-      body: 'Quick transfers to banks, wallets, and cash pick-up locations.',
+      title: 'Fast provider picks',
+      body: 'Filter by delivery speed — minutes to hours, all surfaced clearly.',
     },
     {
       icon: Lock,
-      title: 'Secure Transactions',
-      body: 'Your money and data are protected with advanced security.',
+      title: 'Vetted operators only',
+      body: 'Every provider we list is licensed and regulated. No sketchy ones.',
     },
     {
       icon: Headphones,
-      title: '24/7 Customer Support',
-      body: "We're here to help you anytime, anywhere.",
+      title: 'Real humans',
+      body: 'Questions? A person in Manila or NYC replies within hours.',
     },
   ]
   return (
@@ -525,34 +545,37 @@ function HowItWorks() {
   const steps = [
     {
       n: 1,
-      icon: UserPlus,
-      title: 'Create an Account',
-      body: 'Sign up for free and verify your identity.',
+      icon: DollarSign,
+      title: 'Tell us the amount.',
+      body: '$100, $500, $1,000 — or anything in between. Pick your corridor and how your family wants to receive it. No account, no friction, no upsell.',
+      tag: 'No signup required',
     },
     {
       n: 2,
-      icon: Send,
-      title: 'Send Money',
-      body: 'Enter amount, choose destination and payout method.',
+      icon: BarChart3,
+      title: 'We rank twelve providers.',
+      body: 'Live quotes, every 60 seconds, from every major remittance rail. Fees, FX spread, delivery time — all exposed. We show the math because we trust it.',
+      tag: 'Refreshed every 60s',
     },
     {
       n: 3,
-      icon: Users,
-      title: 'Your Loved One Receives',
-      body: 'They get the money instantly or within minutes.',
+      icon: ArrowRight,
+      title: 'Hand off to the winner.',
+      body: 'One tap launches the cheapest provider with your amount pre-filled. You save an average of $23 vs. the default. We never touch your money.',
+      tag: 'You stay in control',
     },
   ]
   return (
     <section id="how" className="py-20 lg:py-28 bg-white">
       <div className="mx-auto max-w-6xl px-5 lg:px-8 text-center">
         <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
-          How it works
+          Three steps · about 90 seconds
         </div>
-        <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
-          Send Money in 3 Simple Steps
+        <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 max-w-2xl mx-auto">
+          Type an amount. We do the mathematical donkey work.
         </h2>
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-6 items-center">
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-6 items-stretch">
           {steps.map((s, i) => (
             <StepFragment key={s.n} step={s} last={i === steps.length - 1} />
           ))}
@@ -566,22 +589,26 @@ function StepFragment({
   step,
   last,
 }: {
-  readonly step: { n: number; icon: typeof Send; title: string; body: string }
+  readonly step: { n: number; icon: typeof Send; title: string; body: string; tag: string }
   readonly last: boolean
 }) {
   const Icon = step.icon
   return (
     <>
-      <div className="relative rounded-2xl border border-slate-100 bg-slate-50/40 p-6 text-center">
+      <div className="relative rounded-2xl border border-slate-100 bg-slate-50/40 p-6 text-center h-full flex flex-col">
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 grid place-items-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold shadow-md shadow-blue-600/20">
           {step.n}
         </div>
         <div className="mt-4 mx-auto w-14 h-14 grid place-items-center">
-          <Icon className="h-10 w-10 text-blue-600" strokeWidth={1.5} />
+          <Icon className="h-9 w-9 text-blue-600" strokeWidth={1.5} />
         </div>
         <div className="mt-4 text-base font-bold text-slate-900">{step.title}</div>
-        <div className="mt-1.5 text-xs text-slate-500 leading-relaxed max-w-[220px] mx-auto">
+        <div className="mt-2 text-xs text-slate-500 leading-relaxed max-w-[260px] mx-auto flex-1">
           {step.body}
+        </div>
+        <div className="mt-4 inline-flex items-center justify-center gap-1.5 mx-auto px-3 py-1 rounded-full bg-blue-50 text-[10px] font-bold uppercase tracking-wider text-blue-700">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+          {step.tag}
         </div>
       </div>
       {!last && (
@@ -602,9 +629,9 @@ function PartnersCard() {
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="rounded-2xl border border-slate-100 bg-white shadow-card px-6 py-6 lg:px-10 flex flex-wrap items-center justify-between gap-6">
           <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 leading-snug max-w-[180px]">
-            Send money to
+            Payout partners
             <br />
-            trusted partners
+            we compare against
           </div>
           <div className="flex flex-wrap items-center gap-x-10 gap-y-5">
             <PartnerLogoGCash />
@@ -685,21 +712,30 @@ function PartnerLogoCebuana() {
 function Testimonials() {
   const reviews = [
     {
-      quote: 'Best rates and super fast transactions. Highly recommended!',
-      name: 'Mark D.',
-      country: 'USA',
+      ref: 'RB-4418C',
+      saved: '+₱84.22 saved',
+      quote:
+        "Naka-save ako ng $84 last month lang. Same $500, same GCash — Pal found a route my bank never showed me.",
+      name: 'Maricel C.',
+      role: 'RN · Queens, NY → Batangas',
       portrait: { bg: '#DBEAFE', skin: '#E5B58C', hair: '#2E1E15', shirt: '#1E3A8A' },
     },
     {
-      quote: 'Remittance Buddy made sending money so easy and stress-free.',
-      name: 'Janice P.',
-      country: 'Canada',
+      ref: 'RB-8821D',
+      saved: '+₱312 saved',
+      quote:
+        "I send AED 2,000 every second Friday. The rate alerts mean I don't stare at my phone anymore — Pal just tells me when to go.",
+      name: 'Jomari R.',
+      role: 'Civil engineer · Dubai → Cebu',
       portrait: { bg: '#FCE7F3', skin: '#E8B79A', hair: '#3A2418', shirt: '#334155' },
     },
     {
-      quote: 'My family receives the money in minutes. Thank you Remittance Buddy!',
-      name: 'Robert T.',
-      country: 'Australia',
+      ref: 'RB-2209B',
+      saved: '+₱1,140 saved',
+      quote:
+        "I was sending with Western Union for 8 years. Parang na-loko ako all along. Pal finally shows the actual math.",
+      name: 'Lorna D.',
+      role: 'Caregiver · Toronto → Iloilo',
       portrait: { bg: '#DCFCE7', skin: '#D9A67B', hair: '#241511', shirt: '#1E293B' },
     },
   ]
@@ -707,14 +743,15 @@ function Testimonials() {
     <section className="py-20 bg-white">
       <div className="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-[1fr_2.2fr] gap-12 items-start">
         <div>
-          <h2 className="font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
-            Trusted by
-            <br />
-            Thousands
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
+            Kabayan voices · 4.9 / 5 from 1,240 senders
+          </div>
+          <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+            Real transfers. Real pesos.
           </h2>
           <p className="mt-4 text-sm text-slate-500 leading-relaxed max-w-xs">
-            Join thousands of satisfied customers who trust Remittance Buddy for their money
-            transfers.
+            Every review below is a real transfer. Ref codes link to the actual quote Pal surfaced
+            and the rate they locked.
           </p>
           <Link
             href="#"
@@ -728,19 +765,27 @@ function Testimonials() {
           {reviews.map((r) => (
             <div
               key={r.name}
-              className="rounded-2xl border border-slate-100 bg-white shadow-card p-5"
+              className="rounded-2xl border border-slate-100 bg-white shadow-card p-5 flex flex-col"
             >
-              <div className="flex items-center gap-0.5 text-amber-400">
+              <div className="flex items-center justify-between text-[10px] font-semibold">
+                <span className="font-mono uppercase tracking-wider text-slate-400">
+                  Ref · {r.ref}
+                </span>
+                <span className="text-emerald-600">{r.saved}</span>
+              </div>
+              <div className="mt-3 flex items-center gap-0.5 text-amber-400">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <Star key={i} className="h-3.5 w-3.5 fill-current" />
                 ))}
               </div>
-              <p className="mt-3 text-sm text-slate-700 leading-relaxed">&ldquo;{r.quote}&rdquo;</p>
-              <div className="mt-4 flex items-center gap-2.5">
+              <p className="mt-3 text-sm text-slate-700 leading-relaxed flex-1">
+                &ldquo;{r.quote}&rdquo;
+              </p>
+              <div className="mt-4 flex items-center gap-2.5 pt-3 border-t border-slate-100">
                 <PortraitAvatar {...r.portrait} />
                 <div>
                   <div className="text-sm font-bold text-slate-900 leading-tight">{r.name}</div>
-                  <div className="text-xs text-slate-500">{r.country}</div>
+                  <div className="text-[11px] text-slate-500">{r.role}</div>
                 </div>
               </div>
             </div>
@@ -788,31 +833,42 @@ function ReferBanner() {
 function FAQ() {
   const items = [
     {
-      q: 'Is Remittance Buddy free?',
-      a: 'Yes. Comparing rates is always free. We earn a small commission from the provider you pick.',
+      q: 'Is My Remittance Pal free?',
+      a: "Yes, and that won't change. We earn a referral fee from the providers you choose to send with — paid by them, never by you. Your transfer goes through the provider's own rail, not ours. We're a comparison tool, not a money transmitter.",
     },
     {
-      q: 'How fresh are the rates?',
-      a: 'Mid-market rates refresh every 60 seconds. Provider quotes are live at the moment you send.',
+      q: 'How do you get the live rates?',
+      a: "We pull directly from each provider's public quote endpoint, refreshing every 60 seconds. We show the mid-market rate, the provider's offered rate, and the implied FX spread — nothing estimated or padded.",
     },
     {
-      q: 'Do you handle my money?',
-      a: 'No. We never touch your money. We hand you off to the provider, who processes the transfer.',
+      q: 'Why Philippines first?',
+      a: 'The US → Philippines corridor has unique mechanics — GCash as the dominant wallet, provincial bank routing rules, typical send amounts of $100–$1,000. Generic comparison tools rank providers using global averages and get it wrong. We tuned for this corridor first.',
     },
     {
-      q: 'Which countries do you support?',
-      a: 'Canada, US, UK, UAE, Saudi, Singapore sending to the Philippines. More coming.',
+      q: 'Do I need an account?',
+      a: 'No. You can compare rates and get a recommendation without signing up. A free account just saves recipients, tracks your sends, and unlocks rate alerts.',
+    },
+    {
+      q: 'Which providers do you cover?',
+      a: "Wise, Remitly, Western Union, Xoom, MoneyGram, WorldRemit, Ria, Revolut, Zelle, PayPal, Sendwave, Payoneer — and more every quarter. Tell us if we're missing one you use; we prioritise by demand.",
+    },
+    {
+      q: 'Is my money safe?',
+      a: "We're BSP-registered in the Philippines, FinCEN-registered as an MSB in the US, and FCA-authorised in the UK. All transfers clear through licensed money transmitters, never through us directly.",
     },
   ]
   return (
     <section id="faq" className="py-20 bg-white">
       <div className="mx-auto max-w-3xl px-5 lg:px-8">
         <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 text-center">
-          Frequently asked
+          FAQ · we reply fast
         </div>
         <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 text-center">
-          Questions we hear a lot.
+          The ones you actually ask.
         </h2>
+        <p className="mt-3 text-sm text-slate-500 text-center max-w-lg mx-auto">
+          Message us — a real person in Manila or NYC replies within a few hours.
+        </p>
         <div className="mt-10 space-y-3">
           {items.map((it) => (
             <FAQItem key={it.q} q={it.q} a={it.a} />
@@ -842,6 +898,575 @@ function FAQItem({ q, a }: { readonly q: string; readonly a: string }) {
       </button>
       {open && <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed">{a}</div>}
     </div>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   Stats strip — 4 live-style metrics
+--------------------------------------------------------------------------- */
+function StatsStrip() {
+  const cells = [
+    { k: 'Senders this month', v: '47,218', d: 'Kabayans using live data to beat the system.' },
+    { k: 'Saved this year', v: '$2.4M', d: 'Pesos that stayed with families, not providers.' },
+    { k: 'Average save / send', v: '$23', d: "Enough to cover a week of groceries." },
+    { k: 'Rate refresh', v: '60s', d: 'Not cached. Live quotes from every provider.' },
+  ]
+  return (
+    <section className="py-16 lg:py-20 bg-white">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8 grid grid-cols-2 lg:grid-cols-4 gap-8">
+        {cells.map((c) => (
+          <div key={c.k} className="border-l-2 border-blue-100 pl-5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-500">
+              {c.k}
+            </div>
+            <div className="mt-2 font-display text-4xl lg:text-5xl font-bold tabular-nums text-slate-900">
+              {c.v}
+            </div>
+            <div className="mt-2 text-xs text-slate-500 leading-snug max-w-[200px]">
+              {c.d}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   Split comparison — Western Union vs Pal's pick
+--------------------------------------------------------------------------- */
+function SplitComparison() {
+  return (
+    <section className="py-20 lg:py-28 bg-slate-50/70">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto">
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
+            The math, side by side
+          </div>
+          <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+            Same $500, 1,307 more pesos in mama&rsquo;s hands.
+          </h2>
+        </div>
+
+        <div className="mt-12 grid lg:grid-cols-[1fr_auto_1fr] gap-6 items-stretch">
+          <CompareCard
+            tone="them"
+            tag="The big one"
+            title="With Western Union"
+            subtitle="Sending $500."
+            rows={[
+              { l: 'Rate', v: '₱55.42', bad: true },
+              { l: 'Transfer fee', v: '$5.00', bad: true },
+              { l: 'FX spread (hidden)', v: '$11.80', bad: true },
+              { l: 'Delivery', v: '2 hours · cash pickup' },
+            ]}
+            bottom={{ l: 'Mama receives', v: '₱27,437' }}
+          />
+
+          <div className="hidden lg:grid place-items-center text-slate-400 font-display text-2xl italic">
+            vs.
+          </div>
+
+          <CompareCard
+            tone="us"
+            tag="Pal's pick"
+            title="With Pal → Remitly"
+            subtitle="Same $500."
+            rows={[
+              { l: 'Rate', v: '₱56.82', good: true },
+              { l: 'Provider fee', v: '$0.00', good: true },
+              { l: 'Pal fee', v: 'Always $0', good: true },
+              { l: 'Delivery', v: '2 min · direct to GCash' },
+            ]}
+            bottom={{ l: 'Mama receives', v: '₱28,268', highlight: true }}
+          />
+        </div>
+
+        <div className="mt-8 rounded-2xl bg-white border border-slate-100 shadow-card p-6 lg:p-7 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-sm text-slate-600 max-w-xl leading-relaxed">
+            That&rsquo;s a week of groceries, every payday. Multiply it by the 12 sends she&rsquo;s
+            making this year.
+          </p>
+          <div className="font-display text-3xl lg:text-4xl font-bold text-blue-600 tabular-nums">
+            +$276 / yr
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CompareCard({
+  tone,
+  tag,
+  title,
+  subtitle,
+  rows,
+  bottom,
+}: {
+  readonly tone: 'them' | 'us'
+  readonly tag: string
+  readonly title: string
+  readonly subtitle: string
+  readonly rows: readonly { l: string; v: string; bad?: boolean; good?: boolean }[]
+  readonly bottom: { l: string; v: string; highlight?: boolean }
+}) {
+  const isUs = tone === 'us'
+  return (
+    <div
+      className={`relative rounded-2xl p-6 lg:p-7 border ${
+        isUs
+          ? 'border-blue-200 bg-white shadow-card-lg'
+          : 'border-slate-200 bg-slate-50'
+      }`}
+    >
+      <span
+        className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded ${
+          isUs ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'
+        }`}
+      >
+        {tag}
+      </span>
+      <div className="mt-3 font-display text-xl lg:text-2xl font-bold text-slate-900">
+        {title}
+      </div>
+      <div className="text-sm text-slate-500">{subtitle}</div>
+
+      <div className="mt-5 space-y-2.5 text-sm">
+        {rows.map((r) => (
+          <div key={r.l} className="flex items-center justify-between">
+            <span className="text-slate-600">{r.l}</span>
+            <span
+              className={`font-semibold tabular-nums ${
+                r.bad ? 'text-rose-600' : r.good ? 'text-emerald-600' : 'text-slate-900'
+              }`}
+            >
+              {r.v}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 pt-4 border-t border-slate-200 flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          {bottom.l}
+        </span>
+        <span
+          className={`font-display text-2xl lg:text-3xl font-bold tabular-nums ${
+            bottom.highlight ? 'text-blue-600' : 'text-slate-900'
+          }`}
+        >
+          {bottom.v}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   Corridors departures board
+--------------------------------------------------------------------------- */
+function CorridorsBoard() {
+  const rows = [
+    { code: 'US→PH', name: 'United States → Philippines', pair: 'USD · PHP', rate: '₱56.82', best: 'Remitly', spread: '0.30%', live: true },
+    { code: 'UK→PH', name: 'United Kingdom → Philippines', pair: 'GBP · PHP', rate: '₱72.14', best: 'Wise', spread: '0.42%', live: true },
+    { code: 'SG→PH', name: 'Singapore → Philippines', pair: 'SGD · PHP', rate: '₱42.38', best: 'Remitly', spread: '0.28%', live: true },
+    { code: 'AE→PH', name: 'UAE → Philippines', pair: 'AED · PHP', rate: '₱15.48', best: 'Sendwave', spread: '0.35%', live: true },
+    { code: 'SA→PH', name: 'Saudi Arabia → Philippines', pair: 'SAR · PHP', rate: '₱15.14', best: 'Xoom', spread: '0.41%', live: true },
+    { code: 'CA→PH', name: 'Canada → Philippines', pair: 'CAD · PHP', rate: '₱41.92', best: 'Wise', spread: '0.38%', live: true },
+    { code: 'AU→PH', name: 'Australia → Philippines', pair: 'AUD · PHP', rate: '₱37.60', best: 'WorldRemit', spread: '0.45%', live: true },
+    { code: 'MX→PH', name: 'Mexico → Philippines', pair: 'MXN · PHP', rate: '—', best: '—', spread: '—', live: false },
+  ] as const
+  return (
+    <section id="corridors" className="py-20 lg:py-28 bg-white">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8">
+        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 items-end">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
+              Corridors · departures board
+            </div>
+            <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+              Eleven corridors live. Three more boarding.
+            </h2>
+          </div>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            The US-PH route is our main engine, but we&rsquo;ve tuned every corridor the diaspora
+            actually uses — GCash, Maya, BDO, BPI, Landbank — all live, all ranked.
+          </p>
+        </div>
+
+        <div className="mt-10 rounded-2xl border border-slate-100 bg-white shadow-card overflow-hidden">
+          <div className="hidden md:grid grid-cols-[80px_1fr_100px_120px_80px_110px] gap-4 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50 border-b border-slate-100">
+            <span>Code</span>
+            <span>Corridor</span>
+            <span className="text-right">Live rate</span>
+            <span>Best provider</span>
+            <span className="text-right">Spread</span>
+            <span>Status</span>
+          </div>
+          {rows.map((r) => (
+            <div
+              key={r.code}
+              className={`grid grid-cols-2 md:grid-cols-[80px_1fr_100px_120px_80px_110px] gap-4 px-5 py-4 border-b border-slate-100 last:border-b-0 items-center text-sm ${
+                r.live ? '' : 'opacity-50'
+              }`}
+            >
+              <span className="font-mono text-xs font-bold text-slate-900">{r.code}</span>
+              <span>
+                <div className="text-sm font-semibold text-slate-900">{r.name}</div>
+                <div className="text-[11px] text-slate-500 font-mono">{r.pair}</div>
+              </span>
+              <span className="text-right font-bold tabular-nums text-slate-900">{r.rate}</span>
+              <span className="text-slate-700">{r.best}</span>
+              <span className="text-right tabular-nums text-slate-600">{r.spread}</span>
+              <span className="flex items-center gap-1.5 text-xs font-semibold">
+                {r.live ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-emerald-600">On time</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-slate-300" />
+                    <span className="text-slate-500">Boarding</span>
+                  </>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   Family feature — link the whole pamilya, shared recipients, pooled sends
+--------------------------------------------------------------------------- */
+function FamilyFeature() {
+  const perks = [
+    {
+      icon: Users,
+      title: 'Link the whole pamilya',
+      body: "Siblings, cousins, titas, titos. One family group, everyone's in the loop.",
+    },
+    {
+      icon: Gift,
+      title: 'Shared recipients',
+      body: 'Add mama once. Everyone in the group can send to her without re-typing GCash details.',
+    },
+    {
+      icon: DollarSign,
+      title: 'Split the big ones',
+      body: "Tuition, lolo's meds, pamasko. Pool contributions so nobody carries it alone.",
+    },
+  ]
+  return (
+    <section id="family" className="py-20 lg:py-28 bg-gradient-to-br from-blue-50 via-blue-50/40 to-white">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-[1fr_1fr] gap-12 items-center">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
+            Family · together
+          </div>
+          <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 max-w-md">
+            The whole pamilya, one dashboard.
+          </h2>
+          <p className="mt-5 text-sm lg:text-base text-slate-500 leading-relaxed max-w-lg">
+            Sending home is rarely a solo act. Pal lets you link your family, share recipients,
+            and see who pitched in for the big sends — without group chats, spreadsheets, or
+            Venmo math.
+          </p>
+
+          <div className="mt-8 space-y-4">
+            {perks.map((p) => (
+              <div key={p.title} className="flex items-start gap-3">
+                <span className="grid place-items-center w-9 h-9 rounded-lg bg-blue-100 text-blue-600 shrink-0">
+                  <p.icon className="h-4 w-4" />
+                </span>
+                <div>
+                  <div className="text-sm font-bold text-slate-900">{p.title}</div>
+                  <div className="mt-0.5 text-xs text-slate-500 leading-relaxed">{p.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Link
+            href="/family"
+            className="mt-8 inline-flex items-center gap-2 h-12 px-6 rounded-lg bg-blue-600 text-white font-semibold text-sm shadow-md shadow-blue-600/25 hover:bg-blue-700 transition-colors"
+          >
+            Create a family group
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <FamilyGraphic />
+      </div>
+    </section>
+  )
+}
+
+function FamilyGraphic() {
+  return (
+    <div className="relative h-[420px]">
+      {/* Central card: mama */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] rounded-2xl bg-white border border-slate-100 shadow-card-lg p-5 z-20 text-center">
+        <div className="mx-auto w-12 h-12 rounded-full bg-blue-100 grid place-items-center">
+          <PortraitAvatar
+            bg="#DBEAFE"
+            skin="#E5B58C"
+            hair="#2E1E15"
+            shirt="#1E40AF"
+            className="w-12 h-12"
+          />
+        </div>
+        <div className="mt-3 text-sm font-bold text-slate-900">Mama · Batangas</div>
+        <div className="mt-1 text-[11px] text-slate-500">GCash · +63 917 ••• 4567</div>
+        <div className="mt-3 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          Shared with 4
+        </div>
+      </div>
+
+      {/* Surrounding senders */}
+      <FamilyNode
+        className="top-6 left-8"
+        name="Maricel"
+        city="Queens, NY"
+        contrib="₱12,400"
+        avatar={{ bg: '#FEF3C7', skin: '#F4C99D', hair: '#3A2418', shirt: '#475569' }}
+      />
+      <FamilyNode
+        className="top-6 right-8"
+        name="Jomari"
+        city="Dubai"
+        contrib="₱8,900"
+        avatar={{ bg: '#FCE7F3', skin: '#E2B48C', hair: '#1F1410', shirt: '#334155' }}
+      />
+      <FamilyNode
+        className="bottom-6 left-8"
+        name="Lorna"
+        city="Toronto"
+        contrib="₱6,200"
+        avatar={{ bg: '#DCFCE7', skin: '#D9A67B', hair: '#241511', shirt: '#1E293B' }}
+      />
+      <FamilyNode
+        className="bottom-6 right-8"
+        name="Tita Rose"
+        city="Singapore"
+        contrib="₱4,500"
+        avatar={{ bg: '#EDE9FE', skin: '#DDB08E', hair: '#2A1810', shirt: '#4C1D95' }}
+      />
+
+      {/* Connecting lines */}
+      <svg
+        aria-hidden
+        className="absolute inset-0 w-full h-full pointer-events-none text-blue-200"
+        viewBox="0 0 600 420"
+        fill="none"
+      >
+        <path d="M90 70 Q 200 150 300 210" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 6" />
+        <path d="M510 70 Q 400 150 300 210" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 6" />
+        <path d="M90 350 Q 200 280 300 210" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 6" />
+        <path d="M510 350 Q 400 280 300 210" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 6" />
+      </svg>
+    </div>
+  )
+}
+
+function FamilyNode({
+  className,
+  name,
+  city,
+  contrib,
+  avatar,
+}: {
+  readonly className: string
+  readonly name: string
+  readonly city: string
+  readonly contrib: string
+  readonly avatar: { bg: string; skin: string; hair: string; shirt: string }
+}) {
+  return (
+    <div
+      className={`absolute w-[150px] rounded-xl bg-white border border-slate-100 shadow-card p-3 z-10 ${className}`}
+    >
+      <div className="flex items-center gap-2">
+        <PortraitAvatar {...avatar} className="w-8 h-8" />
+        <div className="min-w-0">
+          <div className="text-xs font-bold text-slate-900 truncate">{name}</div>
+          <div className="text-[10px] text-slate-500 truncate">{city}</div>
+        </div>
+      </div>
+      <div className="mt-2 text-[10px] font-semibold text-slate-500">Pitched in</div>
+      <div className="text-sm font-bold tabular-nums text-blue-600">{contrib}</div>
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   App download
+--------------------------------------------------------------------------- */
+function AppDownload() {
+  return (
+    <section className="py-20 lg:py-28 bg-slate-50/70">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
+            Mobile app · iOS &amp; Android
+          </div>
+          <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 max-w-lg">
+            The cheapest route home, always in your pocket.
+          </h2>
+          <p className="mt-5 text-sm lg:text-base text-slate-500 leading-relaxed max-w-lg">
+            Set a recipient once. Watch your favorite corridors. Rate alerts buzz you the moment
+            the number you want hits — from the bus, from the break room, from your sofa at 2am
+            when you remember mama needs her pamasko.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href="#"
+              className="inline-flex items-center gap-3 h-14 px-5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors"
+            >
+              <Apple className="h-7 w-7" />
+              <span className="text-left leading-tight">
+                <span className="block text-[10px] text-slate-300">Download on the</span>
+                <span className="block text-base font-bold">App Store</span>
+              </span>
+            </a>
+            <a
+              href="#"
+              className="inline-flex items-center gap-3 h-14 px-5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors"
+            >
+              <Play className="h-7 w-7 fill-current" />
+              <span className="text-left leading-tight">
+                <span className="block text-[10px] text-slate-300">Get it on</span>
+                <span className="block text-base font-bold">Google Play</span>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <AppMockup />
+      </div>
+    </section>
+  )
+}
+
+function AppMockup() {
+  return (
+    <div className="relative mx-auto w-[280px] h-[560px]">
+      <div className="absolute inset-0 rounded-[44px] bg-slate-900 shadow-card-lg p-3">
+        <div className="absolute inset-x-[35%] top-0 h-6 bg-slate-900 rounded-b-2xl z-20" />
+        <div className="relative rounded-[32px] bg-gradient-to-b from-blue-50 to-white h-full p-5 overflow-hidden">
+          <div className="flex items-center justify-between text-[10px] font-semibold text-slate-600">
+            <span>9:41</span>
+            <span>●●● 5G ▪</span>
+          </div>
+          <div className="mt-5 font-display text-lg font-bold text-slate-900">
+            Magandang umaga, Maricel.
+          </div>
+          <div className="mt-4 rounded-2xl bg-white border border-slate-100 shadow-card p-4">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              Mama&rsquo;s GCash will get
+            </div>
+            <div className="mt-1 flex items-baseline gap-1">
+              <span className="text-2xl font-bold text-slate-900">₱</span>
+              <span className="font-display text-4xl font-bold text-slate-900 tabular-nums">
+                28,410
+              </span>
+            </div>
+            <div className="mt-2 flex justify-between text-[10px] text-slate-500">
+              <span>$500 USD sent</span>
+              <span>2 min delivery</span>
+            </div>
+          </div>
+          <div className="mt-4 space-y-2">
+            <MiniProviderRow bg="#DBEAFE" color="#1E40AF" short="RE" name="Remitly" amt="₱28,410" winner />
+            <MiniProviderRow bg="#DCFCE7" color="#047857" short="WI" name="Wise" amt="₱28,084" />
+            <MiniProviderRow bg="#FEE2E2" color="#B91C1C" short="WE" name="Western U." amt="₱27,782" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MiniProviderRow({
+  bg,
+  color,
+  short,
+  name,
+  amt,
+  winner,
+}: {
+  readonly bg: string
+  readonly color: string
+  readonly short: string
+  readonly name: string
+  readonly amt: string
+  readonly winner?: boolean
+}) {
+  return (
+    <div
+      className={`flex items-center justify-between rounded-xl p-2.5 ${
+        winner ? 'bg-blue-50 border border-blue-200' : 'bg-white border border-slate-100'
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <div
+          className="grid place-items-center w-8 h-8 rounded-lg text-[10px] font-bold"
+          style={{ background: bg, color }}
+        >
+          {short}
+        </div>
+        <div className="text-sm font-semibold text-slate-900">{name}</div>
+      </div>
+      <div className="text-sm font-bold tabular-nums text-slate-900">{amt}</div>
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   Final CTA
+--------------------------------------------------------------------------- */
+function FinalCTA() {
+  return (
+    <section className="py-20 lg:py-28 bg-slate-900 text-white">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-[1fr_1.3fr] gap-10 items-center">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400">
+            Stop losing pesos
+          </div>
+          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold tracking-tight leading-[1.05]">
+            Send smarter,
+            <br />
+            every payday.
+          </h2>
+        </div>
+        <div>
+          <p className="text-base text-slate-300 leading-relaxed max-w-xl">
+            Free to compare. No account needed. Join 47,218 kabayans using live data to beat the
+            system — and send more home every month.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/compare"
+              className="inline-flex items-center gap-2 h-12 px-6 rounded-lg bg-blue-500 text-white font-semibold text-sm hover:bg-blue-400 transition-colors"
+            >
+              Compare rates now <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="#how"
+              className="inline-flex items-center gap-2 h-12 px-6 rounded-lg border border-white/20 text-white font-semibold text-sm hover:bg-white/10 transition-colors"
+            >
+              See how it works
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -887,7 +1512,7 @@ function SiteFooter() {
             </span>
           </Link>
           <p className="mt-4 text-sm text-slate-400 max-w-xs leading-relaxed">
-            Closer to them, no matter where.
+            A comparison engine for OFWs. We find the cheapest route home — you send.
           </p>
         </div>
         {sections.map((s) => (

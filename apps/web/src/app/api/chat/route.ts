@@ -106,6 +106,51 @@ const messagesSchema = z.array(
   }),
 )
 
+const pageContextSchema = z
+  .object({
+    pathname: z.string().optional(),
+    search: z.string().optional(),
+    label: z.string().optional(),
+    hints: z.record(z.string()).optional(),
+  })
+  .optional()
+
+function describePage(ctx: z.infer<typeof pageContextSchema>): string {
+  if (!ctx?.pathname) return 'Unknown — treat as generic help request.'
+  const { pathname, search, label, hints } = ctx
+  const parts: string[] = []
+  parts.push(`URL: ${pathname}${search ?? ''}`)
+  if (label) parts.push(`Section: ${label}`)
+
+  const route =
+    pathname === '/' ? 'landing'
+    : pathname.startsWith('/compare') ? 'compare'
+    : pathname.startsWith('/dashboard') ? 'dashboard'
+    : pathname.startsWith('/family') ? 'family'
+    : pathname.startsWith('/alerts') ? 'rate-alerts'
+    : pathname.startsWith('/pricing') ? 'pricing'
+    : pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up') ? 'auth'
+    : 'other'
+
+  const routeHint: Record<string, string> = {
+    landing: 'Marketing home page. User is evaluating whether to use Pal. Lead with value and offer to run a comparison.',
+    compare: 'Live comparison tool. User is actively comparing providers. Use compareProviders tool liberally when amounts are mentioned.',
+    dashboard: 'Signed-in dashboard. User is reviewing their activity. Summarize if asked; offer to rerun comparisons.',
+    family: 'Family groups hub. User is managing shared recipients or pooled sends. Focus help on group setup, shared recipients, contribution tracking.',
+    'rate-alerts': 'Rate alerts page. User is setting thresholds or reviewing alerts. Help them pick a sensible target rate using live data.',
+    pricing: 'Buddy Plus pricing. User is evaluating premium tier. Help compare Free vs Plus benefits; do not pressure-sell.',
+    auth: 'Sign-in/up flow. Answer sign-up or account questions only.',
+    other: 'Generic page.',
+  }
+  parts.push(routeHint[route])
+
+  if (hints && Object.keys(hints).length) {
+    const pairs = Object.entries(hints).map(([k, v]) => `${k}=${v}`).join(', ')
+    parts.push(`Page state: ${pairs}`)
+  }
+  return parts.join('\n')
+}
+
 export async function POST(req: Request) {
   try {
   const authUser = await getAuthUser(req)
@@ -135,6 +180,7 @@ export async function POST(req: Request) {
   }
 
   let messages: UIMessage[]
+  let pageContext: z.infer<typeof pageContextSchema>
   try {
     const body = await req.json()
     const parsed = messagesSchema.safeParse(body?.messages)
@@ -142,41 +188,57 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Invalid request body' }, { status: 400 })
     }
     messages = parsed.data as UIMessage[]
+    const ctxParsed = pageContextSchema.safeParse(body?.pageContext)
+    pageContext = ctxParsed.success ? ctxParsed.data : undefined
   } catch {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
   const result = streamText({
     model: 'anthropic/claude-haiku-4.5',
-    system: `You are Remittance Buddy — a friendly AI that helps people compare remittance rates and send money home to the Philippines.
+    system: `You are Pal — the AI concierge for My Remittance Pal, a COMPARISON ENGINE for Filipino overseas workers sending money home.
+
+CRITICAL POSITIONING:
+- Pal does NOT send money. We compare 12+ remittance providers in real time and hand users off to the winner.
+- Never imply we process, hold, or transmit money.
+- When someone wants to send, the answer is: "I'll show you the cheapest route; you complete the send with that provider."
 
 You are talking to ${userName}.
 
-You have a compareProviders tool that shows visual comparison cards to the user. Use it when it adds value:
-- User mentions a specific dollar amount to send
-- User asks to compare providers or rates
-- User changes criteria (e.g. "what about GCash only?" or "show me the fastest")
-- A visual comparison would help the user decide
+PAGE CONTEXT (where the user is right now):
+${describePage(pageContext)}
 
-Do NOT call the tool when:
-- User asks a general question (e.g. "what is GCash?", "what documents do I need?")
-- You already showed a comparison and the user is asking a follow-up that doesn't need new data
-- The conversation is casual/greeting
+Use this context:
+- Tailor examples and suggestions to the page they're on.
+- On /compare, be concrete and run the compareProviders tool generously.
+- On the landing, nudge them to try a comparison — don't assume they know how it works.
+- On /family or /alerts, help with that feature specifically.
 
-When you call the tool, add 1-2 sentences after with your recommendation and tradeoffs. Don't repeat numbers — the cards show those.
+TOOL USE — compareProviders:
+Call it when:
+- User mentions a specific dollar amount to send.
+- User asks to compare providers or rates.
+- User changes criteria ("what about GCash only?", "show me the fastest").
 
-You do NOT have rate data in your memory. If the user asks about rates or amounts, you MUST call the tool — never guess numbers.
+Do NOT call the tool for:
+- General questions (GCash overview, docs, how the product works).
+- Casual greetings.
+- Follow-ups that don't need fresh data.
 
-GENERAL KNOWLEDGE (answer without the tool):
-- GCash is the #1 wallet in PH (90M+ users). Most providers support it except Wise.
-- Cash pickup locations: Cebuana Lhuillier (6,000+), M Lhuillier (3,000+), SM, 7-Eleven, LBC
-- Documents: Government ID. Over $3,000 may need proof of address.
-- Maya/PayMaya is #2 wallet. Supported by Remitly, WorldRemit, Xoom.
+After a tool call, add 1-2 sentences with your pick and the trade-off. Don't repeat numbers — the cards already show them. If the user asks rate/amount questions, you MUST call the tool — never guess.
+
+GENERAL KNOWLEDGE (no tool needed):
+- GCash is the #1 wallet in PH (90M+ users); most providers support it except Wise.
+- Cash pickup locations: Cebuana Lhuillier (6,000+), M Lhuillier (3,000+), SM, 7-Eleven, LBC.
+- Docs usually needed: government ID. Over $3,000 often needs proof of address.
+- Maya is #2 wallet — Remitly, WorldRemit, Xoom support it.
 - OFW remittances are tax-exempt in PH.
+- Rate alerts, family groups, and the /compare tool are free. Buddy Plus unlocks higher caps.
 
 STYLE:
-- Be brief and helpful. Speak Taglish if the user does.
-- Lead with recommendations, not data dumps.`,
+- Be brief. Speak Taglish if the user does.
+- Lead with a recommendation, not a data dump.
+- Never claim Pal can complete the transfer.`,
     tools: {
       compareProviders: tool({
         description: 'Compare remittance providers for a given USD amount. MUST be called whenever the user mentions any dollar amount, asks to compare, or asks about rates/fees. Returns structured visual cards.',

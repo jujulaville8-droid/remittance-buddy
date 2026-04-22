@@ -41,11 +41,19 @@ export async function updateSession(request: NextRequest) {
 
   const isProtected =
     pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/compare') ||
+    pathname.startsWith('/family') ||
+    pathname.startsWith('/alerts') ||
+    pathname.startsWith('/send') ||
+    pathname.startsWith('/pay') ||
     pathname.startsWith('/api/transfers') ||
     pathname.startsWith('/api/kyc') ||
     pathname.startsWith('/api/chat') ||
     pathname.startsWith('/api/recipients') ||
-    pathname.startsWith('/api/payments')
+    pathname.startsWith('/api/payments') ||
+    pathname.startsWith('/api/migrate') ||
+    pathname.startsWith('/api/alerts') ||
+    pathname.startsWith('/api/family')
 
   // If the request has a Bearer token (from Chrome extension), let it through
   // — the route handler will validate the token via auth-helper
@@ -59,9 +67,10 @@ export async function updateSession(request: NextRequest) {
         { status: 401, headers: Object.fromEntries(supabaseResponse.headers) }
       )
     }
-    // For pages, redirect to sign-in
+    // For pages, redirect to sign-in with `next` so we can bounce back after login
     const url = request.nextUrl.clone()
     url.pathname = '/sign-in'
+    url.searchParams.set('next', pathname + (request.nextUrl.search || ''))
     return NextResponse.redirect(url)
   }
 

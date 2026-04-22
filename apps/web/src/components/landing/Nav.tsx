@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { NavAuthButtons } from '@/components/NavAuthButtons'
 
 const NAV_LINKS = [
   { href: '/compare', label: 'Compare' },
@@ -76,26 +77,14 @@ export function Nav() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-5">
-            <Link
-              href="/sign-in"
-              className="hidden sm:inline-flex text-sm font-medium text-foreground/80 hover:text-coral transition-colors"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/compare"
-              className="hidden sm:inline-flex items-center rounded-full bg-coral px-6 py-3 text-sm font-semibold text-white shadow-glow-coral hover:shadow-none hover:-translate-y-0.5 transition-all active:scale-95"
-              onClick={() => setMenuOpen(false)}
-            >
-              Open the tool
-            </Link>
+          <div className="flex items-center gap-3">
+            <NavAuthButtons />
             <button
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
-              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground active:scale-95 transition-all"
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 active:scale-95 transition-all"
             >
               {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
