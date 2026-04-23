@@ -262,22 +262,6 @@ function HeroArt() {
         sizes="(max-width: 1024px) 100vw, 580px"
         className="object-contain object-right"
       />
-      {/* Decorative paper plane + trail */}
-      <svg
-        aria-hidden
-        className="absolute left-[-6%] top-[58%] w-[120px] text-blue-500 pointer-events-none"
-        viewBox="0 0 120 60"
-        fill="none"
-      >
-        <path
-          d="M5 55 Q 30 45 55 48 Q 80 50 100 35"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeDasharray="3 5"
-          strokeLinecap="round"
-        />
-        <path d="M106 32 L98 30 L102 38 Z M108 30 L118 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      </svg>
       {/* Live status chip — replaces the old heart badge and covers the
           baked-in sticker in hero-compare.png. */}
       <div className="absolute top-[42%] right-[2%] rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 flex items-center gap-2">
