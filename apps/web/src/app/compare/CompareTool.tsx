@@ -259,6 +259,20 @@ function Hero() {
             Compare rates, fees and delivery times in real-time and send more to the people who
             matter.
           </p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
+            <span className="inline-flex items-center gap-1.5">
+              <Shield className="h-4 w-4 text-blue-600" />
+              <span className="font-semibold text-slate-900">Bank-grade security</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Zap className="h-4 w-4 text-emerald-600" />
+              <span className="font-semibold text-slate-900">Live rates</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+              <span className="font-semibold text-slate-900">4.8 average</span>
+            </span>
+          </div>
         </div>
         <HeroArt />
       </div>
