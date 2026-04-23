@@ -14,6 +14,25 @@
 import type { LiveQuote, QuoteRequest } from '../types'
 import { getMidMarketRate } from '../mid-market'
 
+/**
+ * Wise publishes competitor rates alongside their own, and their own rate
+ * is the mid-market rate they famously advertise (markup = 0 in every
+ * response). So when our external mid-market source is unavailable, we
+ * infer it from the Wise entry inside the same response.
+ */
+function deriveMidMarket(providers: readonly WiseProvider[]): number | null {
+  const wise = providers.find((p) => p.alias === 'wise')
+  const rate = wise?.quotes?.[0]?.rate
+  if (typeof rate === 'number' && rate > 0) return rate
+  // Fallback: the highest rate in the set is the closest proxy
+  let best = 0
+  for (const p of providers) {
+    const r = p.quotes?.[0]?.rate
+    if (typeof r === 'number' && r > best) best = r
+  }
+  return best > 0 ? best : null
+}
+
 const COMPARISONS_URL = 'https://api.wise.com/v3/comparisons/'
 const FETCH_TIMEOUT_MS = 10_000
 
@@ -247,11 +266,22 @@ export async function fetchWiseComparisons(req: QuoteRequest): Promise<LiveQuote
   }
 
   const data = (await res.json()) as ComparisonsResponse
-  const midMarket = await getMidMarketRate(req.sourceCurrency, req.targetCurrency)
+  const providers = data.providers ?? []
+
+  // Prefer the external mid-market source; if it fails (unsupported corridor,
+  // network error), derive it from the Wise entry in this same response.
+  let midMarket: number
+  try {
+    midMarket = await getMidMarketRate(req.sourceCurrency, req.targetCurrency)
+  } catch {
+    const derived = deriveMidMarket(providers)
+    if (derived === null) return []
+    midMarket = derived
+  }
   const now = new Date().toISOString()
 
   const quotes: LiveQuote[] = []
-  for (const p of data.providers ?? []) {
+  for (const p of providers) {
     const q = p.quotes?.[0]
     if (!q) continue
     const mapped = mapQuote(p, q, req, midMarket, now)
