@@ -230,30 +230,6 @@ function Hero() {
             Find the best way
             <br />
             to send money
-            <svg
-              className="inline-block ml-2 -mb-1 text-blue-500"
-              width="40"
-              height="24"
-              viewBox="0 0 60 32"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M8 14 Q 18 4 28 14 Q 38 24 48 14 Q 58 4 56 18"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                fill="none"
-              />
-              <path
-                d="M44 10 L56 18 L46 26"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </svg>
           </h1>
           <p className="mt-5 max-w-md text-sm lg:text-base text-slate-500 leading-relaxed">
             Compare rates, fees and delivery times in real-time and send more to the people who
