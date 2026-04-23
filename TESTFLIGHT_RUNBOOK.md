@@ -138,42 +138,64 @@ Declare data collection to match `PrivacyInfo.xcprivacy`:
 |-----------|---------------|-------------------|---------|
 | Email Address | Yes | No | App Functionality |
 | Name | Yes | No | App Functionality |
-| Payment Info | Yes | No | App Functionality |
-| Other Financial Info | Yes | No | App Functionality |
 | Device ID | Yes | No | App Functionality, Analytics |
 | Crash Data | No | No | App Functionality |
 
-### D.4 — App Review Information (CRITICAL for remittance apps)
+> **Pivot note:** earlier drafts of this table listed Payment Info + Other
+> Financial Info. V1 is referrals-only — we don't collect payment info.
+> Providers do. Match this table to the same trim in `PrivacyInfo.xcprivacy`.
+
+### D.4 — App Review Information (CRITICAL — pre-empts Guideline 4.2 reject)
 
 **App Information → App Review Information:**
 
-- **Sign-in required:** Yes
+- **Sign-in required:** Yes (only for Family Hub + saving rate alerts)
 - **Demo account:**
   - Email: (create a test account in your app)
   - Password: (dummy password)
 - **Notes:** paste this template, fill in bracketed fields:
 
-```
-My Remittance Pal is a money transfer app that connects US-based senders
-to the Philippines and other remittance corridors.
+```text
+My Remittance Pal is a RATE-COMPARISON and RATE-ALERT app for international
+money transfers. We are NOT a money transmitter. We handle NO customer funds.
 
-REGULATORY STRUCTURE:
-We operate as [an agent of / in partnership with] [LICENSED MSB NAME],
-which holds Money Service Business registration with FinCEN (MSB ID:
-[NUMBER]) and is licensed in the states we serve. We do not hold customer
-funds directly; transfers are processed through Wise Payments Limited
-(licensed).
+BUSINESS MODEL:
+We help overseas workers find the best remittance rate across licensed
+providers (Wise, Remitly, [other partners you're signed up with]).
+Users compare rates inside our app, then tap through to the chosen
+provider's own app/website, where they complete the transfer under that
+provider's own license and T&Cs. We earn an affiliate commission paid
+by the provider. Rankings are by landed amount to the recipient —
+never by commission.
 
-TESTING:
-- Test corridor: USD → PHP
-- Test account: [email above]
-- After login, reviewer can navigate to Compare, Alerts, and Family Hub
-- KYC verification is sandbox-mode in this build (uses Persona sandbox)
-- No real money moves in testing — all transfers are flagged test-mode
+WHY THIS IS A NATIVE APP (Guideline 4.2 pre-emption):
+- Push notifications for rate alerts (users set a target rate; we push
+  when a corridor hits it + provide a one-tap affiliate link — this
+  functionality is only meaningful natively)
+- Haptics on comparison result tap + alert fire
+- Native share sheet for "found a great rate" receipts
+- Offline fallback UI when connectivity drops
+- Biometric unlock (opt-in) for the saved-recipients Family Hub
+- Native splash + launch tuned to our editorial brand
+
+TESTING (USD → PHP corridor works end-to-end):
+- Test account: [email above] / [password]
+- After login, reviewer can:
+  - /compare: enter amount + corridor → ranked provider table
+  - /alerts: create a rate alert for a corridor
+  - /family: add a saved recipient
+- Tapping "Go to [Provider]" opens Safari with the provider's own site.
+  WE DO NOT process or touch the transfer inside our app.
+
+AFFILIATE DISCLOSURE (FTC + Apple policy compliance):
+- In-app disclosure page: Settings → About → How We Make Money
+- Inline disclosure on every comparison result
+- Rankings are by landed amount; we never weight by commission.
 
 CONTACT:
-- [your support email]
-- [your phone number]
+- Support: [your support email]
+- Privacy: [policy URL]
+- Terms: [terms URL]
 ```
 
 ### D.5 — Version metadata
@@ -215,9 +237,19 @@ When external TestFlight looks clean:
    - Advertising identifier: No
 3. Click **Submit**
 
-**Average review time:** 5–7 days for first submission. Remittance apps often
-get an additional "request for info" email asking for MSB license + AML/KYC
-process documentation. Reply within 24h with a PDF packet.
+**Average review time:** 5–7 days for first submission. For our category
+(referrals-only rate comparison), the common follow-up from reviewers is:
+
+- Guideline 4.2 questions — "what does the native app do that a website
+  wouldn't?" → point them at the review notes + native-functionality bullet list
+- Guideline 2.3.1 questions — "describe your business model" → point them at
+  the affiliate disclosure page in-app
+
+If asked for "financial licensing," reply: "My Remittance Pal is a rate-
+comparison and rate-alert app. We do not process transfers, hold customer
+funds, or operate as a money transmitter. All transfers are executed on
+third-party licensed providers' own infrastructure (Wise, Remitly, etc.)
+under their own licenses."
 
 ---
 
@@ -225,25 +257,39 @@ process documentation. Reply within 24h with a PDF packet.
 
 | Reject reason | Your mitigation |
 |---------------|-----------------|
-| **Guideline 4.2** "Minimum Functionality" (WebView wrapper) | Push notifications enabled, haptics wired at confirm, offline banner, native share — cite these in response |
-| **Guideline 3.1.5(a)** unclear payment flow | Review notes explain Wise is the licensed rail; no IAP needed for real-world money transfer |
-| **Guideline 5.1.1** data collection not disclosed | App Privacy matches PrivacyInfo.xcprivacy exactly |
-| **Guideline 5.1.1(v)** no account deletion in-app | Add a "Delete Account" button in Settings before submitting (CURRENTLY MISSING — see HANDOFF) |
+| **Guideline 4.2** "Minimum Functionality" (WebView wrapper / affiliate-link aggregator) | §D.4 review notes enumerate native functionality; push + haptics + share + offline + biometric all wired |
+| **Guideline 2.3.1** hidden/misleading business model | "How we make money" disclosure page + inline disclosure on every result |
+| **Guideline 3.1.5(a)** unclear payment flow | Review notes explicitly state "we don't process payments"; all transfers complete on provider's site, outside our app |
+| **Guideline 5.1.1** data collection not disclosed | App Privacy matches `PrivacyInfo.xcprivacy` exactly (remove Payment/Financial Info entries — referrals-only) |
+| **Guideline 5.1.1(v)** no account deletion in-app | Settings → Delete Account must be reachable in ≤2 taps (CURRENTLY MISSING — see HANDOFF) |
 | **Guideline 2.1** crashes or broken flows | Test every path on physical device via TestFlight first |
-| **Guideline 1.4.1** unverified financial claims | Don't make any FX guarantees; show quotes as "indicative" |
+| **Guideline 1.4.1** unverified financial claims | Show rates as "indicative / last updated at X"; never "guaranteed"; source label per provider |
 
 ---
 
-## Track 4 remaining TODOs (before Phase F)
+## Remaining TODOs (before Phase F)
 
-- [ ] **Account deletion flow in-app** — Guideline 5.1.1(v) hard requirement. Must be
-  reachable from Settings in ≤2 taps. Not yet implemented.
-- [ ] **Privacy Policy URL + Support URL** — public, on your domain, reachable
-  before submission.
-- [ ] **MSB license or partner-licensing letter** — PDF ready to attach to review
-  response email.
-- [ ] **Screenshots** — 3–10 per required device size, captured from TestFlight
-  build on real device, not simulator mock-ups.
-- [ ] **Replace placeholder app icon** — the 1024×1024 I generated is upscaled
-  from `icon-512.png`. Get a designed master from Figma before Phase F; Apple
-  does notice icon quality on review.
+- [ ] **Account deletion flow in-app** — Guideline 5.1.1(v) hard requirement.
+  Must be reachable from Settings in ≤2 taps. Not yet implemented.
+- [ ] **"How we make money" disclosure page** — Settings → About → Affiliate
+  Disclosure. Required by FTC + helpful for Apple 4.2 / 2.3.1 pre-emption.
+- [ ] **Inline affiliate disclosure** on each comparison result next to the
+  "Go to [Provider]" button.
+- [ ] **Privacy Policy URL + Support URL** — public, on your domain,
+  reachable before submission.
+- [ ] **Wire haptics at "Go to [Provider]" tap** — helper `notificationHaptic()`
+  exists at `apps/web/src/lib/native/index.ts`. Call from the result tap handler.
+- [ ] **Wire native share** on rate-alert-hit screen + comparison result —
+  helper `shareReceipt()` exists at the same path.
+- [ ] **Trim `PrivacyInfo.xcprivacy`** to remove `NSPrivacyCollectedDataTypePaymentInfo`
+  and `NSPrivacyCollectedDataTypeOtherFinancialInfo` entries (money-mover
+  leftovers).
+- [ ] **Screenshots** — 3–10 per required device size, captured from
+  TestFlight build on real device, not simulator mock-ups.
+- [ ] **Replace placeholder app icon** — the 1024×1024 I generated is
+  upscaled from `icon-512.png`. Get a designed master from Figma before
+  Phase F; Apple does notice icon quality on review.
+
+**Removed from earlier TODO (no longer needed in v1):** MSB licensing /
+partner-license PDF, FinCEN registration evidence, state money transmitter
+licensing. Referrals-only collapses all of these.

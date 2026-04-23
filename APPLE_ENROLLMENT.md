@@ -1,135 +1,122 @@
-# Apple Developer Program Enrollment — Organization Tier
+# Apple Developer Program Enrollment
 
 Enrollment walkthrough for getting `com.myremittancepal.app` onto the App Store.
-**Must be Organization tier, not Individual** — remittance apps are treated
-as regulated financial services and Individual accounts routinely get rejected
-on business-model grounds.
+
+**V1 is referrals-only — we are NOT a money transmitter.** This reshapes
+enrollment compared to the earlier "money-mover" framing. Individual
+enrollment is sufficient; Organization is optional upgrade.
 
 ---
 
-## Why Organization (not Individual)
+## Individual vs. Organization — which tier?
 
-Apple's App Review treats money-transfer apps as financial services under
-Guidelines 1.4 and 5.0. Two practical consequences:
+| Tier | Cost | Timeline | When to pick |
+|------|------|----------|-------------|
+| **Individual** | $99/yr | 24-hour approval | Your name appears as the App Store Seller. Fine for referrals-only product. **Default choice for a solo v1 launch.** |
+| **Organization** | $99/yr + DUNS (free) | 1–5 business days (often 1–2 weeks for new entities) | Your LLC/Corp appears as the App Store Seller. Pick this if: (a) you already have an incorporated entity, (b) you want brand separation from your personal name, (c) you plan to add team members with Admin/Developer roles later. |
 
-1. **The "Seller" on your App Store listing** must plausibly match the entity
-   handling the money. Individual listings for a remittance product look like
-   an unlicensed person moving money → rejected.
-2. **Partner-MSB / FinCEN licensing is the common path.** Reviewers will ask
-   for partnership letters or FinCEN MSB ID during App Review, and those
-   documents name a business entity. Individual enrollment has no entity to tie
-   that documentation to.
+**Why Individual works for v1 (contrary to earlier docs):**
+- We're not a licensed money transmitter — no MSB partner letter / FinCEN
+  registration to tie to an entity
+- We don't handle customer funds — no PCI / financial-services regulatory
+  surface
+- We're a comparison + affiliate platform — same category as CardRatings,
+  NerdWallet, or any affiliate-driven review site (many of which ship under
+  Individual accounts)
 
-Short version: Individual saves the DUNS step but guarantees a rejection loop.
-Don't skip to save a week — it costs 2+ weeks on the back end.
+**Why you might still pick Organization:**
+- You already operate under an LLC for tax/liability reasons
+- You want the App Store Seller name to be "My Remittance Pal LLC" not your
+  legal name
+- You're planning to hire and want to invite team members
+
+**What CHANGED from earlier docs:** The earlier version of this file said
+"Organization is required — Individual will get rejected." That was based on
+the assumption we were a money mover. For referrals-only v1, that's wrong.
 
 ---
 
-## Prerequisites — have ALL of these before starting enrollment
+## Individual enrollment path (fastest — recommended for v1)
+
+### Prerequisites
 
 | Item | Why | Notes |
 |------|-----|-------|
-| Registered legal entity | DUNS requires a legal name, not a DBA | LLC, C-Corp, Sole Prop all work |
-| Legal entity name that matches bank + state filing **exactly** | D&B matches on "DEF Corp" vs "D.E.F. Corp" | Mismatch = 2–4 week resolution loop |
-| Business phone number | Apple calls to verify | Google Voice / VOIP works if it rings to a human |
-| Business address | D&B + Apple require it | Home address works for LLC if it matches state filing |
-| Business website | Apple verifies domain ownership | Can be a one-page landing site |
-| Business email on that domain | `you@myremittancepal.com` — not Gmail | Required for enrollment + App Review correspondence |
-| Apple ID with 2FA enabled | Non-negotiable since 2019 | Use the same Apple ID that owns the bundle ID |
-| Credit card for $99/yr | Billed on enrollment day | After DUNS clears, not before |
-| Authority to bind the entity | Apple verifies owner/officer status | You'll sign a legal agreement |
+| Apple ID with 2FA enabled | Non-negotiable | Use the Apple ID that owns the bundle ID |
+| Valid legal name (personal) | Shown as App Store Seller | Will be on the public store listing |
+| Credit card for $99/yr | Charged on enrollment approval | Auto-renews annually |
+| US / eligible country | Apple restricts enrollment by country | Check the [supported countries list](https://developer.apple.com/support/enrollment/) |
+
+### Step-by-step
+
+1. Go to [developer.apple.com/enroll](https://developer.apple.com/enroll)
+2. Click **Start Your Enrollment**
+3. Sign in with the Apple ID that owns `com.myremittancepal.app`
+4. Select **Individual / Sole Proprietor**
+5. Fill out personal info (legal name, phone, address)
+6. Accept the Developer Program License Agreement
+7. Pay $99 with credit card
+8. **Approval typically within 24 hours.** Email from Apple confirms access.
+
+### Post-approval setup (~30 min)
+
+- Log into [appstoreconnect.apple.com](https://appstoreconnect.apple.com)
+- **My Apps → +** → create app record:
+  - Platform: iOS
+  - Name: **My Remittance Pal**
+  - Primary Language: English (U.S.)
+  - Bundle ID: select `com.myremittancepal.app`
+  - SKU: `myremittancepal-ios-001`
+- **Keys → +** → create **APNs Authentication Key** for push notifications
+  (one key, works forever, free)
+- Back in Xcode: **Signing & Capabilities → Team** → select your personal
+  team; Xcode auto-provisions certs and profiles
 
 ---
 
-## Step-by-step enrollment flow
+## Organization enrollment path (if you choose it)
 
-### Step 1 — Get or look up your DUNS number (1–5 business days typical)
+### Extra prerequisites
 
-1. Go to [developer.apple.com/enroll](https://developer.apple.com/enroll) → Start Enrollment
-2. Pick **Organization**
-3. Apple asks if you already have a DUNS number
-   - **Yes:** enter it; Apple verifies against D&B records
-   - **No:** Apple routes you to a **free** DUNS lookup/request page (partnership
-     with D&B — do not pay D&B's upsold "DUNS File" service)
-4. Fill in your legal entity details exactly as they appear on state filing
-5. Submit — email arrives in 1–5 business days with your DUNS number
+| Item | Why | Notes |
+|------|-----|-------|
+| Registered legal entity | Apple requires a legal business | LLC, C-Corp, Sole Prop-with-EIN all work |
+| **DUNS number** | Apple verifies entity existence via Dun & Bradstreet | **Free via Apple's partnership** — do NOT pay D&B's upsold services |
+| Business phone | Apple calls to verify | Google Voice / VOIP fine if it rings to a human |
+| Business address | Must match DUNS record | Home address works if it matches state filing |
+| Authority to bind the entity | You sign a legal agreement | Must be Owner / Founder / CEO |
 
-**Common snag:** D&B doesn't have your entity yet (typical for LLCs < 6 months
-old) or has a name variant ("ABC Limited Liability Company" vs "ABC LLC"). If
-this happens, D&B emails you to correct records — this loop can take 2–4 weeks.
+### Extra steps
 
-> **Start this step first**, independent of everything else. It's the longest
-> pole in the tent.
+Before the normal flow:
+1. Request DUNS via Apple's enrollment form (free path, uses D&B partnership)
+2. Wait 1–5 business days for DUNS email (occasionally 2–4 weeks if D&B's
+   records don't match your state filing exactly)
+3. Then the normal enrollment form, plus an Apple verification phone call
+4. Agreement + payment
 
-### Step 2 — Fill out the Apple enrollment form (~30 min, after DUNS)
+### Common Organization snags
 
-- Legal entity name (must match DUNS record)
-- Headquarters address (must match DUNS)
-- Website, phone, work email
-- **Role:** Owner / Founder / CEO — you must be an authorized signatory
-- Upload proof of authority if asked (articles of incorporation, operating agreement)
-
-### Step 3 — Apple verification call (1–3 business days)
-
-- Apple calls the business phone number you listed
-- Short interview: who you are, what the app does, confirm your authority
-- They may ask what "My Remittance Pal" does and whether you're a licensed MSB
-- **Have your MSB partner letter or FinCEN registration ready to reference**
-
-### Step 4 — Sign agreement + pay (same day as verification)
-
-- Apple sends the Developer Program License Agreement via DocuSign-style flow
-- You sign → they charge the card → enrollment email with ASC access arrives
-
-### Step 5 — Post-enrollment setup (~30 min, once you're in)
-
-- Log into [appstoreconnect.apple.com](https://appstoreconnect.apple.com)
-- Create app record for `com.myremittancepal.app`
-- Generate **APNs Authentication Key** (Keys → + → Apple Push Notifications
-  service) — one key works forever, $0
-- Invite yourself as Admin + create TestFlight Internal group
-- (Optional) Connect ASC to Xcode Cloud for CI
+1. **Name mismatches.** "Acme LLC" vs "Acme Limited Liability Company" — D&B
+   is strict. Match your state filing exactly.
+2. **New entities (<6 months old).** D&B may not have you in their database
+   yet; enrollment resolves this but adds 2–4 weeks.
+3. **DBA confusion.** If you operate as "My Remittance Pal" under "Acme LLC,"
+   make sure DUNS record lists both.
 
 ---
 
 ## Realistic timeline
 
-| Phase | Time | Can parallelize with |
-|-------|------|---------------------|
-| Entity registration (if you don't have one) | 1–14 days | Nothing — first domino |
-| DUNS request via Apple | 1–5 days typical, 2–4 weeks worst | "Parallel prep" below |
-| Apple enrollment form → verification call | 1–3 days | "Parallel prep" below |
-| License agreement + payment | 1 day | — |
-| **Total best case** | **3 business days** | |
-| **Total realistic** | **1–2 weeks** | |
-| **Total if DUNS has issues** | **4–6 weeks** | |
+| Path | Best case | Typical | Worst case |
+|------|-----------|---------|------------|
+| Individual | 1 day | 1 day | 3 days (if Apple manually reviews) |
+| Organization (existing DUNS) | 3 days | 1 week | 2 weeks |
+| Organization (new DUNS) | 1 week | 2 weeks | 4–6 weeks |
 
----
-
-## Parallel prep — things to do while Apple's side is processing
-
-### While DUNS processes (1–5 days → 4 weeks)
-
-- [ ] Spin up `myremittancepal.com` if not live yet
-- [ ] Publish a Privacy Policy URL (public on the domain)
-- [ ] Publish a Support URL (public on the domain)
-- [ ] Nail down MSB licensing:
-  - **Partnership path (recommended for solo founder):** written partnership
-    letter from a licensed MSB (Wise, Remitly, Western Union, Modulr, etc.)
-    naming your entity as agent/sub-agent
-  - **Direct path:** your own FinCEN MSB registration (free filing, 1–2 weeks)
-    + state money transmitter licenses ($1M+ bonds, 6–18 months, 49 states —
-    not feasible for most solo founders)
-- [ ] Get the designed 1024×1024 app icon made (replace the placeholder in
-  `apps/mobile/ios/App/App/Assets.xcassets/AppIcon.appiconset/`)
-
-### While Apple verifies (1–3 days)
-
-- [ ] Write App Review notes template (template in `TESTFLIGHT_RUNBOOK.md` §D.4)
-- [ ] Implement in-app **account deletion flow** (Apple Guideline 5.1.1(v) —
-  still unimplemented; see `HANDOFF.md` "Hard blockers" for file paths)
-- [ ] Capture 3–10 TestFlight-ready screenshots per required device size
-  (6.7" iPhone mandatory) from a real device
+**Recommendation for v1 launch:** Individual. Get the app shipped. Upgrade
+to Organization later if/when you want an entity-branded listing. Apple does
+allow tier upgrades post-enrollment (it's not a fresh process).
 
 ---
 
@@ -137,58 +124,71 @@ this happens, D&B emails you to correct records — this loop can take 2–4 wee
 
 | Item | Cost |
 |------|------|
-| DUNS number | $0 via Apple partnership |
-| Apple Developer Program | $99 / year, auto-renews |
-| Entity registration (if needed) | $50–$800 depending on state |
-| Business domain + email | $10–$50 / year |
-| MSB partner setup (if using partnership path) | typically $0–$5k one-time + revenue share |
-| FinCEN MSB registration (if DIY, not partner) | $0 filing + $5k–$20k legal/compliance |
-| **Total to start (with MSB partner)** | **$99–$150/yr** |
+| Apple Developer Program (Individual OR Organization) | $99 / year |
+| DUNS number (Organization path) | $0 via Apple partnership |
+| Entity registration (Organization path, if you don't have one) | $50–$800 state fees |
+| Business domain + email (required anyway for App Store) | $10–$50 / year |
+| **Total for Individual path** | **$99 / year + domain costs** |
+| **Total for Organization path** | **$99 / year + entity + domain** |
 
----
-
-## Red flags that slow things down for remittance apps
-
-1. **"Finance" apps are auto-flagged for extra review.** Apple's compliance
-   team reads these more carefully. Have MSB partner letter or FinCEN MSB ID
-   ready from day one.
-2. **Individual enrollment is a near-guaranteed reject** for money transfer.
-   Don't try to save the DUNS step by enrolling as Individual — you'll waste 2
-   weeks when the first submission gets rejected for "business model."
-3. **Name mismatches** between bank, entity, DUNS, and ASC seller name cause
-   Developer Support tickets that take 3–7 days each. Align these up front.
-4. **State money transmitter licenses.** If you're not partnering with a
-   licensed MSB, you need state-by-state licensing to operate legally in the
-   US. Apple will ask about this during review. **Partnering is almost always
-   the right call for a solo founder.**
-5. **DBA confusion.** If your LLC is "Acme Holdings LLC" but you operate as
-   "My Remittance Pal," make sure the DUNS record lists **both** (legal name
-   with DBA annotation). Otherwise ASC Seller Name won't match DUNS and the
-   store listing looks off.
+No MSB registration, no state money transmitter licenses, no partner-MSB
+setup — none of those apply to a referrals-only product.
 
 ---
 
 ## When you start enrollment — checklist
 
-Copy this to your task manager:
+### For Individual tier
+
+```
+[ ] Apple ID has 2FA on — same Apple ID that owns bundle ID
+[ ] Legal name + personal address ready
+[ ] Credit card available for $99 charge
+[ ] Start at https://developer.apple.com/enroll → Individual
+[ ] Sign agreement, pay $99
+[ ] Wait ~24h for approval email
+[ ] Create App Store Connect app record for com.myremittancepal.app
+[ ] Generate APNs Authentication Key (Keys → +)
+[ ] Set Team in Xcode (Signing & Capabilities)
+```
+
+### For Organization tier
 
 ```
 [ ] Confirm legal entity registered with state
 [ ] Confirm business phone rings to a human
-[ ] Confirm myremittancepal.com (or whatever domain) is live
+[ ] Confirm myremittancepal.com (or chosen domain) is live
 [ ] Confirm business email on that domain works
-[ ] Apple ID has 2FA on — same Apple ID that owns bundle ID
-[ ] Credit card available for $99 charge
+[ ] Apple ID has 2FA on
+[ ] Credit card available
 [ ] Start at https://developer.apple.com/enroll → Organization
 [ ] Submit DUNS request through Apple's form
 [ ] Wait 1–5 business days for DUNS email
 [ ] Fill enrollment form (entity details, role, upload authority proof)
-[ ] Receive Apple verification call — answer with MSB licensing story ready
+[ ] Receive Apple verification call
 [ ] Sign agreement, pay $99
 [ ] Create ASC app record for com.myremittancepal.app
-[ ] Generate APNs Authentication Key (Keys → +)
-[ ] Invite yourself as Admin, create TestFlight Internal group
+[ ] Generate APNs Authentication Key
+[ ] Set Team in Xcode
 ```
 
-Once all boxes are checked, continue from Phase B of `TESTFLIGHT_RUNBOOK.md`
-(Xcode UI setup).
+Once enrolled, resume from Phase B of `TESTFLIGHT_RUNBOOK.md` (Xcode UI setup).
+
+---
+
+## What you can do in parallel (regardless of tier)
+
+- [ ] Spin up `myremittancepal.com` if not live yet
+- [ ] Publish a Privacy Policy URL (public on the domain)
+- [ ] Publish a Support URL (public on the domain)
+- [ ] Sign up for the affiliate programs you want to feature:
+  - Wise Platform Affiliates
+  - Remitly referral program
+  - Western Union affiliate (if they accept you)
+  - (Others — check the About/Legal page for who we're using)
+- [ ] Get a designed 1024×1024 app icon (replace the placeholder I generated)
+- [ ] Draft app description copy leading with "compare remittance rates,"
+  NOT "send money"
+
+None of the above needs MSB licensing, FinCEN registration, or partner
+letters. Referrals-only dramatically shrinks the compliance surface.

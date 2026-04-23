@@ -4,10 +4,17 @@
 
 ## Current phase
 
-**Pre-submission hardening COMPLETE on the code side.** Successfully built and
-deployed to iPhone 17 Pro simulator. Next actionable step is Xcode UI wiring
-(Phase B of `TESTFLIGHT_RUNBOOK.md`), gated on Apple Developer Organization
-enrollment — see `APPLE_ENROLLMENT.md`.
+**Pre-submission hardening COMPLETE on the native side. Product framing
+pivoted: V1 is REFERRALS-ONLY — we don't handle money, so the earlier
+money-transmitter submission story no longer applies.** All four submission
+docs were rewritten on 2026-04-23 to reflect this; see `CLAUDE.md` +
+`SUBMISSION_PLAN.md` + `APPLE_ENROLLMENT.md` + `TESTFLIGHT_RUNBOOK.md`.
+
+Successfully built + deployed to iPhone 17 Pro simulator earlier this session.
+Next actionable step is either (a) the remaining code work (account deletion,
+affiliate disclosure page, haptics/share wiring) or (b) Apple Developer
+enrollment — **Individual tier is now sufficient** (was Organization under
+the old framing). See `APPLE_ENROLLMENT.md`.
 
 ## ✅ Completed this session
 
@@ -58,31 +65,51 @@ enrollment — see `APPLE_ENROLLMENT.md`.
 
 ## ⏳ Remaining work
 
-### Hard blockers (user-driven, not code)
+### Hard blockers (mix of user + code work)
 
-1. **Apple Developer Organization enrollment** — see `APPLE_ENROLLMENT.md`
-   for DUNS process, timeline (1–6 weeks), costs, parallel prep tasks.
+1. **Apple Developer enrollment — Individual tier (recommended for v1)**.
+   24-hour approval, $99/yr. See `APPLE_ENROLLMENT.md`. Organization only
+   needed if you want an entity-branded seller name.
 2. **Privacy Policy URL + Support URL** live on your domain (public).
-3. **MSB licensing or partner-license evidence** — PDF ready for App Review
-   response email. Partnership path recommended (Wise / Remitly / Western
-   Union / Modulr etc.).
-4. **Account deletion flow in-app** — Apple Guideline 5.1.1(v). Must be
-   reachable from Settings in ≤2 taps. **NOT YET IMPLEMENTED.** File to
-   create: `apps/web/src/app/(dashboard)/settings/delete-account/page.tsx`
-   + `DELETE /api/users/me` route.
+3. **Account deletion flow in-app** — Apple Guideline 5.1.1(v). Must be
+   reachable from Settings in ≤2 taps. **NOT YET IMPLEMENTED.** Suggested
+   path: `apps/web/src/app/(dashboard)/settings/delete-account/page.tsx`
+   + `DELETE /api/users/me` route that calls Supabase auth admin delete.
+4. **"How we make money" affiliate disclosure page** — Settings → About →
+   Affiliate Disclosure. Required by FTC + pre-empts Apple Guideline 2.3.1.
+   Also add inline disclosure line on each comparison result near the
+   "Go to [Provider]" button.
 5. **Designed 1024×1024 app icon** to replace the upscaled placeholder at
    `apps/mobile/ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png`.
 6. **3–10 screenshots per device size** captured from real device running
    TestFlight (6.7" iPhone mandatory).
 
+**Removed from hard blockers (no longer apply in referrals-only v1):**
+MSB licensing, partner-license evidence, FinCEN registration, state money
+transmitter licenses, DUNS number (unless you want Organization tier for
+other reasons).
+
 ### Code work still recommended before submission
 
-1. **Wire haptics at confirm-transfer tap** — helper exists at
+1. **Wire haptics at "Go to [Provider]" tap** — helper
    `apps/web/src/lib/native/index.ts` → `notificationHaptic()`. Call from
-   the Send button handler on the transfer confirm page.
-2. **Wire native share on transfer receipts** — call `shareReceipt()` from
-   a "Share receipt" button on the transfer detail page.
-3. **Small smoke test** verifying `/api/push/register` accepts a valid
+   the result-row tap handler (likely in `apps/web/src/app/compare/CompareTool.tsx`
+   or wherever `handleAffiliateHandoff` fires).
+2. **Wire native share for rate-match events** — call `shareReceipt()`
+   from a "Share this rate" button on comparison results or rate-alert-hit
+   notifications.
+3. **Consider swapping `window.open` for `@capacitor/browser`** in
+   `apps/web/src/lib/affiliate-routing.ts::handleAffiliateHandoff`. On iOS,
+   Capacitor's Browser plugin uses `SFSafariViewController` — cookies persist
+   across sessions (better affiliate attribution), user stays visually inside
+   our app, and the back button returns to our UI. One-line change.
+4. **Trim `PrivacyInfo.xcprivacy`** — remove `NSPrivacyCollectedDataTypePaymentInfo`
+   and `NSPrivacyCollectedDataTypeOtherFinancialInfo` (money-mover leftovers
+   from before the pivot).
+5. **Delete or flag dead code** — `apps/web/src/lib/wise.ts` (Wise Business
+   API client, unused in v1) and `apps/web/src/lib/persona.ts` (KYC adapter,
+   unused in v1). Safe to delete or park under a `legacy/` directory.
+6. **Small smoke test** verifying `/api/push/register` accepts a valid
    payload (returns `{ok:true, stored:true|false}`).
 
 ### Xcode UI wiring (Runbook Phase B) — blocked on enrollment
@@ -103,10 +130,16 @@ When Apple enrollment clears:
 Depends on what's ready:
 
 **If enrollment NOT yet done:**
-Use parallel-prep time to either:
-- Follow `APPLE_ENROLLMENT.md` checklist to start the DUNS request, OR
-- Implement the account deletion flow (the remaining hard blocker that's pure
-  code work — no external dependencies).
+Use parallel-prep time to tackle pure-code blockers (no external dependencies
+in the referrals-only model):
+- Implement the account deletion flow
+- Implement the "How we make money" affiliate disclosure page + inline
+  disclosure
+- Wire haptics + native share at their UI touchpoints
+- Trim `PrivacyInfo.xcprivacy` payment/financial entries
+
+Then start Apple Developer Individual enrollment (~24h approval) per
+`APPLE_ENROLLMENT.md`.
 
 **If enrollment DONE:**
 ```bash
