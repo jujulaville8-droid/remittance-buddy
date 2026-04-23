@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -77,13 +77,23 @@ export function CompareTool() {
     [corridorId],
   )
 
-  const { quotes, loading, cached, fetchedAt } = useLiveQuotes({
+  const { quotes, loading, cached, fetchedAt, refetch } = useLiveQuotes({
     corridor: corridor.id,
     sourceCurrency: corridor.sourceCurrency,
     targetCurrency: DESTINATION.currency,
     sourceAmount: amount,
     payoutMethod: payout,
   })
+
+  const resultsRef = useRef<HTMLDivElement>(null)
+  function handleCompare() {
+    refetch()
+    // Give React a tick to kick off the refetch before we scroll,
+    // so the loading state is visible in the summary card
+    requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
 
   // Freshness label for the trust strip
   const [freshLabel, setFreshLabel] = useState<string>('—')
@@ -131,9 +141,12 @@ export function CompareTool() {
           onCorridor={(id) => setCorridorId(id)}
           onAmount={setAmount}
           onPayout={setPayout}
+          onCompare={handleCompare}
         />
 
         <TrustStrip freshLabel={freshLabel} cached={cached} />
+
+        <div ref={resultsRef} className="scroll-mt-24" />
 
         {quotes.length > 0 && winner && (
           <>
@@ -290,6 +303,7 @@ function QuoteForm({
   onCorridor,
   onAmount,
   onPayout,
+  onCompare,
 }: {
   readonly corridor: (typeof CORRIDORS)[number]
   readonly amount: number
@@ -298,6 +312,7 @@ function QuoteForm({
   readonly onCorridor: (id: CorridorId) => void
   readonly onAmount: (n: number) => void
   readonly onPayout: (id: PayoutId) => void
+  readonly onCompare: () => void
 }) {
   const payoutMeta = PAYOUT_METHODS.find((m) => m.id === payout) ?? PAYOUT_METHODS[0]
   const PayoutIcon = payoutMeta.icon
@@ -381,6 +396,7 @@ function QuoteForm({
         {/* Submit */}
         <button
           type="button"
+          onClick={onCompare}
           className="h-12 px-5 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 shadow-md shadow-blue-600/25 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={loading}
         >
