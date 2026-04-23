@@ -262,6 +262,23 @@ function HeroArt() {
         sizes="(max-width: 1024px) 100vw, 580px"
         className="object-contain object-right"
       />
+      {/* Soft patch over the baked-in heart sticker in hero-compare.png.
+          Backdrop blur + radial mask feathers it into the surrounding
+          blue-50 gradient so no hard edge shows. Tune top/right if the
+          heart peeks out at a different viewport. */}
+      <div
+        aria-hidden
+        className="absolute top-[50%] right-[12%] w-[96px] h-[96px] pointer-events-none rounded-full"
+        style={{
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          maskImage: 'radial-gradient(circle, black 40%, transparent 75%)',
+          WebkitMaskImage: 'radial-gradient(circle, black 40%, transparent 75%)',
+          background:
+            'radial-gradient(circle, rgba(239,246,255,0.55), rgba(239,246,255,0) 75%)',
+        }}
+      />
+
       {/* Live status chip — replaces the old heart badge and covers the
           baked-in sticker in hero-compare.png. */}
       <div className="absolute top-[42%] right-[2%] rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 flex items-center gap-2">
