@@ -49,6 +49,9 @@ export interface LiveQuote {
   readonly affiliateUrl: string
   readonly fetchedAt: string // ISO timestamp
   readonly source: 'live-api' | 'scraped' | 'cached' | 'fallback'
+  // Upstream-provided brand logo URL (e.g. from Wise Comparisons response).
+  // Optional — when present, UI should prefer this over local /providers/*.svg.
+  readonly logoUrl?: string
 }
 
 export interface QuoteFetcher {

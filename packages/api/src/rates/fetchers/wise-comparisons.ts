@@ -48,6 +48,11 @@ interface WiseQuote {
   }
 }
 
+interface WiseLogoSet {
+  readonly svgUrl?: string | null
+  readonly pngUrl?: string | null
+}
+
 interface WiseProvider {
   readonly id: number
   readonly alias: string
@@ -55,6 +60,11 @@ interface WiseProvider {
   readonly type: 'bank' | 'moneyTransferProvider'
   readonly partner?: boolean
   readonly quotes?: readonly WiseQuote[]
+  readonly logo?: string
+  readonly logos?: {
+    readonly normal?: WiseLogoSet
+    readonly circle?: WiseLogoSet
+  }
 }
 
 interface ComparisonsResponse {
@@ -225,6 +235,8 @@ function mapQuote(
   // stable identifier, even for providers we haven't curated meta for.
   const slug = meta.slug === 'unknown' || meta.slug === 'bank' ? p.alias : meta.slug
 
+  const logoUrl = p.logos?.normal?.svgUrl ?? p.logo ?? undefined
+
   return {
     provider: p.name,
     providerSlug: slug,
@@ -248,6 +260,7 @@ function mapQuote(
     affiliateUrl: meta.affiliateUrl,
     fetchedAt: now,
     source: 'live-api',
+    logoUrl,
   }
 }
 

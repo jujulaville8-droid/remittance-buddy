@@ -33,6 +33,7 @@ export interface LiveQuote {
   readonly affiliateUrl: string
   readonly fetchedAt: string
   readonly source: 'live-api' | 'scraped' | 'cached' | 'fallback'
+  readonly logoUrl?: string
 }
 
 interface QuoteResponse {

@@ -23,7 +23,7 @@ const securityHeaders = [
       // Supabase (auth + realtime), Stripe.js, Wise, Persona, Google Fonts, Vercel (AI + Analytics + Speed Insights)
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://withpersona.com https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "img-src 'self' data: blob: https://cdn.prod.website-files.com https://images.unsplash.com https://i.pravatar.cc https://flagcdn.com",
+      "img-src 'self' data: blob: https://cdn.prod.website-files.com https://images.unsplash.com https://i.pravatar.cc https://flagcdn.com https://dq8dwmysp7hk1.cloudfront.net https://wise.com",
       "font-src 'self' data: https://cdn.prod.website-files.com https://fonts.gstatic.com",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.wise.com https://withpersona.com https://sdk.vercel.ai https://vitals.vercel-insights.com https://va.vercel-scripts.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com https://withpersona.com",
@@ -60,6 +60,8 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'i.pravatar.cc' },
       { protocol: 'https', hostname: 'flagcdn.com' },
+      { protocol: 'https', hostname: 'dq8dwmysp7hk1.cloudfront.net' },
+      { protocol: 'https', hostname: 'wise.com' },
     ],
   },
 }
