@@ -384,7 +384,12 @@ function QuoteForm({
               }}
               className="flex-1 bg-transparent text-lg font-bold tabular-nums text-slate-900 outline-none min-w-0"
             />
-            <CurrencyChip code={corridor.sourceCurrency} flagCode={corridor.countryCode} />
+            <CurrencyChip
+              code={corridor.sourceCurrency}
+              flagCode={corridor.countryCode}
+              activeId={corridor.id}
+              onSelect={onCorridor}
+            />
           </div>
         </div>
 
@@ -469,13 +474,84 @@ function QuoteForm({
   )
 }
 
-function CurrencyChip({ code, flagCode }: { readonly code: string; readonly flagCode: string }) {
+function CurrencyChip({
+  code,
+  flagCode,
+  activeId,
+  onSelect,
+}: {
+  readonly code: string
+  readonly flagCode: string
+  readonly activeId: CorridorId
+  readonly onSelect: (id: CorridorId) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onDocClick(e: MouseEvent) {
+      if (!wrapperRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onDocClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
   return (
-    <span className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-slate-50 text-sm font-bold text-slate-900 shrink-0">
-      <FlagIcon code={flagCode} size={16} />
-      {code}
-      <ChevronDown className="h-3 w-3 text-slate-400" />
-    </span>
+    <div ref={wrapperRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-slate-50 text-sm font-bold text-slate-900 hover:bg-slate-100 transition-colors"
+      >
+        <FlagIcon code={flagCode} size={16} />
+        {code}
+        <ChevronDown
+          className={`h-3 w-3 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute right-0 top-full mt-1.5 w-52 rounded-lg bg-white border border-slate-200 shadow-card-lg py-1 z-30 max-h-72 overflow-auto"
+        >
+          {CORRIDORS.map((c) => {
+            const selected = c.id === activeId
+            return (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => {
+                    onSelect(c.id)
+                    setOpen(false)
+                  }}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                    selected
+                      ? 'bg-blue-50 text-blue-700 font-semibold'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <FlagIcon code={c.countryCode} size={18} />
+                  <span className="flex-1 text-left">{c.label}</span>
+                  <span className="text-xs font-semibold text-slate-500">{c.sourceCurrency}</span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
   )
 }
 
