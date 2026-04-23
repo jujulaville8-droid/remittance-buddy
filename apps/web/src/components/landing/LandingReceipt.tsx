@@ -325,15 +325,11 @@ function PortraitAvatar({
 
 function HeroVisual() {
   return (
-    <div className="relative h-[460px] lg:h-[580px]">
+    <div className="relative h-[420px] lg:h-[540px]">
       <MiniQuoteTool />
 
-      {/* Mid-right floating card — sits on top of the lower heart in the
-          hero photo so the baked-in stickers don't peek through. */}
-      <RatePulseCard />
-
-      {/* Secure badge (anchored lower-right) */}
-      <div className="absolute bottom-4 right-0 flex items-center gap-2 rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 z-20">
+      {/* Secure badge (mid-right over the photo) */}
+      <div className="absolute bottom-8 right-0 flex items-center gap-2 rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 z-20">
         <span className="grid place-items-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600">
           <ShieldCheck className="h-4 w-4" />
         </span>
@@ -341,33 +337,6 @@ function HeroVisual() {
           <div className="font-medium text-slate-500">Your money is</div>
           <div className="font-bold text-blue-600">100% Secure</div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function RatePulseCard() {
-  const tiltRef = useMagneticTilt({ maxDeg: 4, perspective: 1000 })
-  return (
-    <div
-      ref={tiltRef}
-      className="absolute top-[56%] right-6 w-[220px] rounded-2xl bg-white border border-slate-100 shadow-card-lg p-3.5 z-20 will-change-transform"
-    >
-      <div className="flex items-center gap-2">
-        <span className="grid place-items-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
-          <TrendingUp className="h-4 w-4" />
-        </span>
-        <div className="leading-tight min-w-0">
-          <div className="text-[10px] font-semibold text-slate-500">Today&rsquo;s pick</div>
-          <div className="text-sm font-bold text-slate-900 truncate">Wise → GCash</div>
-        </div>
-      </div>
-      <div className="mt-3 flex items-baseline justify-between">
-        <span className="text-[11px] font-medium text-slate-500">vs bank</span>
-        <span className="text-lg font-bold tabular-nums text-emerald-600">+2.4%</span>
-      </div>
-      <div className="mt-2 h-1 rounded-full bg-slate-100 overflow-hidden">
-        <div className="h-full w-[68%] rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600" />
       </div>
     </div>
   )
@@ -421,7 +390,7 @@ function MiniQuoteTool() {
   return (
     <div
       ref={tiltRef}
-      className="absolute top-2 right-0 w-[290px] rounded-2xl bg-white border border-slate-100 shadow-card-lg p-4 z-20 will-change-transform"
+      className="absolute top-2 right-0 w-[260px] rounded-2xl bg-white border border-slate-100 shadow-card-lg p-4 z-20 will-change-transform"
     >
       <div className="flex items-center justify-between">
         <label className="text-[11px] font-medium text-slate-500">You send</label>

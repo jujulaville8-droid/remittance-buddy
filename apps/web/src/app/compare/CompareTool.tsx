@@ -278,9 +278,17 @@ function HeroArt() {
         />
         <path d="M106 32 L98 30 L102 38 Z M108 30 L118 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
-      {/* Red heart badge */}
-      <div className="absolute top-[46%] right-[2%] grid place-items-center w-14 h-14 rounded-full bg-white shadow-card">
-        <Heart className="h-6 w-6 fill-rose-500 text-rose-500" />
+      {/* Live status chip — replaces the old heart badge and covers the
+          baked-in sticker in hero-compare.png. */}
+      <div className="absolute top-[42%] right-[2%] rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 flex items-center gap-2">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+        </span>
+        <div className="leading-tight">
+          <div className="text-[10px] font-semibold text-slate-500">Rates updated</div>
+          <div className="text-xs font-bold text-slate-900">just now</div>
+        </div>
       </div>
     </div>
   )
