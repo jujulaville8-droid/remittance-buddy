@@ -135,7 +135,7 @@ export function CompareTool() {
     <div className="relative pt-20">
       <Hero />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-5 lg:px-8 -mt-10 lg:-mt-20">
+      <div className="relative z-10 mx-auto max-w-6xl px-5 lg:px-8 -mt-4 lg:-mt-6">
         <QuoteForm
           corridor={corridor}
           amount={amount}
@@ -224,8 +224,8 @@ function applyFilter(quotes: readonly LiveQuote[], mode: FilterMode): readonly L
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-6xl px-5 lg:px-8 pt-6 pb-24 lg:pt-10 lg:pb-32 grid lg:grid-cols-[1.05fr_1fr] gap-8 items-start">
-        <div className="pt-4 lg:pt-6">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8 pt-6 pb-12 lg:pt-8 lg:pb-16 grid lg:grid-cols-[1.05fr_1fr] gap-8 items-center">
+        <div>
           <h1 className="font-display text-[44px] lg:text-[56px] font-bold leading-[1.05] tracking-[-0.02em] text-slate-900">
             Find the best way
             <br />
@@ -269,7 +269,7 @@ function Hero() {
 function HeroArt() {
   const parallaxRef = useParallax({ speed: 0.9, maxOffset: 50 })
   return (
-    <div className="relative h-[280px] lg:h-[360px]">
+    <div className="relative h-[240px] lg:h-[300px]">
       <div ref={parallaxRef} className="absolute inset-0 will-change-transform">
         <Image
           src="/hero-compare.png"
