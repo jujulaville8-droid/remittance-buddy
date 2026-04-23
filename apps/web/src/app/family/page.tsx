@@ -8,6 +8,7 @@ import { useFamilyGroups } from '@/lib/hooks/useFamilyGroups'
 import { useRecipients } from '@/lib/hooks/useRecipients'
 import { useTransfers } from '@/lib/hooks/useTransfers'
 import { isPlanLimitError } from '@/lib/plan-limits'
+import { FamilyMembersSection } from '@/components/family/FamilyMembersSection'
 
 interface NewGroupDraft {
   name: string
@@ -93,6 +94,8 @@ export default function FamilyHubPage() {
           </Link>
         </div>
       ) : null}
+
+      <FamilyMembersSection />
 
       {!hasGroups && !showForm ? (
         <EmptyState onStart={() => setShowForm(true)} hasRecipients={hasRecipients} />
