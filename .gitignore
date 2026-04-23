@@ -52,6 +52,8 @@ next-env.d.ts
 !apps/**/public/**/*.png
 !apps/**/icons/**/*.png
 !apps/**/assets/**/*.png
+!apps/mobile/ios/**/*.png
+!apps/mobile/android/**/*.png
 
 # AIDesigner HTML variants previewed locally
 apps/web/public/variants/

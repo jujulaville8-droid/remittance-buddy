@@ -7,6 +7,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import MigrationBridge from '@/components/MigrationBridge'
 import InstallPrompt from '@/components/InstallPrompt'
 import { BottomTabBar } from '@/components/BottomTabBar'
+import NativeShell from '@/components/native/NativeShell'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 
@@ -68,6 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <BottomTabBar />
           <InstallPrompt />
+          <NativeShell />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

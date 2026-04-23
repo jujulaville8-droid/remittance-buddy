@@ -14,8 +14,12 @@ def capacitor_pods
   pod 'CapacitorApp', :path => '../../../../node_modules/.pnpm/@capacitor+app@6.0.3_@capacitor+core@6.2.1/node_modules/@capacitor/app'
   pod 'CapacitorHaptics', :path => '../../../../node_modules/.pnpm/@capacitor+haptics@6.0.3_@capacitor+core@6.2.1/node_modules/@capacitor/haptics'
   pod 'CapacitorKeyboard', :path => '../../../../node_modules/.pnpm/@capacitor+keyboard@6.0.4_@capacitor+core@6.2.1/node_modules/@capacitor/keyboard'
+  pod 'CapacitorNetwork', :path => '../../../../node_modules/.pnpm/@capacitor+network@6.0.4_@capacitor+core@6.2.1/node_modules/@capacitor/network'
+  pod 'CapacitorPushNotifications', :path => '../../../../node_modules/.pnpm/@capacitor+push-notifications@6.0.5_@capacitor+core@6.2.1/node_modules/@capacitor/push-notifications'
+  pod 'CapacitorShare', :path => '../../../../node_modules/.pnpm/@capacitor+share@6.0.4_@capacitor+core@6.2.1/node_modules/@capacitor/share'
   pod 'CapacitorSplashScreen', :path => '../../../../node_modules/.pnpm/@capacitor+splash-screen@6.0.4_@capacitor+core@6.2.1/node_modules/@capacitor/splash-screen'
   pod 'CapacitorStatusBar', :path => '../../../../node_modules/.pnpm/@capacitor+status-bar@6.0.3_@capacitor+core@6.2.1/node_modules/@capacitor/status-bar'
+  pod 'CapgoCapacitorNativeBiometric', :path => '../../../../node_modules/.pnpm/@capgo+capacitor-native-biometric@6.0.4_@capacitor+core@6.2.1/node_modules/@capgo/capacitor-native-biometric'
 end
 
 target 'App' do
