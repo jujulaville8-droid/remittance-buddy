@@ -28,6 +28,7 @@ import { useParallax } from '@/components/landing/useParallax'
 import { decideRouting, trackAffiliateClick } from '@/lib/affiliate-routing'
 import { FlagIcon } from '@/components/FlagIcon'
 import { ProviderLogo } from '@/components/ProviderLogo'
+import { RateHistoryPanel } from '@/components/RateHistoryPanel'
 
 // ─────────────────────────────────────────────────────────────
 // Constants
@@ -159,6 +160,11 @@ export function CompareTool() {
               mostReceive={mostReceive ?? winner}
               fastest={fastest ?? winner}
               savings={{ php: savingsPhp, source: savingsSource, currency: corridor.sourceCurrency }}
+            />
+
+            <RateHistoryPanel
+              sourceCurrency={corridor.sourceCurrency}
+              targetCurrency={DESTINATION.currency}
             />
 
             <FilterBar filter={filter} onChange={setFilter} />

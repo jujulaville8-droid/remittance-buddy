@@ -36,3 +36,12 @@ export {
 } from './cache'
 
 export { getMidMarketRate, calculateSpread } from './mid-market'
+
+export {
+  fetchRateHistory,
+  buildRateInsight,
+  type RatePoint,
+  type RateInsight,
+  type SendSignal,
+  type TrendDirection,
+} from './history'
