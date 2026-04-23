@@ -714,7 +714,7 @@ function ProviderRow({
   const [expanded, setExpanded] = useState(false)
   const tag = providerTag(quote)
   const { stars, count } = reviewStub(quote.providerSlug)
-  const routing = decideRouting(quote)
+  const routing = decideRouting([quote])
 
   function onCtaClick() {
     trackAffiliateClick({
