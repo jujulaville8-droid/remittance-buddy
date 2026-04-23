@@ -22,6 +22,9 @@ import {
   Zap,
 } from 'lucide-react'
 import { useLiveQuotes, type LiveQuote } from '@/components/landing/useLiveQuotes'
+import { useHeroMotion } from '@/components/landing/useHeroMotion'
+import { useMagneticTilt } from '@/components/landing/useMagneticTilt'
+import { useParallax } from '@/components/landing/useParallax'
 import { decideRouting, trackAffiliateClick } from '@/lib/affiliate-routing'
 import { FlagIcon } from '@/components/FlagIcon'
 import { ProviderLogo } from '@/components/ProviderLogo'
@@ -264,17 +267,20 @@ function Hero() {
 }
 
 function HeroArt() {
+  const parallaxRef = useParallax({ speed: 0.9, maxOffset: 50 })
   return (
     <div className="relative h-[280px] lg:h-[360px]">
-      <Image
-        src="/hero-compare.png"
-        alt=""
-        aria-hidden
-        fill
-        priority
-        sizes="(max-width: 1024px) 100vw, 580px"
-        className="object-contain object-right"
-      />
+      <div ref={parallaxRef} className="absolute inset-0 will-change-transform">
+        <Image
+          src="/hero-compare.png"
+          alt=""
+          aria-hidden
+          fill
+          priority
+          sizes="(max-width: 1024px) 100vw, 580px"
+          className="object-contain object-right"
+        />
+      </div>
       {/* Live status chip — replaces the old heart badge and covers the
           baked-in sticker in hero-compare.png. */}
       <div className="absolute top-[42%] right-[2%] rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 flex items-center gap-2">
@@ -626,9 +632,21 @@ function SummaryCard({
   readonly savings: { php: number; source: number; currency: string }
 }) {
   const php = (n: number) => `₱${Math.round(n).toLocaleString()}`
+  const tiltRef = useMagneticTilt({ maxDeg: 2.5, perspective: 1400 })
+  // Count-up in integers, then we tack on .00 so the display still reads as a
+  // currency number. Passing 0 when savings isn't known avoids a wild jump.
+  const { displayedAmount: savedSource } = useHeroMotion({
+    target: Math.round(savings.source),
+    mountDuration: 900,
+    jitterMagnitude: 0,
+    jitterIntervalMs: 60_000_000,
+  })
 
   return (
-    <div className="mt-6 rounded-2xl bg-white border border-slate-100 shadow-card p-5 lg:p-6">
+    <div
+      ref={tiltRef}
+      className="mt-6 rounded-2xl bg-white border border-slate-100 shadow-card p-5 lg:p-6 will-change-transform"
+    >
       <div className="flex items-center justify-between">
         <div className="text-base font-bold text-slate-900">Here&rsquo;s what we found for you</div>
         <Link
@@ -666,7 +684,7 @@ function SummaryCard({
           Icon={BadgeCheck}
           tone="bg-emerald-100 text-emerald-600"
           label="You save up to"
-          primary={`${savings.source.toFixed(2)} ${savings.currency}`}
+          primary={`${savedSource.toLocaleString()}.00 ${savings.currency}`}
           sub="Compared to other options"
         />
       </div>
@@ -856,9 +874,15 @@ function ProviderRow({
 
   return (
     <div
-      className={`relative rounded-2xl border bg-white overflow-hidden ${
-        isWinner ? 'border-blue-500 shadow-card-lg ring-1 ring-blue-500' : 'border-slate-100 shadow-card'
+      className={`relative rounded-2xl border bg-white overflow-hidden animate-in fade-in-0 slide-in-from-bottom-3 duration-500 transition-transform hover:-translate-y-0.5 hover:shadow-card-lg ${
+        isWinner
+          ? 'border-blue-500 shadow-card-lg ring-1 ring-blue-500'
+          : 'border-slate-100 shadow-card'
       }`}
+      style={{
+        animationDelay: `${Math.min(rank, 8) * 60}ms`,
+        animationFillMode: 'both',
+      }}
     >
       {isWinner && (
         <div className="absolute top-0 right-0 inline-flex items-center gap-1 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg">
