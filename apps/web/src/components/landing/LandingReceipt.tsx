@@ -32,6 +32,9 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useLiveQuotes } from './useLiveQuotes'
+import { useHeroMotion } from './useHeroMotion'
+import { useMagneticTilt } from './useMagneticTilt'
+import { useParallax } from './useParallax'
 
 export default function LandingReceipt() {
   return (
@@ -157,17 +160,21 @@ function MobileMenu({ onClose }: { readonly onClose: () => void }) {
    Hero
 --------------------------------------------------------------------------- */
 function Hero() {
+  // Oversize the parallax layer so ±80px translation never exposes gaps
+  const parallaxRef = useParallax({ speed: 0.88, maxOffset: 80 })
   return (
     <section className="relative bg-gradient-to-b from-blue-50/80 via-blue-50/30 to-white pt-10 pb-40 lg:pt-16 lg:pb-48 overflow-hidden">
       {/* Full-bleed hero photo — includes the dotted world-map, paper plane,
           and heart decorations already baked in. */}
       <div className="absolute inset-0 pointer-events-none">
-        <img
-          src="/hero-family.png"
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
-        />
+        <div ref={parallaxRef} className="absolute -inset-y-20 inset-x-0 will-change-transform">
+          <img
+            src="/hero-family.png"
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
+          />
+        </div>
         {/* Left-side gradient so the copy stays readable over the photo.
             Fades out by ~40% so the photo's subjects remain clear. */}
         <div className="absolute inset-0 bg-gradient-to-r from-white from-20% via-white/70 via-35% to-transparent to-50%" />
@@ -367,13 +374,24 @@ function MiniQuoteTool() {
   const receiveAmount = best?.targetAmount ?? amount * 56.85
   const providerName = best?.provider
 
+  // Count-up + micro-jitter on the hero number so the widget feels live
+  const { displayedAmount, secondsAgo, isFlashing } = useHeroMotion({
+    target: Math.round(receiveAmount),
+    jitterMagnitude: Math.max(6, Math.round(receiveAmount * 0.0004)),
+  })
+
+  const tiltRef = useMagneticTilt({ maxDeg: 5, perspective: 1100 })
+
   const continueHref =
     `/compare?corridor=${active.corridor}` +
     `&amount=${amount}` +
     `&payout=gcash`
 
   return (
-    <div className="absolute top-2 right-0 w-[260px] rounded-2xl bg-white border border-slate-100 shadow-card-lg p-4 z-20">
+    <div
+      ref={tiltRef}
+      className="absolute top-2 right-0 w-[260px] rounded-2xl bg-white border border-slate-100 shadow-card-lg p-4 z-20 will-change-transform"
+    >
       <div className="flex items-center justify-between">
         <label className="text-[11px] font-medium text-slate-500">You send</label>
         {loading && <Loader2 className="h-3 w-3 text-slate-400 animate-spin" />}
@@ -397,13 +415,23 @@ function MiniQuoteTool() {
         />
       </div>
 
-      <div className="mt-3 text-[11px] font-medium text-slate-500">They receive</div>
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-[11px] font-medium text-slate-500">They receive</span>
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          </span>
+          Live · {secondsAgo}s ago
+        </span>
+      </div>
       <div className="mt-1 flex items-center justify-between gap-2">
-        <div className="text-xl font-bold tabular-nums text-slate-900">
-          {receiveAmount.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+        <div
+          className={`text-xl font-bold tabular-nums text-slate-900 transition-colors duration-300 ${
+            isFlashing ? 'text-emerald-600' : ''
+          }`}
+        >
+          {displayedAmount.toLocaleString()}
         </div>
         <span className="flex items-center gap-1 h-8 px-2 rounded-lg bg-slate-50 text-xs font-bold text-slate-900 shrink-0">
           <span aria-hidden className="text-sm">🇵🇭</span>
