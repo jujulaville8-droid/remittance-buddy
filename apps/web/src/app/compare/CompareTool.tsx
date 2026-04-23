@@ -316,14 +316,43 @@ function QuoteForm({
 }) {
   const payoutMeta = PAYOUT_METHODS.find((m) => m.id === payout) ?? PAYOUT_METHODS[0]
   const PayoutIcon = payoutMeta.icon
-  const formattedAmount = useMemo(
-    () =>
-      amount.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
+
+  // Separate "display" from "value" so typing feels natural:
+  //  - while focused, show exactly what the user is typing (no commas, no
+  //    forced decimals), keeping the caret stable
+  //  - while blurred, pretty-print with commas, preserving cents only if
+  //    the user entered any
+  const [draft, setDraft] = useState<string>('')
+  const [focused, setFocused] = useState(false)
+  useEffect(() => {
+    if (!focused) setDraft('')
+  }, [amount, focused])
+
+  const displayValue = focused
+    ? draft
+    : amount.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
         maximumFractionDigits: 2,
-      }),
-    [amount],
-  )
+      })
+
+  function handleAmountChange(raw: string) {
+    // Keep digits + at most one decimal point, strip everything else
+    const digits = raw.replace(/[^0-9.]/g, '')
+    const firstDot = digits.indexOf('.')
+    const normalized =
+      firstDot === -1
+        ? digits
+        : digits.slice(0, firstDot + 1) + digits.slice(firstDot + 1).replace(/\./g, '')
+    setDraft(normalized)
+    // Defer commit until we can produce a valid number — avoids clobbering
+    // the debounced fetch with NaN while the user is mid-edit.
+    if (normalized === '' || normalized === '.') {
+      onAmount(0)
+      return
+    }
+    const n = Number(normalized)
+    if (!Number.isNaN(n)) onAmount(n)
+  }
 
   return (
     <div className="rounded-2xl bg-white border border-slate-100 shadow-card-lg p-5 lg:p-6">
@@ -338,10 +367,20 @@ function QuoteForm({
               id="qf-amount"
               type="text"
               inputMode="decimal"
-              value={formattedAmount}
-              onChange={(e) => {
-                const raw = e.target.value.replace(/[^0-9.]/g, '')
-                onAmount(Number(raw) || 0)
+              autoComplete="off"
+              value={displayValue}
+              onFocus={() => {
+                setFocused(true)
+                setDraft(amount ? String(amount) : '')
+              }}
+              onBlur={() => setFocused(false)}
+              onChange={(e) => handleAmountChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  ;(e.target as HTMLInputElement).blur()
+                  onCompare()
+                }
               }}
               className="flex-1 bg-transparent text-lg font-bold tabular-nums text-slate-900 outline-none min-w-0"
             />
@@ -349,24 +388,22 @@ function QuoteForm({
           </div>
         </div>
 
-        {/* Send to */}
+        {/* Send to — destination is fixed to Philippines in V1 */}
         <div>
           <label className="text-[11px] font-semibold text-slate-500">Send to</label>
-          <div className="mt-1.5 rounded-lg border border-slate-200 bg-white h-12 px-3 flex items-center">
+          <div className="mt-1.5 rounded-lg border border-slate-200 bg-slate-50 h-12 px-3 flex items-center">
             <FlagIcon code={DESTINATION.countryCode} size={22} />
             <span className="ml-2 text-sm font-semibold text-slate-900 flex-1">
               {DESTINATION.label}
             </span>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
           </div>
         </div>
 
-        {/* They receive */}
+        {/* They receive — fixed to PHP in V1 */}
         <div>
           <label className="text-[11px] font-semibold text-slate-500">They receive</label>
-          <div className="mt-1.5 rounded-lg border border-slate-200 bg-white h-12 px-3 flex items-center">
+          <div className="mt-1.5 rounded-lg border border-slate-200 bg-slate-50 h-12 px-3 flex items-center">
             <span className="text-sm font-bold text-slate-900 flex-1">{DESTINATION.currency}</span>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
           </div>
         </div>
 
