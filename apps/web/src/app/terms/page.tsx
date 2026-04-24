@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Remittance Buddy terms of service — rules and conditions for using our platform.',
+  description: 'My Remittance Pal terms of service — rules and conditions for using our platform.',
 }
 
 export default function TermsOfServicePage() {
@@ -14,7 +14,7 @@ export default function TermsOfServicePage() {
       <nav className="border-b border-border/40 px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <Link href="/" className="font-semibold tracking-tight hover:opacity-80 transition-opacity">
-            Remittance Buddy
+            My Remittance Pal
           </Link>
           <Link
             href="/"
@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
           <Section title="1. Acceptance of Terms">
             <p>
-              By accessing or using the Remittance Buddy website, Chrome extension, or any associated
+              By accessing or using the My Remittance Pal website, Chrome extension, or any associated
               services (&quot;Service&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;).
               If you do not agree, do not use the Service.
             </p>
@@ -40,7 +40,7 @@ export default function TermsOfServicePage() {
 
           <Section title="2. Description of Service">
             <p>
-              Remittance Buddy is a comparison and recommendation platform that helps users find the
+              My Remittance Pal is a comparison and recommendation platform that helps users find the
               best rates for sending money internationally. We are <strong className="text-foreground">not</strong> a
               money transmitter, bank, or financial institution. We do not hold, transfer, or process funds.
             </p>
@@ -95,7 +95,7 @@ export default function TermsOfServicePage() {
 
           <Section title="6. Affiliate Disclosure">
             <p>
-              Remittance Buddy earns commissions when you sign up with or use a remittance provider
+              My Remittance Pal earns commissions when you sign up with or use a remittance provider
               through our links. This is our primary revenue source. We disclose this clearly:
             </p>
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
@@ -159,7 +159,7 @@ export default function TermsOfServicePage() {
 
           <Section title="11. Indemnification">
             <p>
-              You agree to indemnify and hold harmless Remittance Buddy, its officers, directors,
+              You agree to indemnify and hold harmless My Remittance Pal, its officers, directors,
               employees, and agents from any claims, damages, losses, or expenses arising from your
               use of the Service or violation of these Terms.
             </p>
@@ -202,7 +202,7 @@ export default function TermsOfServicePage() {
 
       <footer className="border-t border-border/40 px-6 py-8">
         <p className="text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} Remittance Buddy. All rights reserved.
+          &copy; {new Date().getFullYear()} My Remittance Pal. All rights reserved.
         </p>
       </footer>
     </div>

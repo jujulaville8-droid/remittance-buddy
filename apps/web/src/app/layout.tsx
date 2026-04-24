@@ -32,15 +32,16 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Remittance Buddy',
-    template: '%s | Remittance Buddy',
+    default: 'My Remittance Pal',
+    template: '%s | My Remittance Pal',
   },
-  description: 'AI-powered international money transfers',
+  description:
+    'Compare every remittance provider in real time. Find the cheapest, fastest way to send money home.',
   manifest: '/manifest.webmanifest',
-  applicationName: 'Remittance Buddy',
+  applicationName: 'My Remittance Pal',
   appleWebApp: {
     capable: true,
-    title: 'Remit Buddy',
+    title: 'My Remittance Pal',
     statusBarStyle: 'black-translucent',
   },
   formatDetection: {

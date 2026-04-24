@@ -1562,7 +1562,7 @@ function SiteFooter() {
       </div>
       <div className="border-t border-slate-800">
         <div className="mx-auto max-w-7xl px-5 lg:px-8 py-6 text-xs text-slate-500">
-          © {new Date().getFullYear()} Remittance Buddy. All rights reserved.
+          © {new Date().getFullYear()} My Remittance Pal. All rights reserved.
         </div>
       </div>
     </footer>
