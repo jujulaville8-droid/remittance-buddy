@@ -3,7 +3,7 @@ import { Nav } from '@/components/landing/Nav'
 import { Footer } from '@/components/landing/Footer'
 
 export const metadata: Metadata = {
-  title: 'Dashboard — Remittance Buddy',
+  title: 'Dashboard — My Remittance Pal',
   description: 'Your recipients, transfers, alerts, and family groups in one place.',
 }
 

@@ -50,17 +50,27 @@ export function ProviderLogo({
   slug,
   size = 56,
   className,
+  logoUrl,
 }: {
   readonly name: string
   readonly slug?: string
   readonly size?: number
   readonly className?: string
+  readonly logoUrl?: string
 }) {
   const resolvedSlug = slug ?? slugify(name)
-  const [errored, setErrored] = useState(false)
   const brand = BRAND_COLOURS[resolvedSlug] ?? { bg: '#E2E8F0', fg: '#0F172A' }
 
-  const inner = errored ? (
+  // Try upstream URL first (provided by Wise Comparisons response), then
+  // fall back to our local /public/providers/<slug>.svg, then to a coloured
+  // tile with the provider's initials. Each failure advances to the next.
+  const sources: string[] = []
+  if (logoUrl) sources.push(logoUrl)
+  sources.push(`/providers/${resolvedSlug}.svg`)
+  const [sourceIndex, setSourceIndex] = useState(0)
+  const allFailed = sourceIndex >= sources.length
+
+  const inner = allFailed ? (
     <span
       className="grid place-items-center rounded-xl font-extrabold"
       style={{
@@ -76,17 +86,18 @@ export function ProviderLogo({
     </span>
   ) : (
     <span
-      className="grid place-items-center rounded-xl overflow-hidden"
-      style={{ width: size, height: size, background: brand.bg }}
+      className="grid place-items-center rounded-xl overflow-hidden bg-white"
+      style={{ width: size, height: size }}
       aria-label={name}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={`/providers/${resolvedSlug}.svg`}
+        key={sources[sourceIndex]}
+        src={sources[sourceIndex]}
         alt=""
         aria-hidden
-        onError={() => setErrored(true)}
-        className="w-3/4 h-3/4 object-contain"
+        onError={() => setSourceIndex((i) => i + 1)}
+        className="w-4/5 h-4/5 object-contain"
       />
     </span>
   )

@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Remittance Buddy privacy policy — how we collect, use, and protect your data.',
+  description: 'My Remittance Pal privacy policy — how we collect, use, and protect your data.',
 }
 
 export default function PrivacyPolicyPage() {
@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
       <nav className="border-b border-border/40 px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <Link href="/" className="font-semibold tracking-tight hover:opacity-80 transition-opacity">
-            Remittance Buddy
+            My Remittance Pal
           </Link>
           <Link
             href="/"
@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
           <Section title="1. Who We Are">
             <p>
-              Remittance Buddy (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) operates the Remittance Buddy
+              My Remittance Pal (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) operates the My Remittance Pal
               website and Chrome browser extension. Our mission is to help people sending money internationally
               find the best rates and lowest fees.
             </p>
@@ -103,7 +103,7 @@ export default function PrivacyPolicyPage() {
 
           <Section title="5. Affiliate Links">
             <p>
-              Remittance Buddy earns commissions when you sign up with a provider through our links. This does not
+              My Remittance Pal earns commissions when you sign up with a provider through our links. This does not
               affect the rates you receive or the order of our recommendations. Our scoring engine ranks providers
               based on fees, exchange rates, speed, and trust — not affiliate payouts. We clearly disclose when links
               are affiliate links.
@@ -139,7 +139,7 @@ export default function PrivacyPolicyPage() {
           </Section>
 
           <Section title="8. Chrome Extension Permissions">
-            <p>The Remittance Buddy Chrome extension requests the following permissions:</p>
+            <p>The My Remittance Pal Chrome extension requests the following permissions:</p>
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
               <li>
                 <strong className="text-foreground">sidePanel</strong> — to display the AI chat assistant in
@@ -165,7 +165,7 @@ export default function PrivacyPolicyPage() {
 
           <Section title="9. Children">
             <p>
-              Remittance Buddy is not intended for use by anyone under 18. We do not knowingly collect data from
+              My Remittance Pal is not intended for use by anyone under 18. We do not knowingly collect data from
               minors.
             </p>
           </Section>
@@ -190,7 +190,7 @@ export default function PrivacyPolicyPage() {
 
       <footer className="border-t border-border/40 px-6 py-8">
         <p className="text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} Remittance Buddy. All rights reserved.
+          &copy; {new Date().getFullYear()} My Remittance Pal. All rights reserved.
         </p>
       </footer>
     </div>

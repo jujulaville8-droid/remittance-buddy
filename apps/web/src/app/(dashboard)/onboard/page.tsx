@@ -12,11 +12,10 @@ export default function OnboardPage() {
       {/* Header */}
       <div className="shrink-0 border-b px-4 py-3 sm:px-6">
         <div className="mx-auto flex max-w-2xl items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-            R
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/icon.png" alt="" aria-hidden className="h-10 w-auto" />
           <div>
-            <p className="text-sm font-semibold">Remittance Buddy</p>
+            <p className="text-sm font-semibold">My Remittance Pal</p>
             <p className="text-xs text-muted-foreground">Onboarding assistant · always online</p>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -22,9 +22,13 @@ import {
   Zap,
 } from 'lucide-react'
 import { useLiveQuotes, type LiveQuote } from '@/components/landing/useLiveQuotes'
+import { useHeroMotion } from '@/components/landing/useHeroMotion'
+import { useMagneticTilt } from '@/components/landing/useMagneticTilt'
+import { useParallax } from '@/components/landing/useParallax'
 import { decideRouting, trackAffiliateClick } from '@/lib/affiliate-routing'
 import { FlagIcon } from '@/components/FlagIcon'
 import { ProviderLogo } from '@/components/ProviderLogo'
+import { RateHistoryPanel } from '@/components/RateHistoryPanel'
 
 // ─────────────────────────────────────────────────────────────
 // Constants
@@ -77,13 +81,23 @@ export function CompareTool() {
     [corridorId],
   )
 
-  const { quotes, loading, cached, fetchedAt } = useLiveQuotes({
+  const { quotes, loading, cached, fetchedAt, refetch } = useLiveQuotes({
     corridor: corridor.id,
     sourceCurrency: corridor.sourceCurrency,
     targetCurrency: DESTINATION.currency,
     sourceAmount: amount,
     payoutMethod: payout,
   })
+
+  const resultsRef = useRef<HTMLDivElement>(null)
+  function handleCompare() {
+    refetch()
+    // Give React a tick to kick off the refetch before we scroll,
+    // so the loading state is visible in the summary card
+    requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
 
   // Freshness label for the trust strip
   const [freshLabel, setFreshLabel] = useState<string>('—')
@@ -122,7 +136,7 @@ export function CompareTool() {
     <div className="relative pt-20">
       <Hero />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-5 lg:px-8 -mt-10 lg:-mt-20">
+      <div className="relative z-10 mx-auto max-w-6xl px-5 lg:px-8 -mt-4 lg:-mt-6">
         <QuoteForm
           corridor={corridor}
           amount={amount}
@@ -131,9 +145,12 @@ export function CompareTool() {
           onCorridor={(id) => setCorridorId(id)}
           onAmount={setAmount}
           onPayout={setPayout}
+          onCompare={handleCompare}
         />
 
         <TrustStrip freshLabel={freshLabel} cached={cached} />
+
+        <div ref={resultsRef} className="scroll-mt-24" />
 
         {quotes.length > 0 && winner && (
           <>
@@ -143,6 +160,11 @@ export function CompareTool() {
               mostReceive={mostReceive ?? winner}
               fastest={fastest ?? winner}
               savings={{ php: savingsPhp, source: savingsSource, currency: corridor.sourceCurrency }}
+            />
+
+            <RateHistoryPanel
+              sourceCurrency={corridor.sourceCurrency}
+              targetCurrency={DESTINATION.currency}
             />
 
             <FilterBar filter={filter} onChange={setFilter} />
@@ -208,41 +230,31 @@ function applyFilter(quotes: readonly LiveQuote[], mode: FilterMode): readonly L
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-6xl px-5 lg:px-8 pt-6 pb-24 lg:pt-10 lg:pb-32 grid lg:grid-cols-[1.05fr_1fr] gap-8 items-start">
-        <div className="pt-4 lg:pt-6">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8 pt-6 pb-12 lg:pt-8 lg:pb-16 grid lg:grid-cols-[1.05fr_1fr] gap-8 items-center">
+        <div>
           <h1 className="font-display text-[44px] lg:text-[56px] font-bold leading-[1.05] tracking-[-0.02em] text-slate-900">
             Find the best way
             <br />
             to send money
-            <svg
-              className="inline-block ml-2 -mb-1 text-blue-500"
-              width="40"
-              height="24"
-              viewBox="0 0 60 32"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M8 14 Q 18 4 28 14 Q 38 24 48 14 Q 58 4 56 18"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                fill="none"
-              />
-              <path
-                d="M44 10 L56 18 L46 26"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </svg>
           </h1>
           <p className="mt-5 max-w-md text-sm lg:text-base text-slate-500 leading-relaxed">
             Compare rates, fees and delivery times in real-time and send more to the people who
             matter.
           </p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
+            <span className="inline-flex items-center gap-1.5">
+              <Shield className="h-4 w-4 text-blue-600" />
+              <span className="font-semibold text-slate-900">Bank-grade security</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Zap className="h-4 w-4 text-emerald-600" />
+              <span className="font-semibold text-slate-900">Live rates</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+              <span className="font-semibold text-slate-900">4.8 average</span>
+            </span>
+          </div>
         </div>
         <HeroArt />
       </div>
@@ -251,36 +263,31 @@ function Hero() {
 }
 
 function HeroArt() {
+  const parallaxRef = useParallax({ speed: 0.9, maxOffset: 50 })
   return (
-    <div className="relative h-[280px] lg:h-[360px]">
-      <Image
-        src="/hero-compare.png"
-        alt=""
-        aria-hidden
-        fill
-        priority
-        sizes="(max-width: 1024px) 100vw, 580px"
-        className="object-contain object-right"
-      />
-      {/* Decorative paper plane + trail */}
-      <svg
-        aria-hidden
-        className="absolute left-[-6%] top-[58%] w-[120px] text-blue-500 pointer-events-none"
-        viewBox="0 0 120 60"
-        fill="none"
-      >
-        <path
-          d="M5 55 Q 30 45 55 48 Q 80 50 100 35"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeDasharray="3 5"
-          strokeLinecap="round"
+    <div className="relative h-[240px] lg:h-[300px]">
+      <div ref={parallaxRef} className="absolute inset-0 will-change-transform">
+        <Image
+          src="/hero-compare.png"
+          alt=""
+          aria-hidden
+          fill
+          priority
+          sizes="(max-width: 1024px) 100vw, 580px"
+          className="object-contain object-right"
         />
-        <path d="M106 32 L98 30 L102 38 Z M108 30 L118 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      </svg>
-      {/* Red heart badge */}
-      <div className="absolute top-[46%] right-[2%] grid place-items-center w-14 h-14 rounded-full bg-white shadow-card">
-        <Heart className="h-6 w-6 fill-rose-500 text-rose-500" />
+      </div>
+      {/* Live status chip — replaces the old heart badge and covers the
+          baked-in sticker in hero-compare.png. */}
+      <div className="absolute top-[42%] right-[2%] rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 flex items-center gap-2">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+        </span>
+        <div className="leading-tight">
+          <div className="text-[10px] font-semibold text-slate-500">Rates updated</div>
+          <div className="text-xs font-bold text-slate-900">just now</div>
+        </div>
       </div>
     </div>
   )
@@ -298,6 +305,7 @@ function QuoteForm({
   onCorridor,
   onAmount,
   onPayout,
+  onCompare,
 }: {
   readonly corridor: (typeof CORRIDORS)[number]
   readonly amount: number
@@ -306,17 +314,47 @@ function QuoteForm({
   readonly onCorridor: (id: CorridorId) => void
   readonly onAmount: (n: number) => void
   readonly onPayout: (id: PayoutId) => void
+  readonly onCompare: () => void
 }) {
   const payoutMeta = PAYOUT_METHODS.find((m) => m.id === payout) ?? PAYOUT_METHODS[0]
   const PayoutIcon = payoutMeta.icon
-  const formattedAmount = useMemo(
-    () =>
-      amount.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
+
+  // Separate "display" from "value" so typing feels natural:
+  //  - while focused, show exactly what the user is typing (no commas, no
+  //    forced decimals), keeping the caret stable
+  //  - while blurred, pretty-print with commas, preserving cents only if
+  //    the user entered any
+  const [draft, setDraft] = useState<string>('')
+  const [focused, setFocused] = useState(false)
+  useEffect(() => {
+    if (!focused) setDraft('')
+  }, [amount, focused])
+
+  const displayValue = focused
+    ? draft
+    : amount.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
         maximumFractionDigits: 2,
-      }),
-    [amount],
-  )
+      })
+
+  function handleAmountChange(raw: string) {
+    // Keep digits + at most one decimal point, strip everything else
+    const digits = raw.replace(/[^0-9.]/g, '')
+    const firstDot = digits.indexOf('.')
+    const normalized =
+      firstDot === -1
+        ? digits
+        : digits.slice(0, firstDot + 1) + digits.slice(firstDot + 1).replace(/\./g, '')
+    setDraft(normalized)
+    // Defer commit until we can produce a valid number — avoids clobbering
+    // the debounced fetch with NaN while the user is mid-edit.
+    if (normalized === '' || normalized === '.') {
+      onAmount(0)
+      return
+    }
+    const n = Number(normalized)
+    if (!Number.isNaN(n)) onAmount(n)
+  }
 
   return (
     <div className="rounded-2xl bg-white border border-slate-100 shadow-card-lg p-5 lg:p-6">
@@ -331,35 +369,48 @@ function QuoteForm({
               id="qf-amount"
               type="text"
               inputMode="decimal"
-              value={formattedAmount}
-              onChange={(e) => {
-                const raw = e.target.value.replace(/[^0-9.]/g, '')
-                onAmount(Number(raw) || 0)
+              autoComplete="off"
+              value={displayValue}
+              onFocus={() => {
+                setFocused(true)
+                setDraft(amount ? String(amount) : '')
+              }}
+              onBlur={() => setFocused(false)}
+              onChange={(e) => handleAmountChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  ;(e.target as HTMLInputElement).blur()
+                  onCompare()
+                }
               }}
               className="flex-1 bg-transparent text-lg font-bold tabular-nums text-slate-900 outline-none min-w-0"
             />
-            <CurrencyChip code={corridor.sourceCurrency} flagCode={corridor.countryCode} />
+            <CurrencyChip
+              code={corridor.sourceCurrency}
+              flagCode={corridor.countryCode}
+              activeId={corridor.id}
+              onSelect={onCorridor}
+            />
           </div>
         </div>
 
-        {/* Send to */}
+        {/* Send to — destination is fixed to Philippines in V1 */}
         <div>
           <label className="text-[11px] font-semibold text-slate-500">Send to</label>
-          <div className="mt-1.5 rounded-lg border border-slate-200 bg-white h-12 px-3 flex items-center">
+          <div className="mt-1.5 rounded-lg border border-slate-200 bg-slate-50 h-12 px-3 flex items-center">
             <FlagIcon code={DESTINATION.countryCode} size={22} />
             <span className="ml-2 text-sm font-semibold text-slate-900 flex-1">
               {DESTINATION.label}
             </span>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
           </div>
         </div>
 
-        {/* They receive */}
+        {/* They receive — fixed to PHP in V1 */}
         <div>
           <label className="text-[11px] font-semibold text-slate-500">They receive</label>
-          <div className="mt-1.5 rounded-lg border border-slate-200 bg-white h-12 px-3 flex items-center">
+          <div className="mt-1.5 rounded-lg border border-slate-200 bg-slate-50 h-12 px-3 flex items-center">
             <span className="text-sm font-bold text-slate-900 flex-1">{DESTINATION.currency}</span>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
           </div>
         </div>
 
@@ -389,6 +440,7 @@ function QuoteForm({
         {/* Submit */}
         <button
           type="button"
+          onClick={onCompare}
           className="h-12 px-5 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 shadow-md shadow-blue-600/25 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={loading}
         >
@@ -424,13 +476,84 @@ function QuoteForm({
   )
 }
 
-function CurrencyChip({ code, flagCode }: { readonly code: string; readonly flagCode: string }) {
+function CurrencyChip({
+  code,
+  flagCode,
+  activeId,
+  onSelect,
+}: {
+  readonly code: string
+  readonly flagCode: string
+  readonly activeId: CorridorId
+  readonly onSelect: (id: CorridorId) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onDocClick(e: MouseEvent) {
+      if (!wrapperRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onDocClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
   return (
-    <span className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-slate-50 text-sm font-bold text-slate-900 shrink-0">
-      <FlagIcon code={flagCode} size={16} />
-      {code}
-      <ChevronDown className="h-3 w-3 text-slate-400" />
-    </span>
+    <div ref={wrapperRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-slate-50 text-sm font-bold text-slate-900 hover:bg-slate-100 transition-colors"
+      >
+        <FlagIcon code={flagCode} size={16} />
+        {code}
+        <ChevronDown
+          className={`h-3 w-3 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute right-0 top-full mt-1.5 w-52 rounded-lg bg-white border border-slate-200 shadow-card-lg py-1 z-30 max-h-72 overflow-auto"
+        >
+          {CORRIDORS.map((c) => {
+            const selected = c.id === activeId
+            return (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => {
+                    onSelect(c.id)
+                    setOpen(false)
+                  }}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                    selected
+                      ? 'bg-blue-50 text-blue-700 font-semibold'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <FlagIcon code={c.countryCode} size={18} />
+                  <span className="flex-1 text-left">{c.label}</span>
+                  <span className="text-xs font-semibold text-slate-500">{c.sourceCurrency}</span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -505,9 +628,21 @@ function SummaryCard({
   readonly savings: { php: number; source: number; currency: string }
 }) {
   const php = (n: number) => `₱${Math.round(n).toLocaleString()}`
+  const tiltRef = useMagneticTilt({ maxDeg: 2.5, perspective: 1400 })
+  // Count-up in integers, then we tack on .00 so the display still reads as a
+  // currency number. Passing 0 when savings isn't known avoids a wild jump.
+  const { displayedAmount: savedSource } = useHeroMotion({
+    target: Math.round(savings.source),
+    mountDuration: 900,
+    jitterMagnitude: 0,
+    jitterIntervalMs: 60_000_000,
+  })
 
   return (
-    <div className="mt-6 rounded-2xl bg-white border border-slate-100 shadow-card p-5 lg:p-6">
+    <div
+      ref={tiltRef}
+      className="mt-6 rounded-2xl bg-white border border-slate-100 shadow-card p-5 lg:p-6 will-change-transform"
+    >
       <div className="flex items-center justify-between">
         <div className="text-base font-bold text-slate-900">Here&rsquo;s what we found for you</div>
         <Link
@@ -545,7 +680,7 @@ function SummaryCard({
           Icon={BadgeCheck}
           tone="bg-emerald-100 text-emerald-600"
           label="You save up to"
-          primary={`${savings.source.toFixed(2)} ${savings.currency}`}
+          primary={`${savedSource.toLocaleString()}.00 ${savings.currency}`}
           sub="Compared to other options"
         />
       </div>
@@ -722,7 +857,7 @@ function ProviderRow({
   const [expanded, setExpanded] = useState(false)
   const tag = providerTag(quote)
   const { stars, count } = reviewStub(quote.providerSlug)
-  const routing = decideRouting(quote)
+  const routing = decideRouting([quote])
 
   function onCtaClick() {
     trackAffiliateClick({
@@ -735,9 +870,15 @@ function ProviderRow({
 
   return (
     <div
-      className={`relative rounded-2xl border bg-white overflow-hidden ${
-        isWinner ? 'border-blue-500 shadow-card-lg ring-1 ring-blue-500' : 'border-slate-100 shadow-card'
+      className={`relative rounded-2xl border bg-white overflow-hidden animate-in fade-in-0 slide-in-from-bottom-3 duration-500 transition-transform hover:-translate-y-0.5 hover:shadow-card-lg ${
+        isWinner
+          ? 'border-blue-500 shadow-card-lg ring-1 ring-blue-500'
+          : 'border-slate-100 shadow-card'
       }`}
+      style={{
+        animationDelay: `${Math.min(rank, 8) * 60}ms`,
+        animationFillMode: 'both',
+      }}
     >
       {isWinner && (
         <div className="absolute top-0 right-0 inline-flex items-center gap-1 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg">
@@ -752,7 +893,12 @@ function ProviderRow({
 
         {/* Identity */}
         <div className="flex items-center gap-4 min-w-0">
-          <ProviderLogo name={quote.provider} slug={quote.providerSlug} size={60} />
+          <ProviderLogo
+            name={quote.provider}
+            slug={quote.providerSlug}
+            logoUrl={quote.logoUrl}
+            size={60}
+          />
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <div className="text-base font-bold text-slate-900 truncate">{quote.provider}</div>

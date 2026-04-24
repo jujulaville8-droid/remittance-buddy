@@ -41,6 +41,8 @@ export {
   getMidMarketRate,
   calculateSpread,
   ALL_FETCHERS,
+  fetchRateHistory,
+  buildRateInsight,
 } from './rates';
 export type {
   Corridor,
@@ -51,4 +53,8 @@ export type {
   QuoteFetchError,
   QuoteBatchResult,
   CacheClient,
+  RatePoint,
+  RateInsight,
+  SendSignal,
+  TrendDirection,
 } from './rates';

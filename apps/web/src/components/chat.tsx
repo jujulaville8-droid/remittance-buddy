@@ -197,7 +197,7 @@ const WELCOME_MESSAGE: UIMessage = {
   parts: [
     {
       type: 'text',
-      text: "Hi! I'm your Remittance Buddy assistant. I'm here to help you get set up so you can start sending money home. What can I help you with today?",
+      text: "Hi! I'm Pal, your remittance assistant. I'm here to help you get set up so you can start sending money home. What can I help you with today?",
     },
   ],
 }

@@ -6,7 +6,7 @@ import { Footer } from '@/components/landing/Footer'
 import { UpgradeButton } from './upgrade-button'
 
 export const metadata: Metadata = {
-  title: 'Pricing — Remittance Buddy',
+  title: 'Pricing — My Remittance Pal',
   description:
     'Free forever for basic sends. Buddy Plus unlocks unlimited transfers, rate alerts, family hub, and priority support for $1.99/month.',
 }

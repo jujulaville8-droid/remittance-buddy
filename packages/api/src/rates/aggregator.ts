@@ -18,6 +18,7 @@ import { remitlyFetcher } from './fetchers/remitly'
 import { westernUnionFetcher } from './fetchers/western-union'
 import { xoomFetcher } from './fetchers/xoom'
 import { moneygramFetcher } from './fetchers/moneygram'
+import { fetchWiseComparisons } from './fetchers/wise-comparisons'
 
 const ALL_FETCHERS: readonly QuoteFetcher[] = [
   wiseFetcher,
@@ -27,13 +28,37 @@ const ALL_FETCHERS: readonly QuoteFetcher[] = [
   moneygramFetcher,
 ]
 
+// If Wise Comparisons returns fewer than this, we augment with per-provider
+// fetchers so empty corridors (like AED→PHP today) still show something.
+const MIN_COMPARISON_PROVIDERS = 2
+
 /**
  * Fetch quotes from every supported provider for a given request.
- * Runs all providers in parallel with a per-provider timeout.
- * Returns ranked results (best recipient amount first) plus any errors.
+ * Primary source: Wise Comparisons API (real, multi-provider, single request).
+ * Fallback: per-provider fetchers (some synthetic) when comparisons is empty
+ * or the upstream errors out.
  */
 export async function fetchAllQuotes(req: QuoteRequest): Promise<QuoteBatchResult> {
   const startedAt = Date.now()
+
+  // Primary path — one network call, many providers, real data
+  try {
+    const comparisons = await fetchWiseComparisons(req)
+    if (comparisons.length >= MIN_COMPARISON_PROVIDERS) {
+      const quotes = [...comparisons].sort((a, b) => b.targetAmount - a.targetAmount)
+      return {
+        quotes,
+        errors: [],
+        fetchedAt: new Date().toISOString(),
+        durationMs: Date.now() - startedAt,
+      }
+    }
+  } catch {
+    // fall through to per-provider fetchers
+  }
+
+  // Fallback path — per-provider fetchers (retains synthetic quotes for
+  // corridors Wise doesn't cover, like AED→PHP)
   const fetchers = ALL_FETCHERS.filter((f) => f.supportedCorridors.includes(req.corridor))
 
   const settled = await Promise.allSettled(

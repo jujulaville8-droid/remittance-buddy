@@ -29,14 +29,22 @@ export const LOCAL_DB_KEYS = {
 export interface LocalRecipient {
   readonly id: string // uuid generated client-side
   readonly fullName: string
+  readonly nickname?: string
   readonly relationship: string | null
   readonly country: string // ISO 3166-1 alpha-2
-  readonly payoutMethod: 'gcash' | 'maya' | 'bank' | 'cash_pickup'
+  // Payout method is optional because you might add someone as a family
+  // profile (Mom, Kuya Jomar) long before you know how to send to them.
+  // It becomes required when logging an actual transfer.
+  readonly payoutMethod?: 'gcash' | 'maya' | 'bank' | 'cash_pickup'
   readonly gcashNumber?: string
   readonly mayaNumber?: string
   readonly bankCode?: string
   readonly bankAccountNumber?: string
   readonly avatarColor: string // tailwind class name for visual distinction
+  // Profile enrichment — all optional, populated as the user fills out more
+  readonly photoDataUrl?: string // resized JPEG data URL, kept small for localStorage
+  readonly birthday?: string // YYYY-MM-DD, no year required (can be "1990-03-12" or "--03-12")
+  readonly notes?: string
   readonly createdAt: string // ISO timestamp
   readonly lastUsedAt: string | null
   readonly sendCount: number

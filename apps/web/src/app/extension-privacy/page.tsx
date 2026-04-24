@@ -4,9 +4,9 @@ import { Nav } from '@/components/landing/Nav'
 import { Footer } from '@/components/landing/Footer'
 
 export const metadata: Metadata = {
-  title: 'Extension Privacy Policy — Remittance Buddy',
+  title: 'Extension Privacy Policy — My Remittance Pal',
   description:
-    'Privacy policy for the Remittance Buddy Chrome extension. What we collect, what we don’t, and where your data lives.',
+    'Privacy policy for the My Remittance Pal Chrome extension. What we collect, what we don’t, and where your data lives.',
 }
 
 export default function ExtensionPrivacyPage() {
@@ -26,7 +26,7 @@ export default function ExtensionPrivacyPage() {
           <div className="mt-12 space-y-10 text-[15px] leading-relaxed text-foreground/90">
             <Section title="What this policy covers">
               This policy describes the data practices for the{' '}
-              <strong>Remittance Buddy</strong> Chrome extension. The extension compares live
+              <strong>My Remittance Pal</strong> Chrome extension. The extension compares live
               remittance rates from public provider quote endpoints and displays the results to
               you. It is a comparison tool only — it does not move money, store payment details,
               or collect identifiable information about you.

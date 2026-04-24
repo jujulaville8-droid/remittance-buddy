@@ -48,12 +48,9 @@ export function Footer() {
       <div className="container py-20 lg:py-24">
         <div className="grid gap-16 lg:grid-cols-[1.4fr_2.6fr]">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2.5">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-foreground">
-                <span className="font-display text-background text-base leading-none">R</span>
-              </div>
-              <span className="font-display text-xl leading-none tracking-tight text-foreground">
-                Remittance Buddy
+            <Link href="/" className="inline-flex items-center">
+              <span className="text-xl font-extrabold tracking-tight text-foreground">
+                My Remittance <span className="text-blue-500">Pal</span>
               </span>
             </Link>
             <p className="mt-6 text-sm text-muted-foreground max-w-sm leading-relaxed">
@@ -61,7 +58,7 @@ export function Footer() {
               is going home.
             </p>
             <p className="mt-8 text-xs text-muted-foreground/80 max-w-sm leading-relaxed">
-              Remittance Buddy is a comparison tool, not a money transmitter. We earn affiliate
+              My Remittance Pal is a comparison tool, not a money transmitter. We earn affiliate
               fees from partners when you send through them. This never affects our rankings.
             </p>
           </div>
@@ -90,7 +87,7 @@ export function Footer() {
         </div>
 
         <div className="mt-20 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div>© {new Date().getFullYear()} Remittance Buddy Technologies Inc.</div>
+          <div>© {new Date().getFullYear()} My Remittance Pal Technologies Inc.</div>
           <div className="flex items-center gap-6">
             <span>Made for the diaspora</span>
             <span className="h-1 w-1 rounded-full bg-border" />
