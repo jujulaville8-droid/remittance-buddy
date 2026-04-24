@@ -110,9 +110,22 @@ function Avatar({
 export function getInitials(name: string): string {
   const trimmed = name.trim()
   if (!trimmed) return '?'
+
+  // If we were handed an email (no real name on the account), derive initials
+  // from the local part. Treat . _ - + as separators so "julian.laville" → JL,
+  // and otherwise use the first two letters so "jujulaville8" → JU. Single-
+  // letter output reads as a bug, not an avatar.
+  const emailMatch = trimmed.match(/^([^@\s]+)@/)
+  if (emailMatch) {
+    const local = emailMatch[1]!.replace(/\d+$/, '') // drop trailing digits like "8"
+    const emailParts = local.split(/[._+-]+/).filter(Boolean)
+    if (emailParts.length >= 2) {
+      return (emailParts[0]![0]! + emailParts[1]![0]!).toUpperCase()
+    }
+    return (emailParts[0] ?? local).slice(0, 2).toUpperCase() || '?'
+  }
+
   const parts = trimmed.split(/\s+/).filter(Boolean)
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
-  const word = parts[0]
-  if (word.includes('@')) return word[0].toUpperCase()
-  return word.slice(0, 2).toUpperCase()
+  if (parts.length >= 2) return (parts[0]![0]! + parts[1]![0]!).toUpperCase()
+  return parts[0]!.slice(0, 2).toUpperCase()
 }
