@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { useSessionUser } from '@/lib/hooks/useSessionUser'
 import { createClient } from '@/lib/supabase/client'
 
@@ -28,6 +29,10 @@ export function NavAuthButtons() {
 
   if (user) {
     const display = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? '?'
+    const avatarUrl =
+      (user.user_metadata?.avatar_url as string | undefined) ??
+      (user.user_metadata?.picture as string | undefined) ??
+      null
     const initials = getInitials(display)
     return (
       <>
@@ -44,13 +49,7 @@ export function NavAuthButtons() {
         >
           Sign out
         </button>
-        <Link
-          href="/dashboard"
-          aria-label="Dashboard"
-          className="grid place-items-center w-10 h-10 rounded-full bg-blue-600 text-white text-xs font-bold ring-2 ring-white shadow-sm hover:bg-blue-700 transition-colors"
-        >
-          {initials}
-        </Link>
+        <Avatar url={avatarUrl} initials={initials} label={display} />
       </>
     )
   }
@@ -70,6 +69,41 @@ export function NavAuthButtons() {
         Sign Up
       </Link>
     </>
+  )
+}
+
+function Avatar({
+  url,
+  initials,
+  label,
+}: {
+  readonly url: string | null
+  readonly initials: string
+  readonly label: string
+}) {
+  const [failed, setFailed] = useState(false)
+  const showImg = url && !failed
+  return (
+    <Link
+      href="/dashboard"
+      aria-label={`${label} — open dashboard`}
+      title={label}
+      className="relative grid place-items-center w-10 h-10 rounded-full bg-blue-600 text-white text-sm font-bold ring-2 ring-white shadow-sm overflow-hidden hover:ring-blue-100 transition-all"
+    >
+      {showImg ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt=""
+          aria-hidden
+          referrerPolicy="no-referrer"
+          onError={() => setFailed(true)}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <span>{initials}</span>
+      )}
+    </Link>
   )
 }
 
