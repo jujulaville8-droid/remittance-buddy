@@ -48,11 +48,9 @@ export function Footer() {
       <div className="container py-20 lg:py-24">
         <div className="grid gap-16 lg:grid-cols-[1.4fr_2.6fr]">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2.5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/icon.png" alt="" aria-hidden className="h-9 w-auto" />
-              <span className="text-lg font-extrabold tracking-tight text-foreground">
-                My Remittance <span className="text-blue-600">Pal</span>
+            <Link href="/" className="inline-flex items-center">
+              <span className="text-xl font-extrabold tracking-tight text-foreground">
+                My Remittance <span className="text-blue-500">Pal</span>
               </span>
             </Link>
             <p className="mt-6 text-sm text-muted-foreground max-w-sm leading-relaxed">
