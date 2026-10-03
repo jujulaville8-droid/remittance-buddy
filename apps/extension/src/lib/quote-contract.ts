@@ -30,3 +30,14 @@ export function usableQuotes(raw: unknown): ReferenceQuote[] {
     )
     .sort((a, b) => b.targetAmount - a.targetAmount)
 }
+
+/** Keep browser/network diagnostics out of the user-facing comparison message. */
+export function quoteFailureMessage(error: unknown): string {
+  const allowed = new Set([
+    'Comparison is unavailable. Try again later.',
+    'No reference comparisons are available for this route and amount. Try another amount or route.',
+  ])
+  return error instanceof Error && allowed.has(error.message)
+    ? error.message
+    : 'Could not load comparisons. Check your connection and try again.'
+}

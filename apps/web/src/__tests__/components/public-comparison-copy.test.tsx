@@ -82,9 +82,10 @@ describe('public comparison copy', () => {
       expect(html).not.toContain(claim)
     }
     expect(html).toContain('Compare without creating an account')
-    expect(html).toContain('Illustrative example')
-    expect(html).toContain('fictional providers')
-    expect(html).toContain('not current rates or a savings promise')
+    expect(html).not.toContain('Illustrative example')
+    expect(html).not.toContain('fictional providers')
+    expect(html).toContain('Reference recipient amount')
+    expect(html).toContain('no paid partnership is claimed')
     expect(html).not.toContain('href="#"')
     expect(html).not.toContain('App Store')
     expect(html).not.toContain('Google Play')
@@ -128,7 +129,9 @@ describe('public comparison copy', () => {
       result({ quotes: [quote({ collectedAt: '2026-10-01T09:00:00Z' })] })
     )
     const html = renderToStaticMarkup(<LandingReceipt />)
-    expect(html).toContain('Source time')
+    expect(html).toContain('Source collected:')
+    expect(html).toContain('dateTime="2026-10-01T09:00:00.000Z"')
+    expect(html).toContain('Source age:')
     expect(html).not.toContain('Source time unavailable')
   })
 
@@ -146,13 +149,22 @@ describe('public comparison copy', () => {
     expect(html).not.toContain('Example Provider')
   })
 
-  it.each([{ loading: true }, { error: 'Network unavailable' }])(
-    'hides prior quotes during loading or errors: %j',
-    (patch) => {
-      useLiveQuotes.mockReturnValue(result({ quotes: [quote()], ...patch }))
-      expect(renderToStaticMarkup(<LandingReceipt />)).not.toContain('Example Provider')
-    }
-  )
+  it('keeps same-query values visible only with explicit refresh context', () => {
+    useLiveQuotes.mockReturnValue(result({ quotes: [quote()], loading: true }))
+    const html = renderToStaticMarkup(<LandingReceipt />)
+    expect(html).toContain('Example Provider')
+    expect(html).toContain('56,123.45')
+    expect(html).toContain('Refreshing this comparison')
+    expect(html).toContain('amounts below are from the previous response')
+    expect(html).toContain('Source time unavailable')
+  })
+
+  it('hides prior quotes on errors', () => {
+    useLiveQuotes.mockReturnValue(result({ quotes: [quote()], error: 'Network unavailable' }))
+    const html = renderToStaticMarkup(<LandingReceipt />)
+    expect(html).not.toContain('Example Provider')
+    expect(html).toContain('No estimated prices are substituted')
+  })
 
   it.each([SignInPage, SignUpPage])(
     'offers public comparison from account pages without fake claims',

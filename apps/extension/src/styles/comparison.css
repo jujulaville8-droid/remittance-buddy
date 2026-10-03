@@ -1,0 +1,562 @@
+/* Concept A: Clear Canvas. Scoped to the public comparison and its settings. */
+body:has(.comparison-shell),
+body:has(.comparison-settings) {
+  min-width: 0;
+  margin: 0;
+  background: #f7fbff;
+}
+
+body:has(.comparison-popup),
+body:has(.comparison-popup) #root {
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.comparison-shell,
+.comparison-settings {
+  --comparison-ink: #0b173f;
+  --comparison-muted: #40577f;
+  --comparison-blue: #0066eb;
+  --comparison-border: #dce8f7;
+  --comparison-surface: #ffffff;
+  color: var(--comparison-ink);
+  font-family:
+    'Plus Jakarta Sans',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+}
+
+.comparison-shell *,
+.comparison-settings * {
+  box-sizing: border-box;
+  border-color: var(--comparison-border);
+}
+
+.comparison-shell h1,
+.comparison-shell h2,
+.comparison-shell h3,
+.comparison-settings h1,
+.comparison-settings h2 {
+  color: var(--comparison-ink);
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.comparison-shell button,
+.comparison-shell a,
+.comparison-shell input,
+.comparison-shell select,
+.comparison-settings button,
+.comparison-settings select {
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.comparison-shell :is(button, a, input, select):focus-visible,
+.comparison-settings :is(button, a, input, select):focus-visible {
+  outline: 2px solid #005bd3;
+  outline-offset: 3px;
+}
+
+.comparison-popup {
+  width: 390px;
+  max-width: 100vw;
+  max-height: 600px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #f7fbff;
+}
+
+.comparison-panel {
+  width: 100%;
+  min-height: 100dvh;
+  background: #f7fbff;
+}
+
+.comparison-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--comparison-border);
+  background: var(--comparison-surface);
+}
+
+.comparison-brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 7px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.comparison-brand-icon {
+  flex-shrink: 0;
+  color: var(--comparison-blue);
+}
+
+.comparison-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.comparison-header-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 5px 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: white;
+  color: var(--comparison-ink);
+  font-size: 0.6875rem;
+}
+
+.comparison-panel-button {
+  border-color: #c5dcfb;
+  color: #0059d1;
+}
+
+.comparison-header-button:hover {
+  background: #edf5ff;
+  border-color: #bed7f9;
+}
+
+.comparison-content {
+  display: grid;
+  gap: 16px;
+  max-width: 560px;
+  margin-inline: auto;
+  padding: 12px;
+}
+
+.comparison-surface {
+  border: 1px solid var(--comparison-border);
+  border-radius: 11px;
+  background: var(--comparison-surface);
+  box-shadow: 0 3px 12px rgb(34 90 163 / 4%);
+}
+
+.comparison-form {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.comparison-form h1 {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+.comparison-field {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.comparison-field label {
+  color: #29436c;
+  font-size: 0.6875rem;
+}
+
+.comparison-field :is(input, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid #7a90ad;
+  border-radius: 6px;
+  background: white;
+  color: var(--comparison-ink);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.comparison-field :is(input, select):hover {
+  border-color: #5579ab;
+}
+
+.comparison-field input[aria-invalid='true'] {
+  border-color: #b53a35;
+}
+
+.comparison-field-error {
+  color: #a52e29;
+  font-size: 0.75rem;
+}
+
+.comparison-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.comparison-presets button {
+  max-width: 100%;
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid var(--comparison-border);
+  border-radius: 5px;
+  color: var(--comparison-muted);
+  background: white;
+  font-size: 0.625rem;
+}
+
+.comparison-presets button:hover,
+.comparison-presets button[aria-pressed='true'] {
+  border-color: #a5c8f7;
+  color: #0059d1;
+  background: #edf5ff;
+}
+
+.comparison-receiving {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px 12px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  background: #edf3fc;
+  color: #29436c;
+  font-size: 0.6875rem;
+}
+
+.comparison-receiving strong {
+  color: var(--comparison-ink);
+  font-weight: 600;
+}
+
+.comparison-primary {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--comparison-blue);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+  text-decoration: none;
+}
+
+.comparison-primary svg {
+  flex-shrink: 0;
+}
+
+.comparison-primary:hover:not(:disabled) {
+  background: #0058cd;
+}
+
+.comparison-primary:disabled {
+  cursor: default;
+  background: #e5eefb;
+  color: #40577f;
+}
+
+.comparison-results-heading {
+  display: grid;
+  gap: 5px;
+  margin: 0 2px 10px;
+}
+
+.comparison-reference-label {
+  justify-self: start;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: #e7f2ff;
+  color: #0059d1;
+  font-size: 0.625rem;
+}
+
+.comparison-results-heading h2 {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.comparison-muted {
+  color: var(--comparison-muted);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+.comparison-card-list {
+  display: grid;
+  gap: 10px;
+}
+
+.comparison-quote {
+  min-width: 0;
+  padding: 12px;
+}
+
+.comparison-quote-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.comparison-provider-mark {
+  display: grid;
+  flex: 0 0 40px;
+  min-height: 40px;
+  place-items: center;
+  border-radius: 10px;
+  background: #e9f0fa;
+  color: var(--comparison-ink);
+  font-size: 1.375rem;
+  font-weight: 500;
+}
+
+.comparison-quote-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.comparison-quote h3 {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.comparison-amount {
+  min-width: 0;
+  max-width: 100%;
+  margin: 2px 0 5px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  font-size: 1.5625rem;
+  line-height: 1.25;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.055em;
+}
+
+.comparison-amount-currency {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--comparison-muted);
+}
+
+.comparison-quote-details {
+  display: grid;
+  gap: 3px;
+  color: #29436c;
+  font-size: 0.6875rem;
+}
+
+.comparison-quote-details > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 7px;
+}
+
+.comparison-quote-details dt {
+  color: var(--comparison-muted);
+}
+
+.comparison-quote-context {
+  display: grid;
+  gap: 3px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--comparison-border);
+  color: #29436c;
+  font-size: 0.625rem;
+  line-height: 1.55;
+}
+
+.comparison-quote-context strong {
+  font-weight: 600;
+}
+
+.comparison-provider-link,
+.comparison-link-unavailable {
+  margin-top: 10px;
+}
+
+.comparison-link-unavailable {
+  padding-block: 8px;
+  color: var(--comparison-muted);
+  font-size: 0.6875rem;
+}
+
+.comparison-message {
+  padding: 14px;
+  border: 1px solid var(--comparison-border);
+  border-radius: 9px;
+  background: white;
+}
+
+.comparison-error {
+  border-color: #efd5d1;
+  background: #fff8f6;
+  color: #97322a;
+  font-size: 0.75rem;
+}
+
+.comparison-footer {
+  display: grid;
+  gap: 12px;
+  padding: 0 3px 4px;
+  color: var(--comparison-muted);
+  font-size: 0.625rem;
+  line-height: 1.6;
+}
+
+.comparison-provider-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 0.6875rem;
+}
+
+.comparison-provider-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #31588f;
+}
+
+.comparison-loading-icon {
+  animation: comparison-spin 1s linear infinite;
+}
+
+@keyframes comparison-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Narrow panels and 200% page zoom retain content order and all control labels. */
+@media (max-width: 260px) {
+  .comparison-header {
+    padding: 10px;
+  }
+  .comparison-content {
+    padding: 8px;
+  }
+  .comparison-form {
+    padding: 10px;
+  }
+  .comparison-quote-top {
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .comparison-provider-mark {
+    flex-basis: 32px;
+    min-height: 32px;
+    font-size: 1.125rem;
+  }
+  .comparison-quote-main {
+    flex-basis: 100%;
+  }
+  .comparison-amount {
+    font-size: 1.375rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comparison-shell *,
+  .comparison-settings * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.comparison-settings {
+  min-height: 100dvh;
+  background: #f7fbff;
+}
+
+.comparison-settings-content {
+  display: grid;
+  gap: 24px;
+  max-width: 540px;
+  margin-inline: auto;
+  padding: 48px 20px;
+}
+
+.comparison-settings-header {
+  display: grid;
+  gap: 12px;
+}
+
+.comparison-settings-header .comparison-brand {
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+.comparison-settings h1 {
+  font-size: 1.75rem;
+  line-height: 1.25;
+}
+
+.comparison-settings-form {
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+}
+
+.comparison-settings-form label,
+.comparison-settings .comparison-muted {
+  font-size: 0.8125rem;
+}
+
+.comparison-settings-form :is(select, button) {
+  min-height: 44px;
+}
+
+.comparison-save-status {
+  min-height: 1.5em;
+  margin-top: -12px;
+  color: #29436c;
+  font-size: 0.75rem;
+}
+
+.comparison-settings-loading {
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 260px) {
+  .comparison-settings-content {
+    padding: 24px 10px;
+  }
+  .comparison-settings-form {
+    padding: 14px;
+  }
+}
+
+.comparison-retained-note {
+  margin: 8px 2px 10px;
+  color: var(--comparison-muted);
+  font-size: 0.6875rem;
+}

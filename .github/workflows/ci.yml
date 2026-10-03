@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main]
+    branches: [main, review/comparison-trust-extension]
   pull_request:
     branches: [main]
 permissions:
@@ -21,7 +21,7 @@ jobs:
           version: 9
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -29,8 +29,8 @@ jobs:
         run: pnpm --filter @remit/web lint
       - name: Type-check
         run: pnpm type-check
-      - name: Test web and comparison contracts
-        run: pnpm --filter @remit/web test
+      - name: Test web and API comparison contracts
+        run: pnpm test
       - name: Build extension package
         run: pnpm --filter @remit/extension build
       - name: Build web

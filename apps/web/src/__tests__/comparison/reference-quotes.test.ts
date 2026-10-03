@@ -3,7 +3,7 @@ import {
   durationMinutes,
   mapComparisonQuotes,
 } from '../../../../../packages/api/src/rates/fetchers/wise-comparisons'
-import { usableQuotes } from '../../../../extension/src/lib/quote-contract'
+import { usableQuotes, quoteFailureMessage } from '../../../../extension/src/lib/quote-contract'
 import type { QuoteRequest } from '../../../../../packages/api/src/rates/types'
 
 const req: QuoteRequest = {
@@ -92,6 +92,15 @@ describe('reference comparison contract', () => {
     expect(usableQuotes([{ ...quotes[0], source: 'fallback' }])).toEqual([])
     expect(usableQuotes([{ ...quotes[0], source: 'live-api' }])).toEqual([])
     expect(usableQuotes(null)).toEqual([])
+  })
+  it('uses recoverable copy instead of raw network or parser errors', () => {
+    expect(quoteFailureMessage(new TypeError('Failed to fetch'))).toBe(
+      'Could not load comparisons. Check your connection and try again.'
+    )
+    expect(quoteFailureMessage(new Error('Unexpected token <'))).not.toContain('Unexpected token')
+    expect(quoteFailureMessage(new Error('Comparison is unavailable. Try again later.'))).toBe(
+      'Comparison is unavailable. Try again later.'
+    )
   })
   it('parses provider ISO durations and leaves unknown values unknown', () => {
     expect(durationMinutes('P2DT3H')).toBe(3060)
