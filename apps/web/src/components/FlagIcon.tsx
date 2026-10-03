@@ -15,7 +15,7 @@ function pickWidth(target: number): number {
   for (const w of CDN_WIDTHS) {
     if (w >= target) return w
   }
-  return CDN_WIDTHS[CDN_WIDTHS.length - 1]
+  return CDN_WIDTHS[CDN_WIDTHS.length - 1]!
 }
 
 export function FlagIcon({

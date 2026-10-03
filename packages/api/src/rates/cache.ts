@@ -9,7 +9,7 @@
 import type { QuoteBatchResult, QuoteRequest } from './types'
 
 const CACHE_TTL_SECONDS = 90
-const KEY_PREFIX = 'quotes'
+const KEY_PREFIX = 'quotes:reference-v2'
 
 export interface CacheClient {
   get(key: string): Promise<string | null>
@@ -36,7 +36,7 @@ function buildKey(req: {
 
 export async function getCachedQuotes(
   cache: CacheClient,
-  req: QuoteRequest,
+  req: QuoteRequest
 ): Promise<QuoteBatchResult | null> {
   try {
     const raw = await cache.get(buildKey(req))
@@ -51,7 +51,7 @@ export async function getCachedQuotes(
 export async function setCachedQuotes(
   cache: CacheClient,
   req: QuoteRequest,
-  result: QuoteBatchResult,
+  result: QuoteBatchResult
 ): Promise<void> {
   try {
     await cache.set(buildKey(req), JSON.stringify(result), { ex: CACHE_TTL_SECONDS })

@@ -6,11 +6,12 @@ import { createQuote, createRecipient, createTransfer, fundTransfer } from '@/li
 import { logAuditEvent } from '@/lib/audit'
 import { createServiceClient } from '@/lib/supabase/service'
 import type Stripe from 'stripe'
+import { paidPlansEnabled, transferExecutionEnabled } from '@/lib/launch-mode'
 
 async function markBuddyPlus(
   userId: string,
   active: boolean,
-  fields: { subscriptionId?: string; checkoutSessionId?: string; periodEnd?: number } = {},
+  fields: { subscriptionId?: string; checkoutSessionId?: string; periodEnd?: number } = {}
 ) {
   if (!userId) return
   try {
@@ -23,7 +24,7 @@ async function markBuddyPlus(
         checkout_session_id: fields.checkoutSessionId ?? null,
         period_end: fields.periodEnd ? new Date(fields.periodEnd * 1000).toISOString() : null,
       },
-      { onConflict: 'user_id' },
+      { onConflict: 'user_id' }
     )
   } catch (err) {
     console.warn('[stripe webhook] buddy_plus_state upsert failed:', err)
@@ -47,14 +48,44 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid signature' }, { status: 401 })
   }
 
+  // Reject disabled legacy flows before any database or provider side effects.
+  // Verify the signature first so feature flags never bypass webhook authentication.
+  const isSubscriptionEvent =
+    event.type === 'customer.subscription.created' ||
+    event.type === 'customer.subscription.updated' ||
+    event.type === 'customer.subscription.deleted' ||
+    (event.type === 'checkout.session.completed' &&
+      event.data.object.metadata?.tier === 'buddy_plus')
+  const isTransferEvent =
+    !isSubscriptionEvent &&
+    (event.type === 'checkout.session.completed' ||
+      event.type === 'checkout.session.expired' ||
+      event.type === 'payment_intent.succeeded' ||
+      event.type === 'payment_intent.payment_failed')
+
+  if (isSubscriptionEvent && !paidPlansEnabled()) {
+    return Response.json(
+      { error: 'Paid plans are unavailable in comparison-only mode.' },
+      { status: 503 }
+    )
+  }
+  if (isTransferEvent && !transferExecutionEnabled()) {
+    return Response.json(
+      { error: 'Transfers are unavailable in comparison-only mode.' },
+      { status: 503 }
+    )
+  }
+
   // ========= Buddy Plus subscription lifecycle =========
-  if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
+  if (
+    event.type === 'customer.subscription.created' ||
+    event.type === 'customer.subscription.updated'
+  ) {
     const sub = event.data.object as Stripe.Subscription
     const userId = (sub.metadata?.userId ?? '').trim()
-    const isPlus =
-      sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due'
-    // Stripe types mark current_period_end as mandatory number; be defensive
-    const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end
+    const isPlus = sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due'
+    // Buddy Plus has one recurring item; Stripe v21 exposes billing periods per item.
+    const periodEnd = sub.items.data[0]?.current_period_end
     await markBuddyPlus(userId, isPlus, {
       subscriptionId: sub.id,
       periodEnd,
@@ -172,7 +203,7 @@ export async function POST(req: Request) {
       })
 
       console.info(
-        `[stripe webhook] checkout succeeded → Wise transfer ${wiseTransfer.id} created and funded for transfer ${transferId}`,
+        `[stripe webhook] checkout succeeded → Wise transfer ${wiseTransfer.id} created and funded for transfer ${transferId}`
       )
     } catch (err) {
       console.error('[stripe webhook] Wise transfer creation failed:', err)

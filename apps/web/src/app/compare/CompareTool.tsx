@@ -28,7 +28,6 @@ import { useParallax } from '@/components/landing/useParallax'
 import { decideRouting, trackAffiliateClick } from '@/lib/affiliate-routing'
 import { FlagIcon } from '@/components/FlagIcon'
 import { ProviderLogo } from '@/components/ProviderLogo'
-import { RateHistoryPanel } from '@/components/RateHistoryPanel'
 
 // ─────────────────────────────────────────────────────────────
 // Constants
@@ -78,10 +77,10 @@ export function CompareTool() {
 
   const corridor = useMemo(
     () => CORRIDORS.find((c) => c.id === corridorId) ?? CORRIDORS[1],
-    [corridorId],
+    [corridorId]
   )
 
-  const { quotes, loading, cached, fetchedAt, refetch } = useLiveQuotes({
+  const { quotes, loading, error, cached, fetchedAt, refetch } = useLiveQuotes({
     corridor: corridor.id,
     sourceCurrency: corridor.sourceCurrency,
     targetCurrency: DESTINATION.currency,
@@ -120,23 +119,26 @@ export function CompareTool() {
 
   const sorted = useMemo(() => applyFilter(quotes, filter), [quotes, filter])
   const winner = sorted[0] ?? null
-  const worst = quotes.length > 0 ? [...quotes].sort((a, b) => a.targetAmount - b.targetAmount)[0] : null
+  const worst =
+    quotes.length > 0 ? [...quotes].sort((a, b) => a.targetAmount - b.targetAmount)[0] : null
   const savingsPhp = winner && worst ? Math.max(0, winner.targetAmount - worst.targetAmount) : 0
   const savingsSource = winner && worst ? Math.max(0, worst.totalCost - winner.totalCost) : 0
   const fastest = useMemo(
-    () => [...quotes].sort((a, b) => (a.deliveryMinutes ?? 9999) - (b.deliveryMinutes ?? 9999))[0] ?? null,
-    [quotes],
+    () =>
+      [...quotes].sort((a, b) => (a.deliveryMinutes ?? 9999) - (b.deliveryMinutes ?? 9999))[0] ??
+      null,
+    [quotes]
   )
   const mostReceive = useMemo(
     () => [...quotes].sort((a, b) => b.targetAmount - a.targetAmount)[0] ?? null,
-    [quotes],
+    [quotes]
   )
 
   return (
     <div className="relative pt-20">
       <Hero />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-5 lg:px-8 -mt-4 lg:-mt-6">
+      <div className="relative z-10 mx-auto -mt-4 max-w-6xl px-5 lg:-mt-6 lg:px-8">
         <QuoteForm
           corridor={corridor}
           amount={amount}
@@ -149,6 +151,16 @@ export function CompareTool() {
         />
 
         <TrustStrip freshLabel={freshLabel} cached={cached} />
+        <p className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-950">
+          Reference comparisons, not guaranteed offers. The source does not verify your selected
+          payout or funding method. Confirm the final fee, rate, delivery and availability directly
+          with the provider. Ranking shows the most PHP in this source set by default.
+        </p>
+        {error && (
+          <p role="alert" className="mt-4 text-sm text-red-700">
+            {error}. No estimated prices are substituted.
+          </p>
+        )}
 
         <div ref={resultsRef} className="scroll-mt-24" />
 
@@ -159,12 +171,11 @@ export function CompareTool() {
               bestMatch={winner}
               mostReceive={mostReceive ?? winner}
               fastest={fastest ?? winner}
-              savings={{ php: savingsPhp, source: savingsSource, currency: corridor.sourceCurrency }}
-            />
-
-            <RateHistoryPanel
-              sourceCurrency={corridor.sourceCurrency}
-              targetCurrency={DESTINATION.currency}
+              savings={{
+                php: savingsPhp,
+                source: savingsSource,
+                currency: corridor.sourceCurrency,
+              }}
             />
 
             <FilterBar filter={filter} onChange={setFilter} />
@@ -173,9 +184,7 @@ export function CompareTool() {
               quotes={sorted}
               winnerSlug={winner.providerSlug}
               corridorCurrency={corridor.sourceCurrency}
-              payoutLabel={
-                PAYOUT_METHODS.find((p) => p.id === payout)?.label ?? 'Bank Deposit'
-              }
+              payoutLabel={PAYOUT_METHODS.find((p) => p.id === payout)?.label ?? 'Bank Deposit'}
             />
           </>
         )}
@@ -214,12 +223,7 @@ function applyFilter(quotes: readonly LiveQuote[], mode: FilterMode): readonly L
       return copy.sort((a, b) => a.fee - b.fee)
     case 'recommended':
     default:
-      // Weighted: heavy on targetAmount, light on speed + trust
-      return copy.sort((a, b) => {
-        const aScore = a.targetAmount - a.fee * 10 - (a.deliveryMinutes ?? 0) * 0.05
-        const bScore = b.targetAmount - b.fee * 10 - (b.deliveryMinutes ?? 0) * 0.05
-        return bScore - aScore
-      })
+      return copy.sort((a, b) => b.targetAmount - a.targetAmount)
   }
 }
 
@@ -230,29 +234,29 @@ function applyFilter(quotes: readonly LiveQuote[], mode: FilterMode): readonly L
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-6xl px-5 lg:px-8 pt-6 pb-12 lg:pt-8 lg:pb-16 grid lg:grid-cols-[1.05fr_1fr] gap-8 items-center">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 pb-12 pt-6 lg:grid-cols-[1.05fr_1fr] lg:px-8 lg:pb-16 lg:pt-8">
         <div>
-          <h1 className="font-display text-[44px] lg:text-[56px] font-bold leading-[1.05] tracking-[-0.02em] text-slate-900">
+          <h1 className="font-display text-[44px] font-bold leading-[1.05] tracking-[-0.02em] text-slate-900 lg:text-[56px]">
             Find the best way
             <br />
             to send money
           </h1>
-          <p className="mt-5 max-w-md text-sm lg:text-base text-slate-500 leading-relaxed">
-            Compare rates, fees and delivery times in real-time and send more to the people who
-            matter.
+          <p className="mt-5 max-w-md text-sm leading-relaxed text-slate-500 lg:text-base">
+            Compare reference rates and fees for the Philippines. Check the final offer with the
+            provider before sending.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
             <span className="inline-flex items-center gap-1.5">
               <Shield className="h-4 w-4 text-blue-600" />
-              <span className="font-semibold text-slate-900">Bank-grade security</span>
+              <span className="font-semibold text-slate-900">No money handled</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Zap className="h-4 w-4 text-emerald-600" />
-              <span className="font-semibold text-slate-900">Live rates</span>
+              <span className="font-semibold text-slate-900">Reference rates</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-              <span className="font-semibold text-slate-900">4.8 average</span>
+              <span className="font-semibold text-slate-900">No account required</span>
             </span>
           </div>
         </div>
@@ -279,9 +283,9 @@ function HeroArt() {
       </div>
       {/* Live status chip — replaces the old heart badge and covers the
           baked-in sticker in hero-compare.png. */}
-      <div className="absolute top-[42%] right-[2%] rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 flex items-center gap-2">
+      <div className="shadow-card-lg absolute right-[2%] top-[42%] flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-3 py-2">
         <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
         </span>
         <div className="leading-tight">
@@ -357,14 +361,14 @@ function QuoteForm({
   }
 
   return (
-    <div className="rounded-2xl bg-white border border-slate-100 shadow-card-lg p-5 lg:p-6">
-      <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1.2fr_1fr_1.2fr_auto] gap-4 items-end">
+    <div className="shadow-card-lg rounded-2xl border border-slate-100 bg-white p-5 lg:p-6">
+      <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-[1.2fr_1.2fr_1fr_1.2fr_auto]">
         {/* You send */}
         <div>
           <label htmlFor="qf-amount" className="text-[11px] font-semibold text-slate-500">
             You send
           </label>
-          <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-slate-200 bg-white h-12 px-3 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
+          <div className="mt-1.5 flex h-12 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
             <input
               id="qf-amount"
               type="text"
@@ -384,7 +388,7 @@ function QuoteForm({
                   onCompare()
                 }
               }}
-              className="flex-1 bg-transparent text-lg font-bold tabular-nums text-slate-900 outline-none min-w-0"
+              className="min-w-0 flex-1 bg-transparent text-lg font-bold tabular-nums text-slate-900 outline-none"
             />
             <CurrencyChip
               code={corridor.sourceCurrency}
@@ -398,9 +402,9 @@ function QuoteForm({
         {/* Send to — destination is fixed to Philippines in V1 */}
         <div>
           <label className="text-[11px] font-semibold text-slate-500">Send to</label>
-          <div className="mt-1.5 rounded-lg border border-slate-200 bg-slate-50 h-12 px-3 flex items-center">
+          <div className="mt-1.5 flex h-12 items-center rounded-lg border border-slate-200 bg-slate-50 px-3">
             <FlagIcon code={DESTINATION.countryCode} size={22} />
-            <span className="ml-2 text-sm font-semibold text-slate-900 flex-1">
+            <span className="ml-2 flex-1 text-sm font-semibold text-slate-900">
               {DESTINATION.label}
             </span>
           </div>
@@ -409,8 +413,8 @@ function QuoteForm({
         {/* They receive — fixed to PHP in V1 */}
         <div>
           <label className="text-[11px] font-semibold text-slate-500">They receive</label>
-          <div className="mt-1.5 rounded-lg border border-slate-200 bg-slate-50 h-12 px-3 flex items-center">
-            <span className="text-sm font-bold text-slate-900 flex-1">{DESTINATION.currency}</span>
+          <div className="mt-1.5 flex h-12 items-center rounded-lg border border-slate-200 bg-slate-50 px-3">
+            <span className="flex-1 text-sm font-bold text-slate-900">{DESTINATION.currency}</span>
           </div>
         </div>
 
@@ -420,12 +424,12 @@ function QuoteForm({
             Payout method
           </label>
           <div className="relative mt-1.5">
-            <PayoutIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <PayoutIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <select
               id="qf-payout"
               value={payout}
               onChange={(e) => onPayout(e.target.value as PayoutId)}
-              className="block w-full h-12 pl-9 pr-9 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-900 appearance-none outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+              className="block h-12 w-full appearance-none rounded-lg border border-slate-200 bg-white pl-9 pr-9 text-sm font-semibold text-slate-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             >
               {PAYOUT_METHODS.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -433,7 +437,7 @@ function QuoteForm({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           </div>
         </div>
 
@@ -441,7 +445,7 @@ function QuoteForm({
         <button
           type="button"
           onClick={onCompare}
-          className="h-12 px-5 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 shadow-md shadow-blue-600/25 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="h-12 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-md shadow-blue-600/25 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={loading}
         >
           {loading ? 'Fetching…' : 'Compare now'}
@@ -450,16 +454,16 @@ function QuoteForm({
 
       {/* Corridor picker + privacy note */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           {CORRIDORS.map((c) => (
             <button
               key={c.id}
               type="button"
               onClick={() => onCorridor(c.id)}
-              className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-semibold transition-colors ${
+              className={`inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-semibold transition-colors ${
                 c.id === corridor.id
-                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                  : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'
+                  ? 'border border-blue-200 bg-blue-50 text-blue-700'
+                  : 'border border-slate-200 bg-white text-slate-500 hover:border-slate-300'
               }`}
             >
               <FlagIcon code={c.countryCode} size={14} />
@@ -513,7 +517,7 @@ function CurrencyChip({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-slate-50 text-sm font-bold text-slate-900 hover:bg-slate-100 transition-colors"
+        className="flex h-8 items-center gap-1.5 rounded-md bg-slate-50 px-2 text-sm font-bold text-slate-900 transition-colors hover:bg-slate-100"
       >
         <FlagIcon code={flagCode} size={16} />
         {code}
@@ -524,7 +528,7 @@ function CurrencyChip({
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 top-full mt-1.5 w-52 rounded-lg bg-white border border-slate-200 shadow-card-lg py-1 z-30 max-h-72 overflow-auto"
+          className="shadow-card-lg absolute right-0 top-full z-30 mt-1.5 max-h-72 w-52 overflow-auto rounded-lg border border-slate-200 bg-white py-1"
         >
           {CORRIDORS.map((c) => {
             const selected = c.id === activeId
@@ -538,9 +542,9 @@ function CurrencyChip({
                     onSelect(c.id)
                     setOpen(false)
                   }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors ${
                     selected
-                      ? 'bg-blue-50 text-blue-700 font-semibold'
+                      ? 'bg-blue-50 font-semibold text-blue-700'
                       : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
@@ -561,48 +565,56 @@ function CurrencyChip({
 // Trust strip
 // ─────────────────────────────────────────────────────────────
 
-function TrustStrip({ freshLabel, cached }: { readonly freshLabel: string; readonly cached: boolean }) {
+function TrustStrip({
+  freshLabel,
+  cached,
+}: {
+  readonly freshLabel: string
+  readonly cached: boolean
+}) {
   const items = [
     {
       Icon: TrendingUp,
       tone: 'bg-emerald-50 text-emerald-600',
-      title: 'Live rates',
-      body: 'Real-time exchange rates from trusted providers',
+      title: 'Source comparisons',
+      body: 'Provider collection times shown in each breakdown',
     },
     {
       Icon: Shield,
       tone: 'bg-blue-50 text-blue-600',
       title: 'Transparent fees',
-      body: 'No hidden charges. What you see is what you pay.',
+      body: 'Source fees shown; final charges may differ.',
     },
     {
       Icon: Lock,
       tone: 'bg-violet-50 text-violet-600',
-      title: 'Secure transfers',
-      body: 'Your money is protected at every step.',
+      title: 'Compare, then verify',
+      body: 'You complete any transfer with the provider.',
     },
     {
       Icon: Clock,
       tone: 'bg-emerald-50 text-emerald-600',
-      title: cached ? 'Updated recently' : 'Updated just now',
-      body: `Rates updated ${freshLabel}`,
+      title: cached ? 'Cached response' : 'Source response',
+      body: `Retrieved ${freshLabel}; collection times vary`,
       dot: true,
     },
   ] as const
 
   return (
-    <div className="mt-5 rounded-2xl bg-white border border-slate-100 shadow-card px-5 py-5 grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div className="shadow-card mt-5 grid grid-cols-1 gap-6 rounded-2xl border border-slate-100 bg-white px-5 py-5 md:grid-cols-4">
       {items.map((it) => (
         <div key={it.title} className="flex items-start gap-3">
-          <span className={`relative grid place-items-center w-10 h-10 rounded-full shrink-0 ${it.tone}`}>
+          <span
+            className={`relative grid h-10 w-10 shrink-0 place-items-center rounded-full ${it.tone}`}
+          >
             <it.Icon className="h-4 w-4" />
             {'dot' in it && it.dot && (
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
             )}
           </span>
           <div>
             <div className="text-sm font-bold text-slate-900">{it.title}</div>
-            <div className="mt-0.5 text-xs text-slate-500 leading-snug">{it.body}</div>
+            <div className="mt-0.5 text-xs leading-snug text-slate-500">{it.body}</div>
           </div>
         </div>
       ))}
@@ -641,7 +653,7 @@ function SummaryCard({
   return (
     <div
       ref={tiltRef}
-      className="mt-6 rounded-2xl bg-white border border-slate-100 shadow-card p-5 lg:p-6 will-change-transform"
+      className="shadow-card mt-6 rounded-2xl border border-slate-100 bg-white p-5 will-change-transform lg:p-6"
     >
       <div className="flex items-center justify-between">
         <div className="text-base font-bold text-slate-900">Here&rsquo;s what we found for you</div>
@@ -654,13 +666,13 @@ function SummaryCard({
         </Link>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-slate-100 pt-4">
+      <div className="mt-4 grid grid-cols-2 gap-6 border-t border-slate-100 pt-4 md:grid-cols-4">
         <Tile
           Icon={Star}
           tone="bg-blue-100 text-blue-600"
           label="Best match"
           primary={bestMatch.provider}
-          sub="Best balance of rate, fees and speed"
+          sub="Top reference amount in this source set"
         />
         <Tile
           Icon={DollarSign}
@@ -703,13 +715,13 @@ function Tile({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className={`grid place-items-center w-10 h-10 rounded-full shrink-0 ${tone}`}>
+      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${tone}`}>
         <Icon className="h-4 w-4" />
       </span>
       <div className="min-w-0">
         <div className="text-[11px] font-semibold text-slate-500">{label}</div>
-        <div className="mt-0.5 text-sm font-bold text-slate-900 truncate">{primary}</div>
-        <div className="mt-0.5 text-[11px] text-slate-500 leading-snug">{sub}</div>
+        <div className="mt-0.5 truncate text-sm font-bold text-slate-900">{primary}</div>
+        <div className="mt-0.5 text-[11px] leading-snug text-slate-500">{sub}</div>
       </div>
     </div>
   )
@@ -724,7 +736,7 @@ const FILTERS: { id: FilterMode; label: string }[] = [
   { id: 'cheapest', label: 'Cheapest' },
   { id: 'fastest', label: 'Fastest' },
   { id: 'most', label: 'Most you receive' },
-  { id: 'no-fees', label: 'No hidden fees' },
+  { id: 'no-fees', label: 'Lowest listed fee' },
 ]
 
 function FilterBar({
@@ -742,10 +754,10 @@ function FilterBar({
             key={f.id}
             type="button"
             onClick={() => onChange(f.id)}
-            className={`inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-semibold transition-colors ${
+            className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-colors ${
               f.id === filter
-                ? 'bg-blue-50 border border-blue-200 text-blue-700'
-                : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300'
+                ? 'border border-blue-200 bg-blue-50 text-blue-700'
+                : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300'
             }`}
           >
             {f.id === filter && <Star className="h-3.5 w-3.5 fill-current" />}
@@ -759,7 +771,7 @@ function FilterBar({
           <select
             value={filter}
             onChange={(e) => onChange(e.target.value as FilterMode)}
-            className="appearance-none h-9 pl-3 pr-9 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"
+            className="h-9 appearance-none rounded-lg border border-slate-200 bg-white pl-3 pr-9 text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"
           >
             {FILTERS.map((f) => (
               <option key={f.id} value={f.id}>
@@ -767,7 +779,7 @@ function FilterBar({
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         </span>
       </label>
     </div>
@@ -806,39 +818,14 @@ function ProviderList({
 }
 
 function providerTag(q: LiveQuote): { label: string; tone: string } {
-  if (q.deliveryMinutes != null && q.deliveryMinutes <= 10) {
-    return { label: 'Fastest', tone: 'bg-emerald-50 text-emerald-700' }
+  return {
+    label: q.source === 'comparison' ? 'Reference quote' : 'Provider quote',
+    tone: 'bg-slate-100 text-slate-700',
   }
-  if (q.fee < 1) {
-    return { label: 'Low fee', tone: 'bg-blue-50 text-blue-700' }
-  }
-  if (q.trustScore != null && q.trustScore >= 9) {
-    return { label: 'Reliable', tone: 'bg-violet-50 text-violet-700' }
-  }
-  return { label: 'Best balance', tone: 'bg-slate-100 text-slate-700' }
-}
-
-function reviewStub(slug: string): { stars: number; count: number } {
-  // Deterministic pseudo-ratings based on slug so rows don't flip randomly
-  // between renders. Real reviews would replace this.
-  const sum = [...slug].reduce((a, c) => a + c.charCodeAt(0), 0)
-  const stars = 4.3 + ((sum % 8) / 10)
-  const count = 5000 + (sum % 13000)
-  return { stars: Math.round(stars * 10) / 10, count }
 }
 
 function whyWeLikeIt(q: LiveQuote): string {
-  const reasons: string[] = []
-  if (q.fee < 1) reasons.push('low fees')
-  if (q.deliveryMinutes != null && q.deliveryMinutes <= 60) reasons.push('fast delivery')
-  if (q.spread != null && q.spread < 0.5) reasons.push('great exchange rate')
-  if (q.trustScore != null && q.trustScore >= 9) reasons.push('reliable')
-  if (reasons.length === 0) return 'Solid all-rounder for this corridor.'
-  const joined =
-    reasons.length === 1
-      ? reasons[0]
-      : reasons.slice(0, -1).join(', ') + ' and ' + reasons[reasons.length - 1]
-  return `Strong on ${joined}.`
+  return `${q.sourceName ?? 'Provider source'}. Confirm the final price and payout method on the provider’s site.`
 }
 
 function ProviderRow({
@@ -856,7 +843,6 @@ function ProviderRow({
 }) {
   const [expanded, setExpanded] = useState(false)
   const tag = providerTag(quote)
-  const { stars, count } = reviewStub(quote.providerSlug)
   const routing = decideRouting([quote])
 
   function onCtaClick() {
@@ -870,10 +856,10 @@ function ProviderRow({
 
   return (
     <div
-      className={`relative rounded-2xl border bg-white overflow-hidden animate-in fade-in-0 slide-in-from-bottom-3 duration-500 transition-transform hover:-translate-y-0.5 hover:shadow-card-lg ${
+      className={`animate-in fade-in-0 slide-in-from-bottom-3 hover:shadow-card-lg relative overflow-hidden rounded-2xl border bg-white transition-transform duration-500 hover:-translate-y-0.5 ${
         isWinner
-          ? 'border-blue-500 shadow-card-lg ring-1 ring-blue-500'
-          : 'border-slate-100 shadow-card'
+          ? 'shadow-card-lg border-blue-500 ring-1 ring-blue-500'
+          : 'shadow-card border-slate-100'
       }`}
       style={{
         animationDelay: `${Math.min(rank, 8) * 60}ms`,
@@ -881,18 +867,18 @@ function ProviderRow({
       }}
     >
       {isWinner && (
-        <div className="absolute top-0 right-0 inline-flex items-center gap-1 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg">
-          Best match
+        <div className="absolute right-0 top-0 inline-flex items-center gap-1 rounded-bl-lg bg-blue-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          Top in selected sort
         </div>
       )}
-      <div className="p-5 lg:p-6 grid grid-cols-1 md:grid-cols-[auto_minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto] gap-5 items-center">
+      <div className="grid grid-cols-1 items-center gap-5 p-5 md:grid-cols-[auto_minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto] lg:p-6">
         {/* Rank */}
-        <div className="grid place-items-center w-7 h-7 rounded-full bg-slate-100 text-xs font-bold text-slate-600 shrink-0">
+        <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">
           {rank}
         </div>
 
         {/* Identity */}
-        <div className="flex items-center gap-4 min-w-0">
+        <div className="flex min-w-0 items-center gap-4">
           <ProviderLogo
             name={quote.provider}
             slug={quote.providerSlug}
@@ -900,21 +886,27 @@ function ProviderRow({
             size={60}
           />
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="text-base font-bold text-slate-900 truncate">{quote.provider}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="truncate text-base font-bold text-slate-900">{quote.provider}</div>
               <span
-                className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${tag.tone}`}
+                className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${tag.tone}`}
               >
                 {tag.label}
               </span>
             </div>
-            <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-500">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              <span className="font-bold text-slate-900">{stars}</span>
-              <span>· {count.toLocaleString()} reviews</span>
+            <div className="mt-2 text-[11px] font-semibold text-slate-500">
+              About this comparison
             </div>
-            <div className="mt-2 text-[11px] font-semibold text-slate-500">Why we like it</div>
-            <div className="text-xs text-slate-700 max-w-xs">{whyWeLikeIt(quote)}</div>
+            <div className="max-w-xs text-xs text-slate-700">{whyWeLikeIt(quote)}</div>
+            <p className="mt-2 text-[11px] text-slate-600">
+              Source collected:{' '}
+              {quote.collectedAt
+                ? new Date(quote.collectedAt).toLocaleString()
+                : 'Time unavailable'}
+              {quote.collectedAt && Date.now() - Date.parse(quote.collectedAt) > 86400000
+                ? ' · Over 24 hours old'
+                : ''}
+            </p>
           </div>
         </div>
 
@@ -929,19 +921,21 @@ function ProviderRow({
             })}
           </div>
           {isWinner && (
-            <span className="mt-1 inline-block text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5">
-              Highest amount
+            <span className="mt-1 inline-block rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+              Selected sort leader
             </span>
           )}
         </div>
 
         {/* Fee */}
         <div>
-          <div className="text-[11px] font-semibold text-slate-500">Total fee</div>
+          <div className="text-[11px] font-semibold text-slate-500">Listed fee (included)</div>
           <div className="mt-1 text-lg font-bold tabular-nums text-slate-900">
-            ${quote.fee.toFixed(2)}
+            {corridorCurrency} {quote.fee.toFixed(2)}
           </div>
-          <div className="text-[11px] text-slate-500">{quote.fee < 2 ? 'Low fee' : 'Standard fee'}</div>
+          <div className="text-[11px] text-slate-500">
+            {quote.fee < 2 ? 'Low fee' : 'Standard fee'}
+          </div>
         </div>
 
         {/* Exchange rate */}
@@ -950,9 +944,7 @@ function ProviderRow({
           <div className="mt-1 text-sm font-bold tabular-nums text-slate-900">
             1 {corridorCurrency} = {quote.exchangeRate.toFixed(2)} PHP
           </div>
-          <div className="text-[11px] text-slate-500">
-            {quote.spread != null && quote.spread < 0.5 ? 'Great rate' : 'Fair rate'}
-          </div>
+          <div className="text-[11px] text-slate-500">Reference exchange rate</div>
         </div>
 
         {/* Delivery + CTA */}
@@ -960,18 +952,22 @@ function ProviderRow({
           <div>
             <div className="text-[11px] font-semibold text-slate-500">Delivery time</div>
             <div className="mt-1 text-sm font-bold text-slate-900">{quote.deliveryTime}</div>
-            <div className="text-[11px] text-slate-500">{payoutLabel}</div>
+            <div className="text-[11px] text-slate-500">{payoutLabel} requested · unverified</div>
           </div>
-          <a
-            href={routing.affiliateUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onCtaClick}
-            className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 shadow-sm transition-colors"
-          >
-            Send with {quote.provider}
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </a>
+          {routing.affiliateUrl ? (
+            <a
+              href={routing.affiliateUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onCtaClick}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+            >
+              Check {quote.provider}
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+          ) : (
+            <span className="text-xs text-slate-500">Provider link unavailable</span>
+          )}
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
@@ -987,20 +983,39 @@ function ProviderRow({
       </div>
 
       {expanded && (
-        <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-4 lg:px-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-          <BreakdownRow k="Mid-market rate" v={`${quote.midMarketRate.toFixed(4)} PHP`} />
+        <div className="grid grid-cols-2 gap-4 border-t border-slate-100 bg-slate-50/60 px-5 py-4 text-xs md:grid-cols-4 lg:px-6">
+          <BreakdownRow
+            k="Mid-market rate"
+            v={quote.midMarketRate > 0 ? `${quote.midMarketRate.toFixed(4)} PHP` : 'Unavailable'}
+          />
           <BreakdownRow k="Provider rate" v={`${quote.exchangeRate.toFixed(4)} PHP`} />
           <BreakdownRow
             k="FX spread"
-            v={quote.spread != null ? `${quote.spread.toFixed(2)}%` : '—'}
+            v={quote.spread != null ? `${(quote.spread * 100).toFixed(2)}%` : '—'}
           />
-          <BreakdownRow k="Provider fee" v={`$${quote.fee.toFixed(2)}`} />
-          <BreakdownRow k="Total cost" v={`$${quote.totalCost.toFixed(2)}`} />
-          <BreakdownRow k="Source" v={quote.source.replace('-', ' ')} />
+          <BreakdownRow
+            k="Provider fee"
+            v={`${corridorCurrency} ${quote.fee.toFixed(2)} (included)`}
+          />
+          <BreakdownRow k="Total cost" v={`${corridorCurrency} ${quote.totalCost.toFixed(2)}`} />
+          <BreakdownRow k="Source" v={quote.sourceName ?? quote.source.replace('-', ' ')} />
           <BreakdownRow k="Delivery" v={quote.deliveryTime} />
           <BreakdownRow
-            k="Fetched"
-            v={new Date(quote.fetchedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            k="Source collected"
+            v={
+              quote.collectedAt ? new Date(quote.collectedAt).toLocaleString() : 'Time unavailable'
+            }
+          />
+          <BreakdownRow
+            k="Payout verification"
+            v={quote.payoutVerified ? 'Verified by source' : 'Confirm with provider'}
+          />
+          <BreakdownRow
+            k="Retrieved"
+            v={new Date(quote.fetchedAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           />
         </div>
       )}
@@ -1012,7 +1027,7 @@ function BreakdownRow({ k, v }: { readonly k: string; readonly v: string }) {
   return (
     <div>
       <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{k}</div>
-      <div className="mt-0.5 font-semibold text-slate-900 tabular-nums capitalize">{v}</div>
+      <div className="mt-0.5 font-semibold capitalize tabular-nums text-slate-900">{v}</div>
     </div>
   )
 }
@@ -1027,7 +1042,7 @@ function QuotesSkeleton() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="h-[140px] rounded-2xl border border-slate-100 bg-white shadow-card animate-pulse"
+          className="shadow-card h-[140px] animate-pulse rounded-2xl border border-slate-100 bg-white"
         />
       ))}
     </div>
@@ -1040,26 +1055,28 @@ function QuotesSkeleton() {
 
 function HowWeCompare() {
   return (
-    <div className="mt-10 mb-16 rounded-2xl border border-slate-100 bg-white shadow-card p-5 lg:p-6 flex flex-wrap items-center justify-between gap-4">
-      <div className="flex items-start gap-3 flex-1 min-w-0">
-        <span className="grid place-items-center w-10 h-10 rounded-full bg-amber-50 text-amber-600 shrink-0">
+    <div className="shadow-card mb-16 mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-white p-5 lg:p-6">
+      <div className="flex min-w-0 flex-1 items-start gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-600">
           <Lightbulb className="h-4 w-4" />
         </span>
         <div className="min-w-0">
           <div className="text-sm font-bold text-slate-900">How do we compare?</div>
-          <div className="mt-0.5 text-xs text-slate-500 leading-relaxed max-w-2xl">
-            We compare exchange rates, fees, delivery speed and user satisfaction to help you find
-            the best option. Pal is a comparison engine — we never touch your money; you complete
-            the send with the provider you pick.
+          <div className="mt-0.5 max-w-2xl text-xs leading-relaxed text-slate-500">
+            We rank reference recipient amounts from Wise comparison data for the same total send
+            budget. Listed fees are included in that budget. Collection times vary; availability,
+            funding method, promotions and payout choices can change the final offer. This is not a
+            complete market comparison or a guarantee. Provider links are ordinary links, with no
+            paid partnership claimed. Pal does not handle your money.
           </div>
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <div className="relative h-12 w-20 hidden md:block">
-          <div className="absolute right-10 top-1 grid place-items-center w-9 h-9 rounded-lg bg-blue-100 text-blue-600">
+        <div className="relative hidden h-12 w-20 md:block">
+          <div className="absolute right-10 top-1 grid h-9 w-9 place-items-center rounded-lg bg-blue-100 text-blue-600">
             <Shield className="h-4 w-4" />
           </div>
-          <div className="absolute right-2 top-3 grid place-items-center w-6 h-6 rounded-full bg-rose-100 text-rose-500">
+          <div className="absolute right-2 top-3 grid h-6 w-6 place-items-center rounded-full bg-rose-100 text-rose-500">
             <Heart className="h-3 w-3 fill-current" />
           </div>
         </div>

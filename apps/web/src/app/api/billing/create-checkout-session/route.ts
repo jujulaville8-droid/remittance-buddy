@@ -1,3 +1,4 @@
+import { paidPlansEnabled, featureUnavailableResponse } from '@/lib/launch-mode'
 /**
  * Create a Stripe Checkout Session for Buddy Plus subscription.
  *
@@ -22,6 +23,7 @@ const stripe = process.env.STRIPE_SECRET_KEY
 const BUDDY_PLUS_PRICE_ID = process.env.STRIPE_BUDDY_PLUS_PRICE_ID ?? ''
 
 export async function POST(req: Request) {
+  if (!paidPlansEnabled()) return featureUnavailableResponse()
   if (!stripe) {
     return NextResponse.json(
       {

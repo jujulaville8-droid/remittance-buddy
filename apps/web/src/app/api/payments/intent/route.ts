@@ -1,3 +1,4 @@
+import { transferExecutionEnabled, featureUnavailableResponse } from '@/lib/launch-mode'
 import { createClient } from '@/lib/supabase/server'
 import { db, transfers, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
@@ -11,6 +12,7 @@ const Schema = z.object({
 })
 
 export async function POST(req: Request) {
+  if (!transferExecutionEnabled()) return featureUnavailableResponse()
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
   if (!authUser) {

@@ -13,10 +13,7 @@ import {
   Zap,
   Lock,
   Headphones,
-  UserPlus,
   Users,
-  Check,
-  Star,
   Gift,
   Menu,
   X,
@@ -24,15 +21,9 @@ import {
   Minus,
   ChevronDown,
   Loader2,
-  Apple,
-  Play,
-  Smartphone,
-  Activity,
-  TrendingUp,
   Sparkles,
 } from 'lucide-react'
 import { useLiveQuotes } from './useLiveQuotes'
-import { useHeroMotion } from './useHeroMotion'
 import { useMagneticTilt } from './useMagneticTilt'
 import { useParallax } from './useParallax'
 
@@ -46,9 +37,8 @@ export default function LandingReceipt() {
       <HowItWorks />
       <SplitComparison />
       <CorridorsBoard />
-      <FamilyFeature />
       <PartnersCard />
-      <Testimonials />
+      <ComparisonChecklist />
       <AppDownload />
       <ReferBanner />
       <FAQ />
@@ -82,9 +72,7 @@ function TopNav() {
         <nav className="hidden lg:flex items-center gap-9">
           <NavLink href="/" active>Home</NavLink>
           <NavLink href="/compare">Compare</NavLink>
-          <NavLink href="/family">Family</NavLink>
-          <NavLink href="/alerts">Rate Alerts</NavLink>
-          <NavLink href="/pricing">Plus</NavLink>
+          <NavLink href="/#how">How it works</NavLink>
           <NavLink href="/#faq">Help</NavLink>
         </nav>
 
@@ -94,6 +82,7 @@ function TopNav() {
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
             className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700"
           >
             {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -133,9 +122,7 @@ function MobileMenu({ onClose }: { readonly onClose: () => void }) {
   const links = [
     { href: '/', label: 'Home' },
     { href: '/compare', label: 'Compare' },
-    { href: '/family', label: 'Family' },
-    { href: '/alerts', label: 'Rate Alerts' },
-    { href: '/pricing', label: 'Plus' },
+    { href: '/#how', label: 'How it works' },
     { href: '/#faq', label: 'Help' },
   ]
   return (
@@ -200,11 +187,11 @@ function HeroCopy() {
       <div className="flex flex-wrap items-center gap-2">
         <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-[11px] font-semibold text-blue-700">
           <ShieldCheck className="h-3.5 w-3.5" />
-          Secure. Fast. Reliable.
+          Compare before you send.
         </div>
         <div className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 border border-violet-100 px-3 py-1 text-[11px] font-semibold text-violet-700">
           <Sparkles className="h-3.5 w-3.5" />
-          Powered by AI
+          Know your options
         </div>
       </div>
       {user && !loading && firstName && (
@@ -216,7 +203,7 @@ function HeroCopy() {
       <h1 className="mt-5 font-display text-[56px] lg:text-[72px] font-bold leading-[1.02] tracking-[-0.03em] text-slate-900">
         Send love.
         <br />
-        Receive{' '}
+        Know{' '}
         <span className="relative inline-block">
           more.
           <svg
@@ -237,13 +224,13 @@ function HeroCopy() {
       </h1>
 
       <p className="mt-8 text-[15px] lg:text-base text-slate-500 leading-relaxed max-w-[440px]">
-        Pal&rsquo;s AI concierge compares every remittance provider in real time so you find the
-        cheapest route home — just ask in plain English or Taglish. We never touch your money.
+        Compare available remittance options, fees, and recipient amounts for sending to the
+        Philippines. Check each result&rsquo;s source, then confirm the final quote with the provider.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
-          href={user ? '/compare' : '/compare'}
+          href="/compare"
           className="inline-flex items-center gap-2 h-12 px-6 rounded-lg bg-blue-600 text-white font-semibold text-sm shadow-md shadow-blue-600/25 hover:bg-blue-700 transition-colors"
         >
           {user ? 'Open the tool' : 'Compare rates'}
@@ -261,7 +248,7 @@ function HeroCopy() {
       <div className="mt-8 flex items-center gap-3">
         <AvatarStack />
         <div className="text-sm font-semibold text-slate-900">
-          Trusted by 10,000+ happy customers worldwide
+          Compare without creating an account
         </div>
       </div>
     </div>
@@ -275,7 +262,7 @@ function AvatarStack() {
     { bg: '#DCFCE7', skin: '#D9A67B', hair: '#241511', shirt: '#1E293B' },
   ]
   return (
-    <div className="flex -space-x-2">
+    <div className="flex -space-x-2" aria-hidden="true">
       {avatars.map((a, i) => (
         <span
           key={i}
@@ -290,7 +277,7 @@ function AvatarStack() {
         </span>
       ))}
       <div className="w-9 h-9 rounded-full ring-2 ring-white bg-blue-600 text-white grid place-items-center">
-        <span className="text-[10px] font-bold leading-none tracking-tight">10K+</span>
+        <Users className="h-4 w-4" />
       </div>
     </div>
   )
@@ -328,14 +315,14 @@ function HeroVisual() {
     <div className="relative h-[420px] lg:h-[540px]">
       <MiniQuoteTool />
 
-      {/* Secure badge (mid-right over the photo) */}
+      {/* Choice badge (mid-right over the photo) */}
       <div className="absolute bottom-8 right-0 flex items-center gap-2 rounded-xl bg-white border border-slate-100 shadow-card-lg px-3 py-2 z-20">
         <span className="grid place-items-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600">
           <ShieldCheck className="h-4 w-4" />
         </span>
         <div className="text-[11px] leading-tight">
-          <div className="font-medium text-slate-500">Your money is</div>
-          <div className="font-bold text-blue-600">100% Secure</div>
+          <div className="font-medium text-slate-500">Your next step</div>
+          <div className="font-bold text-blue-600">You choose</div>
         </div>
       </div>
     </div>
@@ -362,7 +349,7 @@ function MiniQuoteTool() {
     [code],
   )
 
-  const { quotes, loading } = useLiveQuotes({
+  const { quotes, loading, error, cached } = useLiveQuotes({
     corridor: active.corridor,
     sourceCurrency: active.code,
     targetCurrency: 'PHP',
@@ -370,15 +357,24 @@ function MiniQuoteTool() {
     payoutMethod: 'gcash',
   })
 
-  const best = quotes[0]
-  const receiveAmount = best?.targetAmount ?? amount * 56.85
-  const providerName = best?.provider
-
-  // Count-up + micro-jitter on the hero number so the widget feels live
-  const { displayedAmount, secondsAgo, isFlashing } = useHeroMotion({
-    target: Math.round(receiveAmount),
-    jitterMagnitude: Math.max(6, Math.round(receiveAmount * 0.0004)),
-  })
+  // Never show an old request or an invented number as the current quote.
+  const matchingQuotes = quotes.filter((quote) =>
+    quote.corridor === active.corridor &&
+    quote.sourceCurrency === active.code &&
+    quote.targetCurrency === 'PHP' &&
+    quote.sourceAmount === amount &&
+    Number.isFinite(quote.targetAmount) &&
+    quote.targetAmount > 0,
+  )
+  const best = !loading && !error ? matchingQuotes[0] : undefined
+  const sourceLabel = best
+    ? best.source === 'fallback' ? 'Estimate'
+      : cached || best.source === 'cached' ? 'Cached reference'
+      : best.source === 'live-api' ? 'Provider API quote'
+      : 'Reference quote'
+    : loading ? 'Checking quotes' : 'No quote available'
+  const quotedAt = best?.collectedAt ? new Date(best.collectedAt) : null
+  const hasValidTimestamp = quotedAt !== null && Number.isFinite(quotedAt.getTime())
 
   const tiltRef = useMagneticTilt({ maxDeg: 5, perspective: 1100 })
 
@@ -393,17 +389,19 @@ function MiniQuoteTool() {
       className="absolute top-2 right-0 w-[260px] rounded-2xl bg-white border border-slate-100 shadow-card-lg p-4 z-20 will-change-transform"
     >
       <div className="flex items-center justify-between">
-        <label className="text-[11px] font-medium text-slate-500">You send</label>
+        <label htmlFor="hero-amount" className="text-[11px] font-medium text-slate-500">You send</label>
         {loading && <Loader2 className="h-3 w-3 text-slate-400 animate-spin" />}
       </div>
       <div className="mt-1 flex items-center gap-2">
         <input
+          id="hero-amount"
           type="text"
           inputMode="decimal"
           value={amount.toLocaleString()}
           onChange={(e) => {
             const raw = e.target.value.replace(/[^0-9.]/g, '')
-            setAmount(Number(raw) || 0)
+            const value = Number(raw)
+            setAmount(Number.isFinite(value) ? Math.min(value, 1_000_000) : 0)
           }}
           className="flex-1 bg-transparent text-xl font-bold tabular-nums text-slate-900 outline-none min-w-0"
         />
@@ -416,22 +414,14 @@ function MiniQuoteTool() {
       </div>
 
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-slate-500">They receive</span>
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          </span>
-          Live · {secondsAgo}s ago
+        <span className="text-[11px] font-medium text-slate-500">Recipient amount</span>
+        <span className="text-[10px] font-semibold text-slate-500" role="status">
+          {sourceLabel}
         </span>
       </div>
       <div className="mt-1 flex items-center justify-between gap-2">
-        <div
-          className={`text-xl font-bold tabular-nums text-slate-900 transition-colors duration-300 ${
-            isFlashing ? 'text-emerald-600' : ''
-          }`}
-        >
-          {displayedAmount.toLocaleString()}
+        <div className="text-xl font-bold tabular-nums text-slate-900">
+          {best ? best.targetAmount.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '—'}
         </div>
         <span className="flex items-center gap-1 h-8 px-2 rounded-lg bg-slate-50 text-xs font-bold text-slate-900 shrink-0">
           <span aria-hidden className="text-sm">🇵🇭</span>
@@ -439,16 +429,17 @@ function MiniQuoteTool() {
         </span>
       </div>
 
-      <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-        <span className="grid place-items-center w-4 h-4 rounded-full bg-emerald-500">
-          <Check className="h-2.5 w-2.5 text-white" />
-        </span>
-        {providerName ? (
+      <div className="mt-3 text-[11px] text-slate-500 leading-relaxed">
+        {best ? (
           <>
-            Best via <span className="text-slate-900">{providerName}</span>
+            <span className="font-semibold text-slate-900">{best.provider}</span>
+            {best.sourceName && <span> · {best.sourceName}</span>}
+            {hasValidTimestamp ? <> · Source time {quotedAt!.toLocaleString()}</> : <> · Source time unavailable</>}
+            <span className="block mt-1">Indicative only. Confirm fees and the final amount with the provider.</span>
+            {!best.payoutVerified && <span className="block mt-1">GCash payout availability is not verified.</span>}
           </>
         ) : (
-          'Best rate guaranteed'
+          <span>{error ? 'Quotes are unavailable. Try the comparison tool again.' : 'Choose an amount to check available options.'}</span>
         )}
       </div>
 
@@ -456,7 +447,7 @@ function MiniQuoteTool() {
         href={continueHref}
         className="mt-4 flex items-center justify-center gap-1.5 h-10 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
       >
-        {quotes.length > 0 ? `See all ${quotes.length} quotes` : 'Compare all providers'}
+        {best ? `See ${matchingQuotes.length} available quotes` : 'Open comparison tool'}
         <ArrowRight className="h-3.5 w-3.5" />
       </Link>
     </div>
@@ -479,6 +470,8 @@ function CurrencyPicker({
       <button
         type="button"
         onClick={() => setOpen(!open)}
+        aria-label="Choose sending currency"
+        aria-expanded={open}
         className="flex items-center gap-1 h-8 px-2 rounded-lg bg-slate-50 text-xs font-bold text-slate-900 hover:bg-slate-100 transition-colors"
       >
         <span aria-hidden className="text-sm leading-none">
@@ -528,23 +521,23 @@ function TrustFeaturesStrip() {
   const features = [
     {
       icon: DollarSign,
-      title: 'Best-rate ranking',
-      body: 'Live quotes from 12+ providers so your family keeps more pesos.',
+      title: 'Compare recipient amounts',
+      body: 'Review the quoted amount alongside the fee and exchange rate.',
     },
     {
       icon: Zap,
-      title: 'Fast provider picks',
-      body: 'Filter by delivery speed — minutes to hours, all surfaced clearly.',
+      title: 'Review delivery estimates',
+      body: 'Delivery depends on the provider, payout method, and verification.',
     },
     {
       icon: Lock,
-      title: 'Vetted operators only',
-      body: 'Every provider we list is licensed and regulated. No sketchy ones.',
+      title: 'Check the quote source',
+      body: 'Provider quotes, cached data, and estimates are not interchangeable.',
     },
     {
       icon: Headphones,
-      title: 'Real humans',
-      body: 'Questions? A person in Manila or NYC replies within hours.',
+      title: 'Keep control',
+      body: 'Confirm eligibility, terms, and the final price on the provider’s site.',
     },
   ]
   return (
@@ -575,21 +568,21 @@ function HowItWorks() {
       n: 1,
       icon: DollarSign,
       title: 'Tell us the amount.',
-      body: '$100, $500, $1,000 — or anything in between. Pick your corridor and how your family wants to receive it. No account, no friction, no upsell.',
+      body: 'Enter your send amount, currency, and preferred payout method. You can browse the comparison tool without an account.',
       tag: 'No signup required',
     },
     {
       n: 2,
       icon: BarChart3,
-      title: 'We rank twelve providers.',
-      body: 'Live quotes, every 60 seconds, from every major remittance rail. Fees, FX spread, delivery time — all exposed. We show the math because we trust it.',
-      tag: 'Refreshed every 60s',
+      title: 'Review available options.',
+      body: 'Compare the recipient amount, fees, delivery estimate, and data source. Availability varies by route; some results may be estimates.',
+      tag: 'Check source and timing',
     },
     {
       n: 3,
       icon: ArrowRight,
-      title: 'Hand off to the winner.',
-      body: 'One tap launches the cheapest provider with your amount pre-filled. You save an average of $23 vs. the default. We never touch your money.',
+      title: 'Confirm with your provider.',
+      body: 'Choose an option, then review the provider’s own quote and terms before sending. Rates can change; a comparison is not a booked transfer.',
       tag: 'You stay in control',
     },
   ]
@@ -597,7 +590,7 @@ function HowItWorks() {
     <section id="how" className="py-20 lg:py-28 bg-white">
       <div className="mx-auto max-w-6xl px-5 lg:px-8 text-center">
         <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
-          Three steps · about 90 seconds
+          Three steps · compare with context
         </div>
         <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 max-w-2xl mx-auto">
           Type an amount. We do the mathematical donkey work.
@@ -657,9 +650,9 @@ function PartnersCard() {
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="rounded-2xl border border-slate-100 bg-white shadow-card px-6 py-6 lg:px-10 flex flex-wrap items-center justify-between gap-6">
           <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 leading-snug max-w-[180px]">
-            Payout partners
+            Payout options
             <br />
-            we compare against
+            to check with providers
           </div>
           <div className="flex flex-wrap items-center gap-x-10 gap-y-5">
             <PartnerLogoGCash />
@@ -669,6 +662,9 @@ function PartnersCard() {
             <PartnerLogoMetrobank />
             <PartnerLogoCebuana />
           </div>
+          <p className="w-full text-[11px] text-slate-500">
+            Names shown for reference only, not an endorsement or partnership. Availability varies by provider and route.
+          </p>
         </div>
       </div>
     </section>
@@ -737,34 +733,22 @@ function PartnerLogoCebuana() {
 /* ---------------------------------------------------------------------------
    Testimonials
 --------------------------------------------------------------------------- */
-function Testimonials() {
-  const reviews = [
+function ComparisonChecklist() {
+  const checks = [
     {
-      ref: 'RB-4418C',
-      saved: '+₱84.22 saved',
-      quote:
-        "Naka-save ako ng $84 last month lang. Same $500, same GCash — Pal found a route my bank never showed me.",
-      name: 'Maricel C.',
-      role: 'RN · Queens, NY → Batangas',
-      portrait: { bg: '#DBEAFE', skin: '#E5B58C', hair: '#2E1E15', shirt: '#1E3A8A' },
+      label: 'Amount',
+      title: 'What arrives?',
+      body: 'Compare the amount your recipient gets after the quoted fees. A headline exchange rate does not tell the whole story.',
     },
     {
-      ref: 'RB-8821D',
-      saved: '+₱312 saved',
-      quote:
-        "I send AED 2,000 every second Friday. The rate alerts mean I don't stare at my phone anymore — Pal just tells me when to go.",
-      name: 'Jomari R.',
-      role: 'Civil engineer · Dubai → Cebu',
-      portrait: { bg: '#FCE7F3', skin: '#E8B79A', hair: '#3A2418', shirt: '#334155' },
+      label: 'Timing',
+      title: 'When does it arrive?',
+      body: 'Check the delivery estimate for your payout method. Verification, funding, weekends, and provider limits can affect timing.',
     },
     {
-      ref: 'RB-2209B',
-      saved: '+₱1,140 saved',
-      quote:
-        "I was sending with Western Union for 8 years. Parang na-loko ako all along. Pal finally shows the actual math.",
-      name: 'Lorna D.',
-      role: 'Caregiver · Toronto → Iloilo',
-      portrait: { bg: '#DCFCE7', skin: '#D9A67B', hair: '#241511', shirt: '#1E293B' },
+      label: 'Source',
+      title: 'What is confirmed?',
+      body: 'Check whether a result is a provider quote, cached data, or an estimate. The provider’s checkout gives the final terms.',
     },
   ]
   return (
@@ -772,50 +756,24 @@ function Testimonials() {
       <div className="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-[1fr_2.2fr] gap-12 items-start">
         <div>
           <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
-            Kabayan voices · 4.9 / 5 from 1,240 senders
+            Before you send
           </div>
           <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
-            Real transfers. Real pesos.
+            Three checks that matter.
           </h2>
           <p className="mt-4 text-sm text-slate-500 leading-relaxed max-w-xs">
-            Every review below is a real transfer. Ref codes link to the actual quote Pal surfaced
-            and the rate they locked.
+            Use the comparison as a starting point, then review the details with your chosen provider.
           </p>
-          <Link
-            href="#"
-            className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:underline"
-          >
-            View all reviews <ArrowRight className="h-3.5 w-3.5" />
+          <Link href="/compare" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:underline">
+            Open comparison <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {reviews.map((r) => (
-            <div
-              key={r.name}
-              className="rounded-2xl border border-slate-100 bg-white shadow-card p-5 flex flex-col"
-            >
-              <div className="flex items-center justify-between text-[10px] font-semibold">
-                <span className="font-mono uppercase tracking-wider text-slate-400">
-                  Ref · {r.ref}
-                </span>
-                <span className="text-emerald-600">{r.saved}</span>
-              </div>
-              <div className="mt-3 flex items-center gap-0.5 text-amber-400">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                ))}
-              </div>
-              <p className="mt-3 text-sm text-slate-700 leading-relaxed flex-1">
-                &ldquo;{r.quote}&rdquo;
-              </p>
-              <div className="mt-4 flex items-center gap-2.5 pt-3 border-t border-slate-100">
-                <PortraitAvatar {...r.portrait} />
-                <div>
-                  <div className="text-sm font-bold text-slate-900 leading-tight">{r.name}</div>
-                  <div className="text-[11px] text-slate-500">{r.role}</div>
-                </div>
-              </div>
+          {checks.map((item) => (
+            <div key={item.label} className="rounded-2xl border border-slate-100 bg-white shadow-card p-5 flex flex-col">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-600">{item.label}</span>
+              <h3 className="mt-3 text-base font-bold text-slate-900">{item.title}</h3>
+              <p className="mt-3 text-sm text-slate-700 leading-relaxed flex-1">{item.body}</p>
             </div>
           ))}
         </div>
@@ -825,7 +783,7 @@ function Testimonials() {
 }
 
 /* ---------------------------------------------------------------------------
-   Refer-a-friend banner
+   Comparison reminder banner
 --------------------------------------------------------------------------- */
 function ReferBanner() {
   return (
@@ -837,18 +795,18 @@ function ReferBanner() {
           </span>
           <div>
             <div className="text-lg lg:text-xl font-bold leading-tight">
-              Refer a friend and earn rewards!
+              A little comparison goes a long way
             </div>
             <div className="mt-1 text-sm text-blue-100">
-              Invite your friends and earn cash rewards on every successful referral.
+              Review the recipient amount and fees before your next transfer.
             </div>
           </div>
         </div>
         <Link
-          href="#"
+          href="/compare"
           className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-white text-blue-700 font-semibold text-sm hover:bg-blue-50 transition-colors"
         >
-          Learn More <ArrowRight className="h-4 w-4" />
+          Compare options <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </section>
@@ -861,41 +819,41 @@ function ReferBanner() {
 function FAQ() {
   const items = [
     {
-      q: 'Is My Remittance Pal free?',
-      a: "Yes, and that won't change. We earn a referral fee from the providers you choose to send with — paid by them, never by you. Your transfer goes through the provider's own rail, not ours. We're a comparison tool, not a money transmitter.",
+      q: 'Is My Remittance Pal free to compare?',
+      a: 'You can use the public comparison tool without paying or creating an account. A provider may charge transfer fees; check its final quote and terms before you send.',
     },
     {
-      q: 'How do you get the live rates?',
-      a: "We pull directly from each provider's public quote endpoint, refreshing every 60 seconds. We show the mid-market rate, the provider's offered rate, and the implied FX spread — nothing estimated or padded.",
+      q: 'Are all the rates live?',
+      a: 'No. Results may come from provider APIs, public pages, cached data, or estimates. Check the source and timestamp shown with each quote. Estimates are for comparison only, and a fresh timestamp does not make an estimate a live provider offer.',
     },
     {
-      q: 'Why Philippines first?',
-      a: 'The US → Philippines corridor has unique mechanics — GCash as the dominant wallet, provincial bank routing rules, typical send amounts of $100–$1,000. Generic comparison tools rank providers using global averages and get it wrong. We tuned for this corridor first.',
+      q: 'Why focus on the Philippines?',
+      a: 'The comparison tool focuses on sending money to the Philippines, with options such as bank deposits, GCash, Maya, and cash pickup. Availability depends on the sending country and provider.',
     },
     {
       q: 'Do I need an account?',
-      a: 'No. You can compare rates and get a recommendation without signing up. A free account just saves recipients, tracks your sends, and unlocks rate alerts.',
+      a: 'No account is needed to browse comparisons. Personal features such as saved recipients, family groups, and rate-alert settings require sign-in.',
     },
     {
       q: 'Which providers do you cover?',
-      a: "Wise, Remitly, Western Union, Xoom, MoneyGram, WorldRemit, Ria, Revolut, Zelle, PayPal, Sendwave, Payoneer — and more every quarter. Tell us if we're missing one you use; we prioritise by demand.",
+      a: 'The options shown depend on your corridor, amount, payout method, and the data currently available. Coverage is not exhaustive. Check with the provider that it supports your exact transfer.',
     },
     {
-      q: 'Is my money safe?',
-      a: "We're BSP-registered in the Philippines, FinCEN-registered as an MSB in the US, and FCA-authorised in the UK. All transfers clear through licensed money transmitters, never through us directly.",
+      q: 'Does Pal handle my transfer?',
+      a: 'The comparison tool does not book or guarantee a transfer. You review the final quote and complete any transfer with your chosen provider. Check that provider’s regulatory status, eligibility, fees, and terms for your location.',
     },
   ]
   return (
     <section id="faq" className="py-20 bg-white">
       <div className="mx-auto max-w-3xl px-5 lg:px-8">
         <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 text-center">
-          FAQ · we reply fast
+          FAQ · know before you send
         </div>
         <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 text-center">
           The ones you actually ask.
         </h2>
         <p className="mt-3 text-sm text-slate-500 text-center max-w-lg mx-auto">
-          Message us — a real person in Manila or NYC replies within a few hours.
+          A few important details about comparison data and provider quotes.
         </p>
         <div className="mt-10 space-y-3">
           {items.map((it) => (
@@ -930,14 +888,14 @@ function FAQItem({ q, a }: { readonly q: string; readonly a: string }) {
 }
 
 /* ---------------------------------------------------------------------------
-   Stats strip — 4 live-style metrics
+   Comparison guide strip
 --------------------------------------------------------------------------- */
 function StatsStrip() {
   const cells = [
-    { k: 'Senders this month', v: '47,218', d: 'Kabayans using live data to beat the system.' },
-    { k: 'Saved this year', v: '$2.4M', d: 'Pesos that stayed with families, not providers.' },
-    { k: 'Average save / send', v: '$23', d: "Enough to cover a week of groceries." },
-    { k: 'Rate refresh', v: '60s', d: 'Not cached. Live quotes from every provider.' },
+    { k: 'Compare costs', v: 'Fees', d: 'Review the exchange rate and transfer fee together.' },
+    { k: 'Recipient amount', v: 'PHP', d: 'See the quoted amount that would arrive in pesos.' },
+    { k: 'Data matters', v: 'Source', d: 'Check whether a result is quoted, cached, or estimated.' },
+    { k: 'Final choice', v: 'You', d: 'Confirm the provider’s final quote before sending.' },
   ]
   return (
     <section className="py-16 lg:py-20 bg-white">
@@ -961,7 +919,7 @@ function StatsStrip() {
 }
 
 /* ---------------------------------------------------------------------------
-   Split comparison — Western Union vs Pal's pick
+   Illustrative comparison — fictional providers
 --------------------------------------------------------------------------- */
 function SplitComparison() {
   return (
@@ -969,26 +927,27 @@ function SplitComparison() {
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="text-center max-w-2xl mx-auto">
           <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
-            The math, side by side
+            Illustrative example · fictional providers
           </div>
           <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
-            Same $500, 1,307 more pesos in mama&rsquo;s hands.
+            Same budget. Different recipient amounts.
           </h2>
+          <p className="mt-4 text-sm text-slate-500">These invented figures explain the calculation. They are not current rates or a savings promise.</p>
         </div>
 
         <div className="mt-12 grid lg:grid-cols-[1fr_auto_1fr] gap-6 items-stretch">
           <CompareCard
             tone="them"
-            tag="The big one"
-            title="With Western Union"
-            subtitle="Sending $500."
+            tag="Example A"
+            title="Fictional provider A"
+            subtitle="$500 total budget. Fee deducted first."
             rows={[
-              { l: 'Rate', v: '₱55.42', bad: true },
+              { l: 'Example rate', v: '₱55.00 / USD', bad: true },
               { l: 'Transfer fee', v: '$5.00', bad: true },
-              { l: 'FX spread (hidden)', v: '$11.80', bad: true },
-              { l: 'Delivery', v: '2 hours · cash pickup' },
+              { l: 'Amount converted', v: '$495.00' },
+              { l: 'Calculation', v: '$495 × ₱55.00' },
             ]}
-            bottom={{ l: 'Mama receives', v: '₱27,437' }}
+            bottom={{ l: 'Example recipient amount', v: '₱27,225' }}
           />
 
           <div className="hidden lg:grid place-items-center text-slate-400 font-display text-2xl italic">
@@ -997,26 +956,26 @@ function SplitComparison() {
 
           <CompareCard
             tone="us"
-            tag="Pal's pick"
-            title="With Pal → Remitly"
-            subtitle="Same $500."
+            tag="Example B"
+            title="Fictional provider B"
+            subtitle="$500 total budget. Fee deducted first."
             rows={[
-              { l: 'Rate', v: '₱56.82', good: true },
-              { l: 'Provider fee', v: '$0.00', good: true },
-              { l: 'Pal fee', v: 'Always $0', good: true },
-              { l: 'Delivery', v: '2 min · direct to GCash' },
+              { l: 'Example rate', v: '₱56.00 / USD', good: true },
+              { l: 'Transfer fee', v: '$2.00', good: true },
+              { l: 'Amount converted', v: '$498.00' },
+              { l: 'Calculation', v: '$498 × ₱56.00' },
             ]}
-            bottom={{ l: 'Mama receives', v: '₱28,268', highlight: true }}
+            bottom={{ l: 'Example recipient amount', v: '₱27,888', highlight: true }}
           />
         </div>
 
         <div className="mt-8 rounded-2xl bg-white border border-slate-100 shadow-card p-6 lg:p-7 flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-slate-600 max-w-xl leading-relaxed">
-            That&rsquo;s a week of groceries, every payday. Multiply it by the 12 sends she&rsquo;s
-            making this year.
+            In this example, provider B delivers 663 more pesos. Actual differences depend on the
+            rate, fees, payout method, and eligibility at the time you send.
           </p>
           <div className="font-display text-3xl lg:text-4xl font-bold text-blue-600 tabular-nums">
-            +$276 / yr
+            +₱663 example
           </div>
         </div>
       </div>
@@ -1096,71 +1055,34 @@ function CompareCard({
 --------------------------------------------------------------------------- */
 function CorridorsBoard() {
   const rows = [
-    { code: 'US→PH', name: 'United States → Philippines', pair: 'USD · PHP', rate: '₱56.82', best: 'Remitly', spread: '0.30%', live: true },
-    { code: 'UK→PH', name: 'United Kingdom → Philippines', pair: 'GBP · PHP', rate: '₱72.14', best: 'Wise', spread: '0.42%', live: true },
-    { code: 'SG→PH', name: 'Singapore → Philippines', pair: 'SGD · PHP', rate: '₱42.38', best: 'Remitly', spread: '0.28%', live: true },
-    { code: 'AE→PH', name: 'UAE → Philippines', pair: 'AED · PHP', rate: '₱15.48', best: 'Sendwave', spread: '0.35%', live: true },
-    { code: 'SA→PH', name: 'Saudi Arabia → Philippines', pair: 'SAR · PHP', rate: '₱15.14', best: 'Xoom', spread: '0.41%', live: true },
-    { code: 'CA→PH', name: 'Canada → Philippines', pair: 'CAD · PHP', rate: '₱41.92', best: 'Wise', spread: '0.38%', live: true },
-    { code: 'AU→PH', name: 'Australia → Philippines', pair: 'AUD · PHP', rate: '₱37.60', best: 'WorldRemit', spread: '0.45%', live: true },
-    { code: 'MX→PH', name: 'Mexico → Philippines', pair: 'MXN · PHP', rate: '—', best: '—', spread: '—', live: false },
+    { code: 'US-PH', name: 'United States', pair: 'USD → PHP' },
+    { code: 'UK-PH', name: 'United Kingdom', pair: 'GBP → PHP' },
+    { code: 'SG-PH', name: 'Singapore', pair: 'SGD → PHP' },
+    { code: 'AE-PH', name: 'UAE', pair: 'AED → PHP' },
+    { code: 'SA-PH', name: 'Saudi Arabia', pair: 'SAR → PHP' },
+    { code: 'CA-PH', name: 'Canada', pair: 'CAD → PHP' },
+    { code: 'AU-PH', name: 'Australia', pair: 'AUD → PHP' },
   ] as const
   return (
     <section id="corridors" className="py-20 lg:py-28 bg-white">
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 items-end">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
-              Corridors · departures board
-            </div>
-            <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
-              Eleven corridors live. Three more boarding.
-            </h2>
+            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">Sending corridors</div>
+            <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">Start with where you send from.</h2>
           </div>
           <p className="text-sm text-slate-500 leading-relaxed">
-            The US-PH route is our main engine, but we&rsquo;ve tuned every corridor the diaspora
-            actually uses — GCash, Maya, BDO, BPI, Landbank — all live, all ranked.
+            Choose a route to the Philippines to check available comparison data. A listed corridor does not guarantee that a provider can accept your transfer or supply a live quote.
           </p>
         </div>
-
         <div className="mt-10 rounded-2xl border border-slate-100 bg-white shadow-card overflow-hidden">
-          <div className="hidden md:grid grid-cols-[80px_1fr_100px_120px_80px_110px] gap-4 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50 border-b border-slate-100">
-            <span>Code</span>
-            <span>Corridor</span>
-            <span className="text-right">Live rate</span>
-            <span>Best provider</span>
-            <span className="text-right">Spread</span>
-            <span>Status</span>
-          </div>
-          {rows.map((r) => (
-            <div
-              key={r.code}
-              className={`grid grid-cols-2 md:grid-cols-[80px_1fr_100px_120px_80px_110px] gap-4 px-5 py-4 border-b border-slate-100 last:border-b-0 items-center text-sm ${
-                r.live ? '' : 'opacity-50'
-              }`}
-            >
-              <span className="font-mono text-xs font-bold text-slate-900">{r.code}</span>
-              <span>
-                <div className="text-sm font-semibold text-slate-900">{r.name}</div>
-                <div className="text-[11px] text-slate-500 font-mono">{r.pair}</div>
-              </span>
-              <span className="text-right font-bold tabular-nums text-slate-900">{r.rate}</span>
-              <span className="text-slate-700">{r.best}</span>
-              <span className="text-right tabular-nums text-slate-600">{r.spread}</span>
-              <span className="flex items-center gap-1.5 text-xs font-semibold">
-                {r.live ? (
-                  <>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span className="text-emerald-600">On time</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="w-2 h-2 rounded-full bg-slate-300" />
-                    <span className="text-slate-500">Boarding</span>
-                  </>
-                )}
-              </span>
-            </div>
+          {rows.map((row) => (
+            <Link key={row.code} href={`/compare?corridor=${row.code}`} className="grid grid-cols-[1fr_auto] md:grid-cols-[100px_1fr_120px_150px] gap-4 px-5 py-4 border-b border-slate-100 last:border-b-0 items-center text-sm hover:bg-blue-50 transition-colors">
+              <span className="hidden md:block font-mono text-xs font-bold text-slate-900">{row.code}</span>
+              <span className="font-semibold text-slate-900">{row.name} → Philippines</span>
+              <span className="hidden md:block text-xs text-slate-500 font-mono">{row.pair}</span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600">Check options <ArrowRight className="h-3.5 w-3.5" /></span>
+            </Link>
           ))}
         </div>
       </div>
@@ -1169,24 +1091,24 @@ function CorridorsBoard() {
 }
 
 /* ---------------------------------------------------------------------------
-   Family feature — link the whole pamilya, shared recipients, pooled sends
+   Family feature — organize recipients and goals
 --------------------------------------------------------------------------- */
-function FamilyFeature() {
+export function FamilyFeature() {
   const perks = [
     {
       icon: Users,
-      title: 'Link the whole pamilya',
-      body: "Siblings, cousins, titas, titos. One family group, everyone's in the loop.",
+      title: 'Organize family groups',
+      body: 'Keep a group record for the people you support.',
     },
     {
       icon: Gift,
       title: 'Shared recipients',
-      body: 'Add mama once. Everyone in the group can send to her without re-typing GCash details.',
+      body: 'Keep recipient records together for your own planning.',
     },
     {
       icon: DollarSign,
-      title: 'Split the big ones',
-      body: "Tuition, lolo's meds, pamasko. Pool contributions so nobody carries it alone.",
+      title: 'Plan toward a goal',
+      body: 'Record a target for a family expense. A goal does not collect or transfer funds.',
     },
   ]
   return (
@@ -1200,9 +1122,8 @@ function FamilyFeature() {
             The whole pamilya, one dashboard.
           </h2>
           <p className="mt-5 text-sm lg:text-base text-slate-500 leading-relaxed max-w-lg">
-            Sending home is rarely a solo act. Pal lets you link your family, share recipients,
-            and see who pitched in for the big sends — without group chats, spreadsheets, or
-            Venmo math.
+            Organize recipient records and family goals in one place. Personal features require
+            sign-in. The illustration shows sample people and amounts, not completed transfers.
           </p>
 
           <div className="mt-8 space-y-4">
@@ -1237,6 +1158,7 @@ function FamilyFeature() {
 function FamilyGraphic() {
   return (
     <div className="relative h-[420px]">
+      <div className="absolute bottom-0 inset-x-0 text-center text-[11px] font-semibold text-slate-500">Illustration · sample people and amounts</div>
       {/* Central card: mama */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] rounded-2xl bg-white border border-slate-100 shadow-card-lg p-5 z-20 text-center">
         <div className="mx-auto w-12 h-12 rounded-full bg-blue-100 grid place-items-center">
@@ -1326,7 +1248,7 @@ function FamilyNode({
           <div className="text-[10px] text-slate-500 truncate">{city}</div>
         </div>
       </div>
-      <div className="mt-2 text-[10px] font-semibold text-slate-500">Pitched in</div>
+      <div className="mt-2 text-[10px] font-semibold text-slate-500">Example contribution</div>
       <div className="text-sm font-bold tabular-nums text-blue-600">{contrib}</div>
     </div>
   )
@@ -1341,38 +1263,20 @@ function AppDownload() {
       <div className="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
         <div>
           <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">
-            Mobile app · iOS &amp; Android
+            Use the web comparison tool
           </div>
           <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 max-w-lg">
-            The cheapest route home, always in your pocket.
+            Compare from your browser.
           </h2>
           <p className="mt-5 text-sm lg:text-base text-slate-500 leading-relaxed max-w-lg">
-            Set a recipient once. Watch your favorite corridors. Rate alerts buzz you the moment
-            the number you want hits — from the bus, from the break room, from your sofa at 2am
-            when you remember mama needs her pamasko.
+            Open Pal on your phone or computer to check available options. Native iOS and Android
+            downloads are not available here. The phone illustration shows fictional example data.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="#"
-              className="inline-flex items-center gap-3 h-14 px-5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors"
-            >
-              <Apple className="h-7 w-7" />
-              <span className="text-left leading-tight">
-                <span className="block text-[10px] text-slate-300">Download on the</span>
-                <span className="block text-base font-bold">App Store</span>
-              </span>
-            </a>
-            <a
-              href="#"
-              className="inline-flex items-center gap-3 h-14 px-5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors"
-            >
-              <Play className="h-7 w-7 fill-current" />
-              <span className="text-left leading-tight">
-                <span className="block text-[10px] text-slate-300">Get it on</span>
-                <span className="block text-base font-bold">Google Play</span>
-              </span>
-            </a>
+            <Link href="/compare" className="inline-flex items-center gap-3 h-14 px-5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors">
+              Open web comparison <ArrowRight className="h-5 w-5" />
+            </Link>
           </div>
         </div>
 
@@ -1393,11 +1297,11 @@ function AppMockup() {
             <span>●●● 5G ▪</span>
           </div>
           <div className="mt-5 font-display text-lg font-bold text-slate-900">
-            Magandang umaga, Maricel.
+            Illustrative preview
           </div>
           <div className="mt-4 rounded-2xl bg-white border border-slate-100 shadow-card p-4">
             <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Mama&rsquo;s GCash will get
+              Example recipient amount
             </div>
             <div className="mt-1 flex items-baseline gap-1">
               <span className="text-2xl font-bold text-slate-900">₱</span>
@@ -1406,14 +1310,14 @@ function AppMockup() {
               </span>
             </div>
             <div className="mt-2 flex justify-between text-[10px] text-slate-500">
-              <span>$500 USD sent</span>
-              <span>2 min delivery</span>
+              <span>Example: $500 USD</span>
+              <span>Not a live quote</span>
             </div>
           </div>
           <div className="mt-4 space-y-2">
-            <MiniProviderRow bg="#DBEAFE" color="#1E40AF" short="RE" name="Remitly" amt="₱28,410" winner />
-            <MiniProviderRow bg="#DCFCE7" color="#047857" short="WI" name="Wise" amt="₱28,084" />
-            <MiniProviderRow bg="#FEE2E2" color="#B91C1C" short="WE" name="Western U." amt="₱27,782" />
+            <MiniProviderRow bg="#DBEAFE" color="#1E40AF" short="A" name="Example A" amt="₱28,410" winner />
+            <MiniProviderRow bg="#DCFCE7" color="#047857" short="B" name="Example B" amt="₱28,084" />
+            <MiniProviderRow bg="#FEE2E2" color="#B91C1C" short="C" name="Example C" amt="₱27,782" />
           </div>
         </div>
       </div>
@@ -1465,7 +1369,7 @@ function FinalCTA() {
       <div className="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-[1fr_1.3fr] gap-10 items-center">
         <div>
           <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400">
-            Stop losing pesos
+            Know your options
           </div>
           <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold tracking-tight leading-[1.05]">
             Send smarter,
@@ -1475,8 +1379,8 @@ function FinalCTA() {
         </div>
         <div>
           <p className="text-base text-slate-300 leading-relaxed max-w-xl">
-            Free to compare. No account needed. Join 47,218 kabayans using live data to beat the
-            system — and send more home every month.
+            Free to compare. No account needed. Review available options, understand the source
+            of each quote, and confirm the final amount with your provider before sending.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -1507,8 +1411,8 @@ function SiteFooter() {
       title: 'Product',
       links: [
         ['Compare', '/compare'],
-        ['Rate Alerts', '/alerts'],
-        ['Buddy Plus', '/pricing'],
+        ['How it works', '/#how'],
+        ['Comparison method', '/compare'],
         ['Dashboard', '/dashboard'],
       ],
     },
@@ -1540,7 +1444,8 @@ function SiteFooter() {
             </span>
           </Link>
           <p className="mt-4 text-sm text-slate-400 max-w-xs leading-relaxed">
-            A comparison engine for OFWs. We find the cheapest route home — you send.
+            A comparison tool for sending money to the Philippines. Review options, then confirm
+            your quote with the provider you choose.
           </p>
         </div>
         {sections.map((s) => (

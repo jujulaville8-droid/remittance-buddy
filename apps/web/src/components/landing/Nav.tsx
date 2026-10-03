@@ -8,9 +8,9 @@ import { NavAuthButtons } from '@/components/NavAuthButtons'
 
 const NAV_LINKS = [
   { href: '/compare', label: 'Compare' },
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/alerts', label: 'Alerts' },
+  { href: '/#how', label: 'How it works' },
+  { href: '/extension', label: 'Extension preview' },
+  { href: '/#faq', label: 'Help' },
 ] as const
 
 export function Nav() {

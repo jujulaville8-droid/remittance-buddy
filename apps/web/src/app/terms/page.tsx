@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 }
 
 export default function TermsOfServicePage() {
-  const lastUpdated = 'April 2, 2026'
+  const lastUpdated = 'October 3, 2026'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -94,15 +94,7 @@ export default function TermsOfServicePage() {
           </Section>
 
           <Section title="6. Affiliate Disclosure">
-            <p>
-              My Remittance Pal earns commissions when you sign up with or use a remittance provider
-              through our links. This is our primary revenue source. We disclose this clearly:
-            </p>
-            <ul className="list-disc pl-5 space-y-1.5 mt-2">
-              <li>Affiliate commissions <strong className="text-foreground">do not</strong> affect your rates or fees.</li>
-              <li>Our scoring engine ranks providers by fees, exchange rates, speed, and trust — not by affiliate payouts.</li>
-              <li>Not all listed providers are affiliate partners.</li>
-            </ul>
+            <p>Current provider links are ordinary public links. No approved affiliate relationship or commission is claimed. Any future approved affiliate links will be labeled. Reference rankings use the recipient amount in the available source set, not affiliate payouts. Final offers depend on the provider.</p>
           </Section>
 
           <Section title="7. AI Assistant">

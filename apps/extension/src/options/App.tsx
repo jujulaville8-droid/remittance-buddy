@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  DEFAULT_API_BASE_URL,
   DEFAULT_PREFS,
   loadPreferences,
   savePreferences,
@@ -10,6 +9,8 @@ import {
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
 const CORRIDORS = [
+  { value: 'CA-PH' as const, label: 'Canada → Philippines' },
+  { value: 'AU-PH' as const, label: 'Australia → Philippines' },
   { value: 'US-PH' as const, label: 'United States → Philippines' },
   { value: 'UK-PH' as const, label: 'United Kingdom → Philippines' },
   { value: 'SG-PH' as const, label: 'Singapore → Philippines' },
@@ -26,14 +27,12 @@ const PAYOUT_METHODS = [
 
 export function OptionsApp() {
   const [prefs, setPrefs] = useState<UserPreferences>(DEFAULT_PREFS)
-  const [apiOverride, setApiOverride] = useState<string>('')
   const [loaded, setLoaded] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>('idle')
 
   useEffect(() => {
     loadPreferences().then((p) => {
       setPrefs(p)
-      setApiOverride(p.apiBaseUrl ?? '')
       setLoaded(true)
     })
   }, [])
@@ -42,7 +41,6 @@ export function OptionsApp() {
     setSaveState('saving')
     try {
       await savePreferences({
-        apiBaseUrl: apiOverride.trim() || null,
         defaultCorridor: prefs.defaultCorridor,
         defaultPayout: prefs.defaultPayout,
       })
@@ -55,26 +53,27 @@ export function OptionsApp() {
 
   if (!loaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-neutral-500">
+      <div className="flex min-h-screen items-center justify-center text-sm text-neutral-500">
         Loading…
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(210,40%,98%)] text-[hsl(220,30%,12%)] font-sans">
-      <div className="max-w-2xl mx-auto px-8 py-16">
+    <div className="min-h-screen bg-[hsl(210,40%,98%)] font-sans text-[hsl(220,30%,12%)]">
+      <div className="mx-auto max-w-2xl px-8 py-16">
         <header className="mb-12">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-10 w-10 rounded-full bg-[hsl(220,30%,12%)] grid place-items-center text-white font-serif text-base">
+          <div className="mb-8 flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-[hsl(220,30%,12%)] font-serif text-base text-white">
               R
             </div>
-            <span className="font-serif text-xl tracking-tight">Remittance Buddy</span>
+            <span className="font-serif text-xl tracking-tight">My Remittance Pal</span>
           </div>
-          <h1 className="font-serif text-4xl leading-[1.05] mb-3">Settings</h1>
-          <p className="text-sm text-neutral-500 max-w-md leading-relaxed">
-            Configure your default corridor and payout method. Changes apply immediately to the
-            popup and side panel.
+          <h1 className="mb-3 font-serif text-4xl leading-[1.05]">Settings</h1>
+          <p className="max-w-md text-sm leading-relaxed text-neutral-500">
+            Configure your default corridor and payout method. Saved preferences are used when you
+            next open the popup or side panel. Payout availability must be confirmed with the
+            provider.
           </p>
         </header>
 
@@ -83,7 +82,10 @@ export function OptionsApp() {
             <select
               value={prefs.defaultCorridor}
               onChange={(e) =>
-                setPrefs({ ...prefs, defaultCorridor: e.target.value as UserPreferences['defaultCorridor'] })
+                setPrefs({
+                  ...prefs,
+                  defaultCorridor: e.target.value as UserPreferences['defaultCorridor'],
+                })
               }
               className="w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm outline-none focus:border-black/30"
             >
@@ -99,7 +101,10 @@ export function OptionsApp() {
             <select
               value={prefs.defaultPayout}
               onChange={(e) =>
-                setPrefs({ ...prefs, defaultPayout: e.target.value as UserPreferences['defaultPayout'] })
+                setPrefs({
+                  ...prefs,
+                  defaultPayout: e.target.value as UserPreferences['defaultPayout'],
+                })
               }
               className="w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm outline-none focus:border-black/30"
             >
@@ -111,25 +116,7 @@ export function OptionsApp() {
             </select>
           </Field>
 
-          <div className="pt-6 border-t border-black/10">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500 mb-4">
-              Advanced
-            </div>
-            <Field
-              label="API base URL override"
-              hint={`Leave blank to use the default (${DEFAULT_API_BASE_URL}).`}
-            >
-              <input
-                type="url"
-                placeholder={DEFAULT_API_BASE_URL}
-                value={apiOverride}
-                onChange={(e) => setApiOverride(e.target.value)}
-                className="w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-mono outline-none focus:border-black/30"
-              />
-            </Field>
-          </div>
-
-          <div className="pt-8 flex items-center gap-4">
+          <div className="flex items-center gap-4 pt-8">
             <button
               type="button"
               onClick={handleSave}
@@ -139,17 +126,17 @@ export function OptionsApp() {
               {saveState === 'saving' ? 'Saving…' : 'Save settings'}
             </button>
             {saveState === 'saved' && (
-              <span className="text-sm text-[hsl(174,84%,32%)] font-medium">Saved ✓</span>
+              <span className="text-sm font-medium text-[hsl(174,84%,32%)]">Saved ✓</span>
             )}
             {saveState === 'error' && (
-              <span className="text-sm text-red-600 font-medium">Something went wrong</span>
+              <span className="text-sm font-medium text-red-600">Something went wrong</span>
             )}
           </div>
         </section>
 
-        <footer className="mt-16 pt-8 border-t border-black/10 text-xs text-neutral-500">
-          Remittance Buddy never stores your personal data on our servers. All preferences live
-          in chrome.storage.local on this device only.
+        <footer className="mt-16 border-t border-black/10 pt-8 text-xs text-neutral-500">
+          Preferences are stored on this device. Quote requests send the amount, currencies and
+          selected preferences to our comparison API. See the extension privacy policy for details.
         </footer>
       </div>
     </div>
@@ -167,7 +154,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-600 mb-2">
+      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-600">
         {label}
       </div>
       {children}

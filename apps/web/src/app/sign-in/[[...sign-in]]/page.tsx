@@ -77,23 +77,17 @@ function SignInPageInner() {
         </Link>
 
         <div className="relative z-10 space-y-8">
-          <blockquote className="font-display text-3xl xl:text-4xl leading-[1.15] tracking-tight">
-            &ldquo;Naka-save ako ng $84 last month lang. Pal found a route my bank never showed me.&rdquo;
-          </blockquote>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 grid place-items-center font-bold text-sm">
-              MC
-            </div>
-            <div>
-              <div className="font-semibold text-sm">Maricel C.</div>
-              <div className="text-xs text-blue-200">RN · Queens, NY → Batangas</div>
-            </div>
-          </div>
+          <h2 className="font-display text-3xl xl:text-4xl leading-[1.15] tracking-tight">
+            A clearer view of your options for sending home.
+          </h2>
+          <p className="text-sm text-blue-100 leading-relaxed">
+            Review recipient amounts, fees, and quote sources before you choose a provider.
+          </p>
 
           <div className="grid grid-cols-3 gap-5 pt-6 border-t border-white/15">
-            <StatTile k="47,218" v="senders this month" />
-            <StatTile k="$2.4M" v="saved this year" />
-            <StatTile k="60s" v="live-rate refresh" />
+            <StatTile k="Compare" v="available options" />
+            <StatTile k="Check" v="the quote source" />
+            <StatTile k="Choose" v="your provider" />
           </div>
         </div>
       </aside>
@@ -111,14 +105,18 @@ function SignInPageInner() {
         <div className="flex-1 flex flex-col justify-center max-w-md w-full mx-auto py-10">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-[11px] font-semibold text-blue-700 w-fit">
             <ShieldCheck className="h-3.5 w-3.5" />
-            Secure sign-in
+            Your account
           </div>
           <h1 className="mt-4 font-display text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
             Welcome back.
           </h1>
           <p className="mt-3 text-sm lg:text-base text-slate-500 leading-relaxed">
-            Sign in to see live rates, manage recipients, and watch your family group.
+            Sign in to manage your personal dashboard, recipients, and family groups.
           </p>
+
+          <Link href="/compare" className="mt-4 text-sm font-semibold text-blue-600 hover:underline">
+            Compare without an account <ArrowRight className="inline h-3.5 w-3.5" />
+          </Link>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             {error && (
@@ -148,9 +146,6 @@ function SignInPageInner() {
                 <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Password
                 </label>
-                <Link href="/sign-in" className="text-xs font-semibold text-blue-600 hover:underline">
-                  Forgot password?
-                </Link>
               </div>
               <div className="relative mt-2">
                 <input
@@ -197,8 +192,8 @@ function SignInPageInner() {
 
           <div className="mt-8 pt-6 border-t border-slate-100 text-center">
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Pal is a comparison engine, not a money transmitter. We never see your banking
-              credentials — you sign in with the provider you choose.
+              A comparison is not a booked transfer. Review the final quote and complete any
+              transfer on your chosen provider&rsquo;s website.
             </p>
           </div>
         </div>
@@ -210,7 +205,7 @@ function SignInPageInner() {
 function StatTile({ k, v }: { readonly k: string; readonly v: string }) {
   return (
     <div>
-      <div className="font-display text-2xl font-bold tabular-nums text-white">{k}</div>
+      <div className="font-display text-xl font-bold text-white">{k}</div>
       <div className="mt-1 text-[10px] font-medium text-blue-200 leading-snug">{v}</div>
     </div>
   )

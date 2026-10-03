@@ -1,108 +1,43 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
-env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-
+permissions:
+  contents: read
 jobs:
-  lint-type-test:
-    name: Lint, Type-check & Test
+  verify:
+    name: Type-check, test and build
     runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      ENABLE_TRANSFER_EXECUTION: 'false'
+      ENABLE_PAID_PLANS: 'false'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build extension
-        run: cd apps/extension && pnpm build
-
-      - name: Type-check web
-        run: cd apps/web && pnpm type-check || true
-        # Allow type-check to warn but not fail (pre-existing test type issues)
-
-      - name: Type-check extension
-        run: cd apps/extension && pnpm type-check
-
-  deploy-preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    needs: lint-type-test
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Lint web
+        run: pnpm --filter @remit/web lint
+      - name: Type-check
+        run: pnpm type-check
+      - name: Test web and comparison contracts
+        run: pnpm --filter @remit/web test
+      - name: Build extension package
+        run: pnpm --filter @remit/extension build
+      - name: Build web
+        run: pnpm --filter @remit/web build
+      - uses: actions/upload-artifact@v4
         with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Deploy to Vercel (Preview)
-        run: |
-          cd apps/web
-          pnpm vercel deploy --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-  deploy-production:
-    name: Deploy Production
-    runs-on: ubuntu-latest
-    needs: lint-type-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Deploy to Vercel (Production)
-        if: ${{ secrets.VERCEL_TOKEN != '' }}
-        run: |
-          cd apps/web
-          pnpm vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          name: my-remittance-pal-extension
+          path: apps/extension/dist/
+# Vercel's existing Git integration owns deployment. No duplicate CLI deployment,
+# token-dependent expressions, or ignored type-check failures are used here.

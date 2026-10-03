@@ -1,40 +1,5 @@
-/**
- * Wise public Comparisons API — one request returns real-time rates for
- * 5-15 providers (Wise, Remitly, Xoom, WU, MoneyGram, WorldRemit, PayPal,
- * banks, …) for a given corridor.
- *
- * Endpoint: GET https://api.wise.com/v3/comparisons/
- *   ?sourceCurrency=USD&targetCurrency=PHP&sendAmount=1000
- *
- * Wise publishes this data for their own transparency pages; it's public,
- * unauthenticated, and returns the same numbers they show on wise.com.
- * We consume it to replace per-provider synthetic fetchers with live data.
- */
-
+/** Reference comparisons, not executable or payout-specific provider quotes. */
 import type { LiveQuote, QuoteRequest } from '../types'
-import { getMidMarketRate } from '../mid-market'
-
-/**
- * Wise publishes competitor rates alongside their own, and their own rate
- * is the mid-market rate they famously advertise (markup = 0 in every
- * response). So when our external mid-market source is unavailable, we
- * infer it from the Wise entry inside the same response.
- */
-function deriveMidMarket(providers: readonly WiseProvider[]): number | null {
-  const wise = providers.find((p) => p.alias === 'wise')
-  const rate = wise?.quotes?.[0]?.rate
-  if (typeof rate === 'number' && rate > 0) return rate
-  // Fallback: the highest rate in the set is the closest proxy
-  let best = 0
-  for (const p of providers) {
-    const r = p.quotes?.[0]?.rate
-    if (typeof r === 'number' && r > best) best = r
-  }
-  return best > 0 ? best : null
-}
-
-const COMPARISONS_URL = 'https://api.wise.com/v3/comparisons/'
-const FETCH_TIMEOUT_MS = 10_000
 
 interface WiseQuote {
   readonly rate?: number
@@ -42,263 +7,130 @@ interface WiseQuote {
   readonly markup?: number
   readonly receivedAmount?: number
   readonly dateCollected?: string
+  readonly sourceCountry?: string | null
+  readonly targetCountry?: string | null
   readonly deliveryEstimation?: {
-    readonly duration?: number | null
-    readonly durationType?: string | null
+    readonly duration?: { readonly min?: string; readonly max?: string } | null
   }
 }
-
-interface WiseLogoSet {
-  readonly svgUrl?: string | null
-  readonly pngUrl?: string | null
-}
-
 interface WiseProvider {
-  readonly id: number
   readonly alias: string
   readonly name: string
-  readonly type: 'bank' | 'moneyTransferProvider'
-  readonly partner?: boolean
   readonly quotes?: readonly WiseQuote[]
   readonly logo?: string
-  readonly logos?: {
-    readonly normal?: WiseLogoSet
-    readonly circle?: WiseLogoSet
-  }
+  readonly logos?: { readonly normal?: { readonly svgUrl?: string | null } }
 }
 
-interface ComparisonsResponse {
-  readonly providers?: readonly WiseProvider[]
+// Ordinary destination links; no affiliate approval or commission is implied.
+const PROVIDER_URLS: Record<string, string> = {
+  wise: 'https://wise.com/',
+  remitly: 'https://www.remitly.com/',
+  xoom: 'https://www.xoom.com/',
+  'western-union': 'https://www.westernunion.com/',
+  moneygram: 'https://www.moneygram.com/',
+  'world-remit': 'https://www.worldremit.com/',
+  paypal: 'https://www.paypal.com/',
+  ofx: 'https://www.ofx.com/',
+  skrill: 'https://www.skrill.com/',
+  instarem: 'https://www.instarem.com/',
 }
 
-// Per-provider metadata we maintain on our side — rails support,
-// human-friendly delivery copy, affiliate URLs, and a trust-score hint.
-// Unknown providers fall back to DEFAULT_MTP or DEFAULT_BANK.
-interface ProviderMeta {
-  readonly slug: string
-  readonly deliveryMinutes: number
-  readonly deliveryTime: string
-  readonly supportsGcash: boolean
-  readonly supportsMaya: boolean
-  readonly supportsBank: boolean
-  readonly supportsCashPickup: boolean
-  readonly trustScore: number
-  readonly affiliateUrl: string
+export function durationMinutes(duration: string | undefined): number | null {
+  if (!duration) return null
+  const match =
+    /^P(?:(\d+(?:\.\d+)?)D)?(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)?$/.exec(
+      duration
+    )
+  if (!match || !match.slice(1).some(Boolean)) return null
+  const minutes =
+    Number(match[1] || 0) * 1440 +
+    Number(match[2] || 0) * 60 +
+    Number(match[3] || 0) +
+    Number(match[4] || 0) / 60
+  return Number.isFinite(minutes) && minutes >= 0 ? Math.ceil(minutes) : null
 }
 
-const PROVIDER_META: Record<string, ProviderMeta> = {
-  wise: {
-    slug: 'wise',
-    deliveryMinutes: 20,
-    deliveryTime: 'Minutes',
-    supportsGcash: true,
-    supportsMaya: true,
-    supportsBank: true,
-    supportsCashPickup: false,
-    trustScore: 9,
-    affiliateUrl: 'https://wise.com/invite/dhc/remittancebuddy',
-  },
-  remitly: {
-    slug: 'remitly',
-    deliveryMinutes: 30,
-    deliveryTime: 'Minutes',
-    supportsGcash: true,
-    supportsMaya: true,
-    supportsBank: true,
-    supportsCashPickup: true,
-    trustScore: 9,
-    affiliateUrl: 'https://www.remitly.com/us/en/philippines',
-  },
-  xoom: {
-    slug: 'xoom',
-    deliveryMinutes: 15,
-    deliveryTime: 'Minutes',
-    supportsGcash: true,
-    supportsMaya: false,
-    supportsBank: true,
-    supportsCashPickup: true,
-    trustScore: 8,
-    affiliateUrl: 'https://www.xoom.com/philippines',
-  },
-  'western-union': {
-    slug: 'western-union',
-    deliveryMinutes: 10,
-    deliveryTime: 'Minutes',
-    supportsGcash: true,
-    supportsMaya: false,
-    supportsBank: true,
-    supportsCashPickup: true,
-    trustScore: 8,
-    affiliateUrl: 'https://www.westernunion.com/us/en/send-money-to-philippines.html',
-  },
-  moneygram: {
-    slug: 'moneygram',
-    deliveryMinutes: 20,
-    deliveryTime: 'Minutes',
-    supportsGcash: false,
-    supportsMaya: false,
-    supportsBank: true,
-    supportsCashPickup: true,
-    trustScore: 7,
-    affiliateUrl: 'https://www.moneygram.com/mgo/us/en/send/philippines',
-  },
-  'world-remit': {
-    slug: 'worldremit',
-    deliveryMinutes: 30,
-    deliveryTime: 'Minutes',
-    supportsGcash: true,
-    supportsMaya: false,
-    supportsBank: true,
-    supportsCashPickup: true,
-    trustScore: 8,
-    affiliateUrl: 'https://www.worldremit.com/en/philippines',
-  },
-  paypal: {
-    slug: 'paypal',
-    deliveryMinutes: 60,
-    deliveryTime: '1 hour',
-    supportsGcash: false,
-    supportsMaya: false,
-    supportsBank: true,
-    supportsCashPickup: false,
-    trustScore: 7,
-    affiliateUrl: 'https://www.paypal.com/us/send-money',
-  },
-  ofx: {
-    slug: 'ofx',
-    deliveryMinutes: 1440,
-    deliveryTime: '1-2 days',
-    supportsGcash: false,
-    supportsMaya: false,
-    supportsBank: true,
-    supportsCashPickup: false,
-    trustScore: 7,
-    affiliateUrl: 'https://www.ofx.com',
-  },
-  skrill: {
-    slug: 'skrill',
-    deliveryMinutes: 60,
-    deliveryTime: '1 hour',
-    supportsGcash: false,
-    supportsMaya: false,
-    supportsBank: true,
-    supportsCashPickup: false,
-    trustScore: 6,
-    affiliateUrl: 'https://www.skrill.com',
-  },
-}
-
-const DEFAULT_MTP: ProviderMeta = {
-  slug: 'unknown',
-  deliveryMinutes: 60,
-  deliveryTime: '1 hour',
-  supportsGcash: false,
-  supportsMaya: false,
-  supportsBank: true,
-  supportsCashPickup: false,
-  trustScore: 6,
-  affiliateUrl: '',
-}
-
-const DEFAULT_BANK: ProviderMeta = {
-  slug: 'bank',
-  deliveryMinutes: 2880,
-  deliveryTime: '2-3 days',
-  supportsGcash: false,
-  supportsMaya: false,
-  supportsBank: true,
-  supportsCashPickup: false,
-  trustScore: 7,
-  affiliateUrl: '',
-}
-
-function pickMeta(alias: string, type: WiseProvider['type']): ProviderMeta {
-  const m = PROVIDER_META[alias]
-  if (m) return m
-  return type === 'bank' ? DEFAULT_BANK : DEFAULT_MTP
-}
-
-function mapQuote(
-  p: WiseProvider,
-  q: WiseQuote,
+export function mapComparisonQuotes(
+  providers: readonly WiseProvider[],
   req: QuoteRequest,
-  midMarket: number,
-  now: string,
-): LiveQuote | null {
-  if (typeof q.rate !== 'number' || typeof q.receivedAmount !== 'number') return null
-
-  const meta = pickMeta(p.alias, p.type)
-  const fee = typeof q.fee === 'number' ? q.fee : 0
-  const markup = typeof q.markup === 'number' ? q.markup : 0
-
-  // Slug falls back to the provider's Wise alias so the UI always has a
-  // stable identifier, even for providers we haven't curated meta for.
-  const slug = meta.slug === 'unknown' || meta.slug === 'bank' ? p.alias : meta.slug
-
-  const logoUrl = p.logos?.normal?.svgUrl ?? p.logo ?? undefined
-
-  return {
-    provider: p.name,
-    providerSlug: slug,
-    corridor: req.corridor,
-    sourceAmount: req.sourceAmount,
-    sourceCurrency: req.sourceCurrency,
-    targetAmount: q.receivedAmount,
-    targetCurrency: req.targetCurrency,
-    exchangeRate: q.rate,
-    midMarketRate: midMarket,
-    fee,
-    totalCost: req.sourceAmount + fee,
-    spread: markup / 100,
-    deliveryTime: meta.deliveryTime,
-    deliveryMinutes: meta.deliveryMinutes,
-    supportsGcash: meta.supportsGcash,
-    supportsMaya: meta.supportsMaya,
-    supportsBank: meta.supportsBank,
-    supportsCashPickup: meta.supportsCashPickup,
-    trustScore: meta.trustScore,
-    affiliateUrl: meta.affiliateUrl,
-    fetchedAt: now,
-    source: 'live-api',
-    logoUrl,
-  }
+  fetchedAt: string
+): LiveQuote[] {
+  const wiseRate = providers.find((p) => p.alias === 'wise')?.quotes?.[0]?.rate
+  const midMarket =
+    typeof wiseRate === 'number' && Number.isFinite(wiseRate) && wiseRate > 0 ? wiseRate : 0
+  const sourceCountry = req.corridor.split('-')[0] === 'UK' ? 'GB' : req.corridor.split('-')[0]
+  return providers.flatMap((p) => {
+    const q = p.quotes?.[0]
+    if (
+      !q ||
+      ![q.rate, q.fee, q.receivedAmount].every(
+        (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0
+      ) ||
+      !q.rate
+    )
+      return []
+    if (q.sourceCountry && q.sourceCountry !== sourceCountry) return []
+    if (q.targetCountry && q.targetCountry !== 'PH') return []
+    const collectedAt =
+      q.dateCollected && Number.isFinite(Date.parse(q.dateCollected))
+        ? new Date(q.dateCollected).toISOString()
+        : null
+    const minutes = durationMinutes(q.deliveryEstimation?.duration?.max)
+    return [
+      {
+        provider: p.name,
+        providerSlug: p.alias,
+        corridor: req.corridor,
+        sourceAmount: req.sourceAmount,
+        sourceCurrency: req.sourceCurrency,
+        targetAmount: q.receivedAmount!,
+        targetCurrency: req.targetCurrency,
+        exchangeRate: q.rate,
+        midMarketRate: midMarket,
+        fee: q.fee!,
+        // Wise comparison sendAmount is the inclusive amount: fee is deducted.
+        totalCost: req.sourceAmount,
+        spread: typeof q.markup === 'number' && Number.isFinite(q.markup) ? q.markup / 100 : 0,
+        deliveryMinutes: minutes ?? Number.MAX_SAFE_INTEGER,
+        deliveryTime:
+          minutes === null
+            ? 'Check provider'
+            : minutes < 60
+              ? `About ${minutes} min`
+              : `About ${Math.ceil(minutes / 60)} hours`,
+        // This endpoint does not prove the requested payout method or funding rail.
+        supportsGcash: false,
+        supportsMaya: false,
+        supportsBank: false,
+        supportsCashPickup: false,
+        payoutVerified: false,
+        trustScore: 0,
+        affiliateUrl: PROVIDER_URLS[p.alias] ?? '',
+        fetchedAt,
+        collectedAt,
+        sourceName: 'Wise comparison data',
+        source: 'comparison' as const,
+        logoUrl: p.logos?.normal?.svgUrl ?? p.logo,
+      },
+    ]
+  })
 }
 
 export async function fetchWiseComparisons(req: QuoteRequest): Promise<LiveQuote[]> {
-  const url =
-    `${COMPARISONS_URL}?sourceCurrency=${encodeURIComponent(req.sourceCurrency)}` +
-    `&targetCurrency=${encodeURIComponent(req.targetCurrency)}` +
-    `&sendAmount=${req.sourceAmount}`
-
-  const res = await fetch(url, {
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  const params = new URLSearchParams({
+    sourceCurrency: req.sourceCurrency,
+    targetCurrency: req.targetCurrency,
+    sendAmount: String(req.sourceAmount),
+  })
+  const res = await fetch(`https://api.wise.com/v3/comparisons/?${params}`, {
+    signal: AbortSignal.timeout(10_000),
     headers: { Accept: 'application/json' },
   })
-  if (!res.ok) {
-    throw new Error(`Wise comparisons returned ${res.status}`)
-  }
-
-  const data = (await res.json()) as ComparisonsResponse
-  const providers = data.providers ?? []
-
-  // Prefer the external mid-market source; if it fails (unsupported corridor,
-  // network error), derive it from the Wise entry in this same response.
-  let midMarket: number
-  try {
-    midMarket = await getMidMarketRate(req.sourceCurrency, req.targetCurrency)
-  } catch {
-    const derived = deriveMidMarket(providers)
-    if (derived === null) return []
-    midMarket = derived
-  }
-  const now = new Date().toISOString()
-
-  const quotes: LiveQuote[] = []
-  for (const p of providers) {
-    const q = p.quotes?.[0]
-    if (!q) continue
-    const mapped = mapQuote(p, q, req, midMarket, now)
-    if (mapped) quotes.push(mapped)
-  }
-  return quotes
+  if (!res.ok) throw new Error(`Comparison source returned ${res.status}`)
+  const data = (await res.json()) as { providers?: WiseProvider[] }
+  return mapComparisonQuotes(
+    Array.isArray(data.providers) ? data.providers : [],
+    req,
+    new Date().toISOString()
+  )
 }

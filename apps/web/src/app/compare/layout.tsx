@@ -3,9 +3,9 @@ import { Nav } from '@/components/landing/Nav'
 import { Footer } from '@/components/landing/Footer'
 
 export const metadata: Metadata = {
-  title: 'Send money home to the Philippines — My Remittance Pal',
+  title: 'Compare remittance options to the Philippines — My Remittance Pal',
   description:
-    'Live rate comparison for Filipino OFWs. Find the best route for sending money to the Philippines via GCash, Maya, bank, or cash pickup — every major provider compared in real time.',
+    'Compare available remittance options to the Philippines. Review recipient amounts, fees, and data sources, then confirm the final quote with the provider.',
   keywords: [
     'send money to Philippines',
     'remittance Philippines',
@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     'Wise vs Remitly Philippines',
   ],
   openGraph: {
-    title: 'Send money home to the Philippines — My Remittance Pal',
+    title: 'Compare remittance options to the Philippines — My Remittance Pal',
     description:
-      'Live rate comparison for Filipino OFWs. We compare every major provider and tell you which route lands the most pesos for your family.',
+      'Review available remittance options, fees, and quote sources for sending to the Philippines. No account needed to compare.',
     locale: 'en_PH',
   },
 }

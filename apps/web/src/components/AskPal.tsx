@@ -11,7 +11,7 @@ import type { UIMessage, UIMessagePart, UITools, UIDataTypes } from 'ai'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { MessageCircle, X, Send, Sparkles } from 'lucide-react'
+import { X, Send, Sparkles } from 'lucide-react'
 import { Message, MessageContent, MessageResponse } from '@/components/ai-elements/message'
 
 /**

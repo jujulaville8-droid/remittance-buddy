@@ -4,31 +4,25 @@ const COLUMNS = [
   {
     title: 'Product',
     links: [
-      { href: '#compare', label: 'Compare rates' },
-      { href: '#how', label: 'How it works' },
-      { href: '/alerts', label: 'Rate alerts' },
-      { href: '/family', label: 'Family hub' },
-      { href: '#', label: 'Chrome extension' },
+      { href: '/compare', label: 'Compare options' },
+      { href: '/#how', label: 'How it works' },
+      { href: '/extension', label: 'Extension preview' },
     ],
   },
   {
     title: 'Corridors',
     links: [
-      { href: '#corridor', label: 'US → Philippines' },
-      { href: '#', label: 'UK → Philippines' },
-      { href: '#', label: 'Singapore → Philippines' },
-      { href: '#', label: 'UAE → Philippines' },
-      { href: '#', label: 'Request a corridor' },
+      { href: '/compare?corridor=US-PH', label: 'US → Philippines' },
+      { href: '/compare?corridor=UK-PH', label: 'UK → Philippines' },
+      { href: '/compare?corridor=SG-PH', label: 'Singapore → Philippines' },
+      { href: '/compare?corridor=AE-PH', label: 'UAE → Philippines' },
     ],
   },
   {
-    title: 'Company',
+    title: 'Learn more',
     links: [
-      { href: '#', label: 'About' },
-      { href: '/pricing', label: 'Pricing' },
-      { href: '#', label: 'Blog' },
-      { href: '#', label: 'Press kit' },
-      { href: '#', label: 'Contact' },
+      { href: '/#faq', label: 'FAQ' },
+      { href: '/#corridors', label: 'Sending corridors' },
     ],
   },
   {
@@ -36,8 +30,7 @@ const COLUMNS = [
     links: [
       { href: '/privacy', label: 'Privacy' },
       { href: '/terms', label: 'Terms' },
-      { href: '#', label: 'Disclosures' },
-      { href: '#', label: 'Affiliate policy' },
+      { href: '/extension-privacy', label: 'Extension privacy' },
     ],
   },
 ] as const
@@ -58,8 +51,8 @@ export function Footer() {
               is going home.
             </p>
             <p className="mt-8 text-xs text-muted-foreground/80 max-w-sm leading-relaxed">
-              My Remittance Pal is a comparison tool, not a money transmitter. We earn affiliate
-              fees from partners when you send through them. This never affects our rankings.
+              Comparison results use reference data; source collection times vary. Check the source and
+              timing, then confirm the final quote and terms with your chosen provider.
             </p>
           </div>
 
@@ -87,7 +80,7 @@ export function Footer() {
         </div>
 
         <div className="mt-20 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div>© {new Date().getFullYear()} My Remittance Pal Technologies Inc.</div>
+          <div>© {new Date().getFullYear()} My Remittance Pal</div>
           <div className="flex items-center gap-6">
             <span>Made for the diaspora</span>
             <span className="h-1 w-1 rounded-full bg-border" />

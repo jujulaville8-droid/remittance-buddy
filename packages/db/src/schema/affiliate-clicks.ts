@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, integer, decimal } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, uuid, decimal } from 'drizzle-orm/pg-core'
 
 export const affiliateClicks = pgTable('affiliate_clicks', {
   id: uuid('id').primaryKey().defaultRandom(),

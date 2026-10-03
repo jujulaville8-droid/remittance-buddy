@@ -1,20 +1,16 @@
 {
   "manifest_version": 3,
-  "name": "Remittance Buddy — Smart money transfer comparison",
-  "short_name": "Remittance Buddy",
-  "description": "Compare live rates from every major remittance provider in real time. Know exactly which route saves your family the most, before you send.",
-  "version": "0.2.0",
-  "author": "Remittance Buddy",
-  "homepage_url": "https://remitance-buddy-ey2a2pix9-jujulaville8-droids-projects.vercel.app",
-  "permissions": ["storage", "sidePanel", "alarms", "notifications"],
-  "host_permissions": [
-    "https://remitance-buddy-ey2a2pix9-jujulaville8-droids-projects.vercel.app/*",
-    "https://*.vercel.app/*",
-    "https://remittancebuddy.com/*"
-  ],
+  "name": "My Remittance Pal \u2014 Philippines comparisons",
+  "short_name": "My Remittance Pal",
+  "description": "Compare reference transfer amounts and fees for the Philippines. Confirm current prices and payout details with your chosen provider.",
+  "version": "0.3.0",
+  "author": "My Remittance Pal",
+  "homepage_url": "https://remitance-buddy.vercel.app",
+  "permissions": ["storage", "sidePanel"],
+  "host_permissions": ["https://remitance-buddy.vercel.app/*"],
   "action": {
     "default_popup": "src/popup/index.html",
-    "default_title": "Remittance Buddy",
+    "default_title": "My Remittance Pal",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png",

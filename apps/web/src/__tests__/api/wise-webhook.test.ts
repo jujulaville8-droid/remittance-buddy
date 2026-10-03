@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+const { dbSetMock, dbUpdateMock } = vi.hoisted(() => {
+  const dbSetMock = vi.fn(() => ({ where: vi.fn() }))
+  return { dbSetMock, dbUpdateMock: vi.fn(() => ({ set: dbSetMock })) }
+})
+
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
 vi.mock('next/headers', () => ({
@@ -8,7 +13,7 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@remit/db', () => ({
   db: {
-    update: vi.fn(() => ({ set: vi.fn(() => ({ where: vi.fn() })) })),
+    update: dbUpdateMock,
   },
   transfers: {},
 }))
@@ -33,7 +38,11 @@ function mockHeaders(sig = '') {
   } as ReturnType<typeof headers> extends Promise<infer T> ? T : never)
 }
 
-function makeStateChangeEvent(transferId: number, currentState: string, previousState = 'incoming_payment_waiting') {
+function makeStateChangeEvent(
+  transferId: number,
+  currentState: string,
+  previousState = 'incoming_payment_waiting'
+) {
   return JSON.stringify({
     event_type: 'transfers#state-change',
     schema_version: '2.0.0',
@@ -101,10 +110,6 @@ describe('POST /api/webhooks/wise', () => {
     mockHeaders('valid-sig')
     vi.mocked(mapWiseStatusToTransferStatus).mockReturnValue('completed')
 
-    const dbSetMock = vi.fn(() => ({ where: vi.fn() }))
-    const dbUpdateMock = vi.fn(() => ({ set: dbSetMock }))
-    vi.mocked(db).update = dbUpdateMock
-
     const req = new Request('http://localhost/api/webhooks/wise', {
       method: 'POST',
       body: makeStateChangeEvent(12345, 'outgoing_payment_sent'),
@@ -112,25 +117,18 @@ describe('POST /api/webhooks/wise', () => {
     const res = await POST(req)
     expect(res.status).toBe(200)
     expect(mapWiseStatusToTransferStatus).toHaveBeenCalledWith('outgoing_payment_sent')
-    expect(dbSetMock).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'completed' }),
-    )
+    expect(dbSetMock).toHaveBeenCalledWith(expect.objectContaining({ status: 'completed' }))
   })
 
   it('maps processing state correctly', async () => {
     mockHeaders('valid-sig')
     vi.mocked(mapWiseStatusToTransferStatus).mockReturnValue('processing')
 
-    const dbSetMock = vi.fn(() => ({ where: vi.fn() }))
-    vi.mocked(db).update = vi.fn(() => ({ set: dbSetMock }))
-
     const req = new Request('http://localhost/api/webhooks/wise', {
       method: 'POST',
       body: makeStateChangeEvent(99999, 'processing'),
     })
     await POST(req)
-    expect(dbSetMock).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'processing' }),
-    )
+    expect(dbSetMock).toHaveBeenCalledWith(expect.objectContaining({ status: 'processing' }))
   })
 })

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import { db, transfers, users } from '@remit/db'
+import { db, transfers, users, type Transfer } from '@remit/db'
+import { transferExecutionEnabled } from '@/lib/launch-mode'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { createQuote, createRecipient, createTransfer } from '@/lib/wise'
@@ -7,8 +8,17 @@ import { transferRateLimiter } from '@/lib/rate-limit'
 import { logAuditEvent, getClientIp } from '@/lib/audit'
 
 export async function GET() {
+  if (!transferExecutionEnabled()) {
+    return Response.json(
+      { error: 'Transfers are unavailable in comparison-only mode.' },
+      { status: 503 }
+    )
+  }
+
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -38,8 +48,17 @@ const CreateTransferSchema = z.object({
 })
 
 export async function POST(req: Request) {
+  if (!transferExecutionEnabled()) {
+    return Response.json(
+      { error: 'Transfers are unavailable in comparison-only mode.' },
+      { status: 503 }
+    )
+  }
+
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -47,7 +66,10 @@ export async function POST(req: Request) {
 
   const { success } = await transferRateLimiter.limit(userId)
   if (!success) {
-    return Response.json({ error: 'Too many transfer requests. Please slow down.' }, { status: 429 })
+    return Response.json(
+      { error: 'Too many transfer requests. Please slow down.' },
+      { status: 429 }
+    )
   }
 
   // KYC gate
@@ -62,14 +84,17 @@ export async function POST(req: Request) {
         message: 'Complete identity verification before sending money.',
         kycStatus: user.kycStatus,
       },
-      { status: 403 },
+      { status: 403 }
     )
   }
 
   const body = await req.json()
   const parsed = CreateTransferSchema.safeParse(body)
   if (!parsed.success) {
-    return Response.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
+    return Response.json(
+      { error: 'Invalid request', details: parsed.error.flatten() },
+      { status: 400 }
+    )
   }
 
   const input = parsed.data
@@ -80,10 +105,7 @@ export async function POST(req: Request) {
 
   // Idempotency check — return existing transfer if key already used
   const existing = await db.query.transfers.findFirst({
-    where: and(
-      eq(transfers.idempotencyKey, input.idempotencyKey),
-      eq(transfers.senderId, userId),
-    ),
+    where: and(eq(transfers.idempotencyKey, input.idempotencyKey), eq(transfers.senderId, userId)),
   })
   if (existing) {
     return Response.json(existing)
@@ -118,7 +140,7 @@ export async function POST(req: Request) {
   const targetAmountCents = Math.round(quote.targetAmount * 100)
 
   // 4. Persist transfer record
-  let record = existing
+  let record: Transfer | undefined
   try {
     const inserted = await db
       .insert(transfers)
@@ -146,7 +168,7 @@ export async function POST(req: Request) {
       const dupe = await db.query.transfers.findFirst({
         where: and(
           eq(transfers.idempotencyKey, input.idempotencyKey),
-          eq(transfers.senderId, userId),
+          eq(transfers.senderId, userId)
         ),
       })
       if (dupe) return Response.json(dupe)
