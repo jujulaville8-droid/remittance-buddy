@@ -1,3 +1,5 @@
+> Historical snapshot. For the current comparison-only repair, see [RELEASE_REVIEW_2026-10-03.md](RELEASE_REVIEW_2026-10-03.md).
+
 # Remittance Buddy — Project Status
 
 > **Last updated:** 2026-04-18 (local-dev + PWA shipped; Vercel function hours maxed)

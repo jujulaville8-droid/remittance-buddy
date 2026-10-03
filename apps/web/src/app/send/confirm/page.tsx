@@ -241,7 +241,7 @@ function ConfirmPageInner() {
 
       <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground justify-center">
         <CheckCircle2 className="h-3 w-3 text-teal" />
-        We compared 5 providers. You're getting the best available rate today.
+        Confirm the final provider quote and terms before continuing.
       </div>
     </div>
   )

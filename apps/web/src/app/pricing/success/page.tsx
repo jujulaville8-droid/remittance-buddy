@@ -97,7 +97,7 @@ function PricingSuccessInner() {
                 Welcome to Buddy Plus
               </div>
               <h1 className="font-display text-5xl leading-tight text-foreground mb-3">
-                You're in.
+                You’re in.
               </h1>
               <p className="text-lg text-muted-foreground mb-8">
                 Your 7-day free trial just started. You now have unlimited sends, rate alerts, the
@@ -124,7 +124,7 @@ function PricingSuccessInner() {
             <>
               <h1 className="font-display text-4xl text-foreground mb-3">Payment pending</h1>
               <p className="text-muted-foreground mb-8">
-                Your subscription is being processed. We'll email you when it's active. You can
+                Your subscription is being processed. Check its status before relying on paid features. You can
                 continue using Free Buddy in the meantime.
               </p>
               <Link

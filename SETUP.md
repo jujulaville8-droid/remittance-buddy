@@ -52,14 +52,12 @@ Open `http://localhost:3001`.
 - Port 3000 is often taken by another project; we default to 3001.
 - Turbopack's on for speed; drop `--turbopack` if you hit a bundler-specific bug.
 
-## 4. Test login (pre-created)
+## 4. Test accounts
 
-| | |
-|---|---|
-| Email | `julian@remittance-buddy.test` |
-| Password | `RemitBuddy2026!` |
-
-Auto-confirmed via Supabase admin API, no email verification needed. Use this to smoke-test the authed routes (`/dashboard`, `/family`, `/alerts`, the recipient save flow).
+Do not commit test passwords or reuse credentials published in repository history.
+Create an isolated test account only when authorized, using a secure credential
+handoff. Previously documented account credentials should be treated as exposed
+and rotated by the account owner. Public comparison testing needs no account.
 
 ## 5. Useful branches
 

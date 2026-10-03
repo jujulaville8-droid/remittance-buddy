@@ -1,9 +1,18 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { randomUUID } from 'crypto'
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
-const mockGetUser = vi.fn()
+const { mockGetUser, returningMock, valuesMock, insertMock } = vi.hoisted(() => {
+  const returningMock = vi.fn()
+  const valuesMock = vi.fn(() => ({ returning: returningMock }))
+  return {
+    mockGetUser: vi.fn(),
+    returningMock,
+    valuesMock,
+    insertMock: vi.fn(() => ({ values: valuesMock })),
+  }
+})
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(() => ({
     auth: {
@@ -18,7 +27,7 @@ vi.mock('@remit/db', () => ({
       transfers: { findMany: vi.fn(), findFirst: vi.fn() },
       users: { findFirst: vi.fn() },
     },
-    insert: vi.fn(() => ({ values: vi.fn(() => ({ returning: vi.fn() })) })),
+    insert: insertMock,
   },
   transfers: {},
   users: {},
@@ -45,6 +54,7 @@ import { db } from '@remit/db'
 import { createQuote, createRecipient, createTransfer } from '@/lib/wise'
 import { transferRateLimiter } from '@/lib/rate-limit'
 import { GET, POST } from '@/app/api/transfers/route'
+import { logAuditEvent } from '@/lib/audit'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -54,7 +64,10 @@ const validTransferBody = {
   sourceAmountCents: 10000,
   recipientName: 'Maria Garcia',
   recipientCountry: 'MX',
-  recipientBankAccount: { type: 'aba', details: { routingNumber: '021000021', accountNumber: '123456' } },
+  recipientBankAccount: {
+    type: 'aba',
+    details: { routingNumber: '021000021', accountNumber: '123456' },
+  },
   idempotencyKey: randomUUID(),
 }
 
@@ -67,6 +80,14 @@ function makePostRequest(body: object) {
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
+
+beforeEach(() => {
+  vi.stubEnv('ENABLE_TRANSFER_EXECUTION', 'true')
+})
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
 
 describe('GET /api/transfers', () => {
   beforeEach(() => {
@@ -94,18 +115,21 @@ describe('POST /api/transfers', () => {
     vi.clearAllMocks()
     mockGetUser.mockResolvedValue({ data: { user: { id: 'user-123' } } })
     vi.mocked(transferRateLimiter.limit).mockResolvedValue({ success: true } as never)
-    vi.mocked(db.query.users.findFirst).mockResolvedValue({ id: 'user-123', kycStatus: 'approved' } as never)
-    vi.mocked(db.query.transfers.findFirst).mockResolvedValue(null)
-    process.env.WISE_PROFILE_ID = 'profile-123'
+    vi.mocked(db.query.users.findFirst).mockResolvedValue({
+      id: 'user-123',
+      kycStatus: 'approved',
+    } as never)
+    vi.mocked(db.query.transfers.findFirst).mockResolvedValue(undefined)
+    vi.stubEnv('WISE_PROFILE_ID', 'profile-123')
     vi.mocked(createQuote).mockResolvedValue({
-      id: 'quote-uuid', rate: 17.5, targetAmount: 175,
+      id: 'quote-uuid',
+      rate: 17.5,
+      targetAmount: 175,
       fee: { total: 2, transferwise: 2, payIn: 0 },
     } as never)
     vi.mocked(createRecipient).mockResolvedValue({ id: 9999 } as never)
     vi.mocked(createTransfer).mockResolvedValue({ id: 11111 } as never)
-    const returningMock = vi.fn().mockResolvedValue([{ id: 'new-tx-id', status: 'processing' }])
-    const valuesMock = vi.fn(() => ({ returning: returningMock }))
-    vi.mocked(db).insert = vi.fn(() => ({ values: valuesMock }))
+    returningMock.mockResolvedValue([{ id: 'new-tx-id', status: 'processing' }])
   })
 
   it('returns 401 when not authenticated', async () => {
@@ -121,16 +145,26 @@ describe('POST /api/transfers', () => {
   })
 
   it('returns 403 with KYC_REQUIRED when user KYC is pending', async () => {
-    vi.mocked(db.query.users.findFirst).mockResolvedValue({ id: 'user-123', kycStatus: 'pending' } as never)
+    vi.mocked(db.query.users.findFirst).mockResolvedValue({
+      id: 'user-123',
+      kycStatus: 'pending',
+    } as never)
     const res = await POST(makePostRequest(validTransferBody))
     expect(res.status).toBe(403)
     const body = await res.json()
     expect(body.error).toBe('KYC_REQUIRED')
     expect(body.kycStatus).toBe('pending')
+    expect(createQuote).not.toHaveBeenCalled()
+    expect(createRecipient).not.toHaveBeenCalled()
+    expect(createTransfer).not.toHaveBeenCalled()
+    expect(insertMock).not.toHaveBeenCalled()
   })
 
   it('returns 403 with KYC_REQUIRED when user KYC is none', async () => {
-    vi.mocked(db.query.users.findFirst).mockResolvedValue({ id: 'user-123', kycStatus: 'none' } as never)
+    vi.mocked(db.query.users.findFirst).mockResolvedValue({
+      id: 'user-123',
+      kycStatus: 'none',
+    } as never)
     const res = await POST(makePostRequest(validTransferBody))
     expect(res.status).toBe(403)
     const body = await res.json()
@@ -138,7 +172,7 @@ describe('POST /api/transfers', () => {
   })
 
   it('returns 404 when user not found', async () => {
-    vi.mocked(db.query.users.findFirst).mockResolvedValue(null)
+    vi.mocked(db.query.users.findFirst).mockResolvedValue(undefined)
     const res = await POST(makePostRequest(validTransferBody))
     expect(res.status).toBe(404)
   })
@@ -151,23 +185,30 @@ describe('POST /api/transfers', () => {
   })
 
   it('returns 400 for currency codes that are wrong length', async () => {
-    const res = await POST(makePostRequest({
-      ...validTransferBody,
-      sourceCurrency: 'USDD', // 4 chars, must be 3
-    }))
+    const res = await POST(
+      makePostRequest({
+        ...validTransferBody,
+        sourceCurrency: 'USDD', // 4 chars, must be 3
+      })
+    )
     expect(res.status).toBe(400)
   })
 
   it('returns 400 when idempotencyKey is not a UUID', async () => {
-    const res = await POST(makePostRequest({
-      ...validTransferBody,
-      idempotencyKey: 'not-a-uuid',
-    }))
+    const res = await POST(
+      makePostRequest({
+        ...validTransferBody,
+        idempotencyKey: 'not-a-uuid',
+      })
+    )
     expect(res.status).toBe(400)
   })
 
   it('returns existing transfer on duplicate idempotency key', async () => {
-    vi.mocked(db.query.transfers.findFirst).mockResolvedValue({ id: 'existing-tx', status: 'processing' } as never)
+    vi.mocked(db.query.transfers.findFirst).mockResolvedValue({
+      id: 'existing-tx',
+      status: 'processing',
+    } as never)
     const res = await POST(makePostRequest(validTransferBody))
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -181,11 +222,79 @@ describe('POST /api/transfers', () => {
     expect(createQuote).toHaveBeenCalledWith(expect.objectContaining({ profileId: 'profile-123' }))
     expect(createRecipient).toHaveBeenCalledOnce()
     expect(createTransfer).toHaveBeenCalledOnce()
+    expect(await res.json()).toEqual({ id: 'new-tx-id', status: 'processing' })
+    expect(valuesMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        senderId: 'user-123',
+        sourceAmountCents: 10000,
+        targetAmountCents: 17500,
+        feeCents: 200,
+        providerTransferId: '11111',
+        status: 'processing',
+      })
+    )
+    expect(logAuditEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'transfer.created',
+        entityId: 'new-tx-id',
+      })
+    )
+  })
+
+  it('returns the persisted transfer after an idempotency insert race', async () => {
+    const existingTransfer = { id: 'raced-tx', status: 'processing' } as const
+    returningMock.mockRejectedValueOnce({ code: '23505' })
+    vi.mocked(db.query.transfers.findFirst)
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce(existingTransfer as never)
+    const res = await POST(makePostRequest(validTransferBody))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual(existingTransfer)
+    expect(createTransfer).toHaveBeenCalledOnce()
+    expect(createTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerTransactionId: validTransferBody.idempotencyKey,
+      })
+    )
+    expect(logAuditEvent).not.toHaveBeenCalled()
+  })
+
+  it('propagates a persistence error rather than reporting transfer success', async () => {
+    const error = new Error('Database unavailable')
+    returningMock.mockRejectedValueOnce(error)
+    await expect(POST(makePostRequest(validTransferBody))).rejects.toBe(error)
+    expect(logAuditEvent).not.toHaveBeenCalled()
   })
 
   it('returns 500 when WISE_PROFILE_ID is not configured', async () => {
-    delete process.env.WISE_PROFILE_ID
+    vi.stubEnv('WISE_PROFILE_ID', undefined)
     const res = await POST(makePostRequest(validTransferBody))
     expect(res.status).toBe(500)
   })
+})
+
+describe('comparison-only transfer guards', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it.each([undefined, '', 'false', 'TRUE'])(
+    'blocks reads and creation when execution is disabled (%s)',
+    async (flag) => {
+      vi.stubEnv('ENABLE_TRANSFER_EXECUTION', flag)
+      const read = await GET()
+      const create = await POST(makePostRequest(validTransferBody))
+      expect(read.status).toBe(503)
+      expect(create.status).toBe(503)
+      expect(mockGetUser).not.toHaveBeenCalled()
+      expect(db.query.transfers.findMany).not.toHaveBeenCalled()
+      expect(db.query.transfers.findFirst).not.toHaveBeenCalled()
+      expect(db.query.users.findFirst).not.toHaveBeenCalled()
+      expect(insertMock).not.toHaveBeenCalled()
+      expect(createQuote).not.toHaveBeenCalled()
+      expect(createRecipient).not.toHaveBeenCalled()
+      expect(createTransfer).not.toHaveBeenCalled()
+      expect(logAuditEvent).not.toHaveBeenCalled()
+    }
+  )
 })

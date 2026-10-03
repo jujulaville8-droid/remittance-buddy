@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 }
 
 export default function PrivacyPolicyPage() {
-  const lastUpdated = 'April 2, 2026'
+  const lastUpdated = 'October 3, 2026'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
               </li>
               <li>
                 <strong className="text-foreground">Chat messages</strong> — conversations with our AI assistant
-                to provide personalized recommendations. We do not share chat content with third parties.
+                to provide personalized recommendations. If you use the optional assistant, its messages are sent to our configured AI provider through Vercel AI Gateway.
               </li>
               <li>
                 <strong className="text-foreground">Usage data</strong> — pages visited, features used, provider
@@ -59,8 +59,7 @@ export default function PrivacyPolicyPage() {
                 no cookies).
               </li>
               <li>
-                <strong className="text-foreground">Extension storage</strong> — the Chrome extension stores your
-                authentication token and click analytics locally on your device.
+                <strong className="text-foreground">Extension storage</strong> — the current comparison extension stores corridor and payout preferences locally. Earlier versions may have left account or click data on the device; see the extension policy for details.
               </li>
             </ul>
           </Section>
@@ -103,10 +102,7 @@ export default function PrivacyPolicyPage() {
 
           <Section title="5. Affiliate Links">
             <p>
-              My Remittance Pal earns commissions when you sign up with a provider through our links. This does not
-              affect the rates you receive or the order of our recommendations. Our scoring engine ranks providers
-              based on fees, exchange rates, speed, and trust — not affiliate payouts. We clearly disclose when links
-              are affiliate links.
+              Current provider links are ordinary links. No approved affiliate relationship or commission is claimed. If approved affiliate links are introduced, they will be labeled. Current reference comparisons are ranked by the recipient amount in the available source data.
             </p>
           </Section>
 
@@ -139,28 +135,8 @@ export default function PrivacyPolicyPage() {
           </Section>
 
           <Section title="8. Chrome Extension Permissions">
-            <p>The My Remittance Pal Chrome extension requests the following permissions:</p>
-            <ul className="list-disc pl-5 space-y-1.5 mt-2">
-              <li>
-                <strong className="text-foreground">sidePanel</strong> — to display the AI chat assistant in
-                Chrome&apos;s side panel.
-              </li>
-              <li>
-                <strong className="text-foreground">storage</strong> — to save your preferences and
-                authentication locally.
-              </li>
-              <li>
-                <strong className="text-foreground">alarms</strong> — to schedule rate alert checks.
-              </li>
-              <li>
-                <strong className="text-foreground">notifications</strong> — to notify you of rate changes you
-                opted into.
-              </li>
-            </ul>
-            <p className="mt-2">
-              The extension only communicates with our own API servers. It does not read, modify, or access your
-              browsing activity on other websites.
-            </p>
+            <p>The comparison extension requests storage, sidePanel, and access to the remitance-buddy.vercel.app API. It does not request alarms, notifications, browsing history or content on other websites. Quote requests include the amount, currencies and preferences. Hosting and error-reporting systems may receive connection metadata and request parameters.</p>
+            <p className="mt-2"><Link href="/extension-privacy" className="underline">Read the current extension privacy policy</Link>.</p>
           </Section>
 
           <Section title="9. Children">

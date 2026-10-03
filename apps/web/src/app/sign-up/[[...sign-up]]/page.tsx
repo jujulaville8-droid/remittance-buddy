@@ -55,10 +55,10 @@ function SignUpPageInner() {
   }
 
   const perks = [
-    'Free forever to compare rates',
-    'Live quotes from 12+ providers',
-    'Rate alerts + family groups',
-    'Ask Pal — AI concierge, 24/7',
+    'Browse comparisons without an account',
+    'Review quote sources and timestamps',
+    'Keep recipient records in your dashboard',
+    'Organize family groups and goals',
   ]
 
   return (
@@ -87,7 +87,7 @@ function SignUpPageInner() {
 
         <div className="relative z-10 space-y-8">
           <h2 className="font-display text-3xl xl:text-4xl leading-[1.15] tracking-tight">
-            Find the cheapest route home in seconds.
+            Compare your options for sending home.
           </h2>
           <ul className="space-y-3">
             {perks.map((p) => (
@@ -101,8 +101,8 @@ function SignUpPageInner() {
           </ul>
 
           <div className="pt-6 border-t border-white/15 text-xs text-blue-200 leading-relaxed max-w-sm">
-            Pal is a comparison engine — we don&rsquo;t hold your money. We earn a small referral
-            fee from the provider you pick.
+            Comparison results are indicative. Check the final price, availability, and terms
+            with your chosen provider before sending.
           </div>
         </div>
       </aside>
@@ -122,11 +122,15 @@ function SignUpPageInner() {
             Create your account
           </div>
           <h1 className="mt-4 font-display text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
-            Send smarter. Start free.
+            Keep your plans in one place.
           </h1>
           <p className="mt-3 text-sm lg:text-base text-slate-500 leading-relaxed">
-            One account for the comparison tool, rate alerts, and your family group.
+            Create an account for your personal dashboard and family groups. Comparison is open to everyone.
           </p>
+
+          <Link href="/compare" className="mt-4 text-sm font-semibold text-blue-600 hover:underline">
+            Compare without an account <ArrowRight className="inline h-3.5 w-3.5" />
+          </Link>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             {error && (

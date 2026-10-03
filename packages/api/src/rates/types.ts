@@ -48,7 +48,10 @@ export interface LiveQuote {
   readonly trustScore: number // 1-10
   readonly affiliateUrl: string
   readonly fetchedAt: string // ISO timestamp
-  readonly source: 'live-api' | 'scraped' | 'cached' | 'fallback'
+  readonly collectedAt?: string | null
+  readonly sourceName?: string
+  readonly payoutVerified?: boolean
+  readonly source: 'comparison' | 'live-api' | 'scraped' | 'cached' | 'fallback'
   // Upstream-provided brand logo URL (e.g. from Wise Comparisons response).
   // Optional — when present, UI should prefer this over local /providers/*.svg.
   readonly logoUrl?: string

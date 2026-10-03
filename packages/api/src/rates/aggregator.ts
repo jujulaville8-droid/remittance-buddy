@@ -5,13 +5,7 @@
  * This is the single entry point used by the /api/quotes route and the cron job.
  */
 
-import type {
-  LiveQuote,
-  QuoteBatchResult,
-  QuoteFetcher,
-  QuoteFetchError,
-  QuoteRequest,
-} from './types'
+import type { QuoteBatchResult, QuoteFetcher, QuoteRequest } from './types'
 
 import { wiseFetcher } from './fetchers/wise'
 import { remitlyFetcher } from './fetchers/remitly'
@@ -28,81 +22,35 @@ const ALL_FETCHERS: readonly QuoteFetcher[] = [
   moneygramFetcher,
 ]
 
-// If Wise Comparisons returns fewer than this, we augment with per-provider
-// fetchers so empty corridors (like AED→PHP today) still show something.
-const MIN_COMPARISON_PROVIDERS = 2
-
 /**
  * Fetch quotes from every supported provider for a given request.
  * Primary source: Wise Comparisons API (real, multi-provider, single request).
- * Fallback: per-provider fetchers (some synthetic) when comparisons is empty
- * or the upstream errors out.
+ * No synthetic fallback is used in public comparisons.
  */
 export async function fetchAllQuotes(req: QuoteRequest): Promise<QuoteBatchResult> {
   const startedAt = Date.now()
-
-  // Primary path — one network call, many providers, real data
   try {
-    const comparisons = await fetchWiseComparisons(req)
-    if (comparisons.length >= MIN_COMPARISON_PROVIDERS) {
-      const quotes = [...comparisons].sort((a, b) => b.targetAmount - a.targetAmount)
-      return {
-        quotes,
-        errors: [],
-        fetchedAt: new Date().toISOString(),
-        durationMs: Date.now() - startedAt,
-      }
+    const quotes = await fetchWiseComparisons(req)
+    return {
+      quotes: [...quotes].sort((a, b) => b.targetAmount - a.targetAmount),
+      errors: [],
+      fetchedAt: new Date().toISOString(),
+      durationMs: Date.now() - startedAt,
     }
-  } catch {
-    // fall through to per-provider fetchers
-  }
-
-  // Fallback path — per-provider fetchers (retains synthetic quotes for
-  // corridors Wise doesn't cover, like AED→PHP)
-  const fetchers = ALL_FETCHERS.filter((f) => f.supportedCorridors.includes(req.corridor))
-
-  const settled = await Promise.allSettled(
-    fetchers.map(async (fetcher) => {
-      const quote = await fetcher.fetchQuote(req)
-      return { fetcher, quote }
-    }),
-  )
-
-  const quotes: LiveQuote[] = []
-  const errors: QuoteFetchError[] = []
-
-  for (let i = 0; i < settled.length; i++) {
-    const result = settled[i]
-    const fetcher = fetchers[i]
-    if (!fetcher || !result) continue
-
-    if (result.status === 'fulfilled') {
-      if (result.value.quote) {
-        quotes.push(result.value.quote)
-      } else {
-        errors.push({
-          provider: fetcher.name,
-          error: 'No quote returned',
+  } catch (error) {
+    // Fail honestly. Synthetic provider prices must never become recommendations.
+    return {
+      quotes: [],
+      errors: [
+        {
+          provider: 'Comparison source',
+          error: error instanceof Error ? error.message : 'Unavailable',
           timestamp: new Date().toISOString(),
-        })
-      }
-    } else {
-      errors.push({
-        provider: fetcher.name,
-        error: result.reason instanceof Error ? result.reason.message : String(result.reason),
-        timestamp: new Date().toISOString(),
-      })
+        },
+      ],
+      fetchedAt: new Date().toISOString(),
+      durationMs: Date.now() - startedAt,
     }
-  }
-
-  // Rank by target amount descending (best deal first)
-  quotes.sort((a, b) => b.targetAmount - a.targetAmount)
-
-  return {
-    quotes,
-    errors,
-    fetchedAt: new Date().toISOString(),
-    durationMs: Date.now() - startedAt,
   }
 }
 
@@ -115,7 +63,7 @@ export async function fetchQuotesForBatch(
   sourceCurrency: string,
   targetCurrency: string,
   amounts: readonly number[],
-  payoutMethod: QuoteRequest['payoutMethod'] = 'gcash',
+  payoutMethod: QuoteRequest['payoutMethod'] = 'gcash'
 ): Promise<Record<number, QuoteBatchResult>> {
   const entries = await Promise.all(
     amounts.map(async (amount) => {
@@ -127,7 +75,7 @@ export async function fetchQuotesForBatch(
         payoutMethod,
       })
       return [amount, result] as const
-    }),
+    })
   )
   return Object.fromEntries(entries)
 }

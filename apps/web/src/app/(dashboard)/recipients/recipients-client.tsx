@@ -200,7 +200,7 @@ export function RecipientsClient({ initialRecipients }: { initialRecipients: Rec
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium">{r.name}</p>
                     {r.nickname && (
-                      <span className="text-xs text-muted-foreground">"{r.nickname}"</span>
+                      <span className="text-xs text-muted-foreground">&quot;{r.nickname}&quot;</span>
                     )}
                     {r.isDefault && (
                       <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 text-xs font-medium">

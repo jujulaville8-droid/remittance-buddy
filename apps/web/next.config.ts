@@ -26,7 +26,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https://cdn.prod.website-files.com https://images.unsplash.com https://i.pravatar.cc https://flagcdn.com https://dq8dwmysp7hk1.cloudfront.net https://wise.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
       "font-src 'self' data: https://cdn.prod.website-files.com https://fonts.gstatic.com",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.wise.com https://withpersona.com https://sdk.vercel.ai https://vitals.vercel-insights.com https://va.vercel-scripts.com",
-      "frame-src https://js.stripe.com https://hooks.stripe.com https://withpersona.com",
+      'frame-src https://js.stripe.com https://hooks.stripe.com https://withpersona.com',
       "media-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
@@ -44,11 +44,6 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
     ]
-  },
-  typescript: {
-    // Drizzle ORM version mismatch across monorepo causes false type errors
-    // CI type-check already runs separately — safe to skip here
-    ignoreBuildErrors: true,
   },
   turbopack: {},
   experimental: {
@@ -69,8 +64,9 @@ const nextConfig: NextConfig = {
 export default withSentryConfig(nextConfig, {
   // Suppress source map upload logs during build
   silent: true,
-  // Upload source maps for better stack traces
-  widenClientFileUpload: true,
+  // Build artifacts stay local; source upload needs separate authorization.
+  sourcemaps: { disable: true },
+  telemetry: false,
   // Automatically tree-shake Sentry logger in production
   disableLogger: true,
 })

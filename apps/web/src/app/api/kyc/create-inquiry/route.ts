@@ -1,3 +1,4 @@
+import { transferExecutionEnabled, featureUnavailableResponse } from '@/lib/launch-mode'
 import { createClient } from '@/lib/supabase/server'
 import { db, users } from '@remit/db'
 import { eq } from 'drizzle-orm'
@@ -6,6 +7,7 @@ import { kycRateLimiter } from '@/lib/rate-limit'
 import { logAuditEvent, getClientIp } from '@/lib/audit'
 
 export async function POST(req: Request) {
+  if (!transferExecutionEnabled()) return featureUnavailableResponse()
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
   if (!authUser) {

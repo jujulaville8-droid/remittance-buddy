@@ -32,7 +32,10 @@ export interface LiveQuote {
   readonly trustScore: number
   readonly affiliateUrl: string
   readonly fetchedAt: string
-  readonly source: 'live-api' | 'scraped' | 'cached' | 'fallback'
+  readonly collectedAt?: string | null
+  readonly sourceName?: string
+  readonly payoutVerified?: boolean
+  readonly source: 'comparison' | 'live-api' | 'scraped' | 'cached' | 'fallback'
   readonly logoUrl?: string
 }
 
@@ -83,8 +86,15 @@ export function useLiveQuotes({
   useEffect(() => {
     if (!sourceAmount || sourceAmount < 1) {
       setQuotes([])
+      setFetchedAt(null)
+      setLoading(false)
       return
     }
+
+    setQuotes([])
+    setFetchedAt(null)
+    setError(null)
+    setLoading(true)
 
     // Cancel any in-flight request
     if (abortRef.current) abortRef.current.abort()
@@ -111,14 +121,17 @@ export function useLiveQuotes({
           throw new Error(`Quote API returned ${res.status}`)
         }
         const data = (await res.json()) as QuoteResponse
-        setQuotes(data.quotes)
+        if (controller.signal.aborted) return
+        setQuotes((data.quotes ?? []).filter((q) => q.source !== 'fallback'))
         setFetchedAt(data.fetchedAt ? new Date(data.fetchedAt) : new Date())
         setCached(Boolean(data.cached))
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return
+        setQuotes([])
+        setFetchedAt(null)
         setError(err instanceof Error ? err.message : 'Failed to fetch quotes')
       } finally {
-        setLoading(false)
+        if (!controller.signal.aborted) setLoading(false)
       }
     }, debounceMs)
 
@@ -126,7 +139,15 @@ export function useLiveQuotes({
       if (debounceRef.current) clearTimeout(debounceRef.current)
       if (abortRef.current) abortRef.current.abort()
     }
-  }, [corridor, sourceCurrency, targetCurrency, sourceAmount, payoutMethod, debounceMs, refetchCounter])
+  }, [
+    corridor,
+    sourceCurrency,
+    targetCurrency,
+    sourceAmount,
+    payoutMethod,
+    debounceMs,
+    refetchCounter,
+  ])
 
   return {
     quotes,

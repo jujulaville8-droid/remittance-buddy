@@ -13,7 +13,17 @@ import {
 } from '@remit/api'
 
 const querySchema = z.object({
-  corridor: z.enum(['US-PH', 'UK-PH', 'SG-PH', 'AE-PH', 'SA-PH', 'CA-PH', 'AU-PH', 'JP-PH', 'HK-PH']),
+  corridor: z.enum([
+    'US-PH',
+    'UK-PH',
+    'SG-PH',
+    'AE-PH',
+    'SA-PH',
+    'CA-PH',
+    'AU-PH',
+    'JP-PH',
+    'HK-PH',
+  ]),
   sourceCurrency: z.string().length(3),
   targetCurrency: z.string().length(3),
   sourceAmount: z.coerce.number().positive().max(50000),
@@ -58,7 +68,28 @@ export async function GET(req: Request) {
     if (!parseResult.success) {
       return NextResponse.json(
         { error: 'Invalid query parameters', details: parseResult.error.issues },
-        { status: 400 },
+        { status: 400 }
+      )
+    }
+
+    const corridorCurrencies: Record<string, string> = {
+      'US-PH': 'USD',
+      'UK-PH': 'GBP',
+      'SG-PH': 'SGD',
+      'AE-PH': 'AED',
+      'SA-PH': 'SAR',
+      'CA-PH': 'CAD',
+      'AU-PH': 'AUD',
+      'JP-PH': 'JPY',
+      'HK-PH': 'HKD',
+    }
+    if (
+      parseResult.data.sourceCurrency !== corridorCurrencies[parseResult.data.corridor] ||
+      parseResult.data.targetCurrency !== 'PHP'
+    ) {
+      return NextResponse.json(
+        { error: 'Currency does not match the selected corridor' },
+        { status: 400 }
       )
     }
 
@@ -83,7 +114,7 @@ export async function GET(req: Request) {
               headers: {
                 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
               },
-            },
+            }
           )
         }
       }
@@ -102,7 +133,7 @@ export async function GET(req: Request) {
               sourceAmount: String(quoteReq.sourceAmount),
             },
             extra: { errors: result.errors },
-          },
+          }
         )
       }
 
@@ -117,7 +148,7 @@ export async function GET(req: Request) {
           headers: {
             'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
           },
-        },
+        }
       )
     } catch (err) {
       Sentry.captureException(err, {
@@ -126,7 +157,7 @@ export async function GET(req: Request) {
       })
       return NextResponse.json(
         { error: 'Failed to fetch quotes', quotes: [], errors: [] },
-        { status: 500 },
+        { status: 500 }
       )
     }
   })

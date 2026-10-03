@@ -21,7 +21,7 @@ function RecipientPageInner() {
   const searchParams = useSearchParams()
   const amount = Number(searchParams.get('amount') ?? 500)
   const corridor = searchParams.get('corridor') ?? 'US-PH'
-  const payout = (searchParams.get('payout') ?? 'gcash') as LocalRecipient['payoutMethod']
+  const payout = (searchParams.get('payout') ?? 'gcash') as NonNullable<LocalRecipient['payoutMethod']>
 
   const { recipients, create: createRecipient } = useRecipients()
   const [mode, setMode] = useState<'select' | 'new'>(recipients.length === 0 ? 'new' : 'select')

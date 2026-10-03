@@ -3,155 +3,88 @@ import Link from 'next/link'
 import { Nav } from '@/components/landing/Nav'
 import { Footer } from '@/components/landing/Footer'
 
-export const metadata: Metadata = {
-  title: 'Extension Privacy Policy — My Remittance Pal',
-  description:
-    'Privacy policy for the My Remittance Pal Chrome extension. What we collect, what we don’t, and where your data lives.',
-}
-
+export const metadata: Metadata = { title: 'Extension Privacy Policy — My Remittance Pal' }
 export default function ExtensionPrivacyPage() {
   return (
-    <main className="relative min-h-screen bg-background text-foreground">
+    <main className="bg-background text-foreground min-h-screen">
       <Nav />
-      <article className="pt-40 pb-24">
-        <div className="container max-w-3xl">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">
-            Chrome Extension
-          </div>
-          <h1 className="mt-5 font-display text-5xl lg:text-[3.5rem] leading-[1.05] text-foreground">
-            Privacy Policy
-          </h1>
-          <p className="mt-6 text-sm text-muted-foreground">Last updated: 14 April 2026</p>
-
-          <div className="mt-12 space-y-10 text-[15px] leading-relaxed text-foreground/90">
-            <Section title="What this policy covers">
-              This policy describes the data practices for the{' '}
-              <strong>My Remittance Pal</strong> Chrome extension. The extension compares live
-              remittance rates from public provider quote endpoints and displays the results to
-              you. It is a comparison tool only — it does not move money, store payment details,
-              or collect identifiable information about you.
-            </Section>
-
-            <Section title="What we collect">
-              <p className="mb-3">The extension collects nothing about you personally.</p>
-              <p className="mb-3">
-                When you open the popup or side panel, the extension sends a request to our
-                public rate-comparison API with the following non-identifying parameters:
-              </p>
-              <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                <li>Amount you want to send (e.g. 500)</li>
-                <li>Source and target currencies (e.g. USD, PHP)</li>
-                <li>Your selected corridor (e.g. US→PH)</li>
-                <li>Your preferred payout method (GCash, bank, cash pickup, etc.)</li>
-              </ul>
-              <p className="mt-4">
-                These parameters are used to fetch quotes and are not linked to any user
-                identifier, account, email, IP-based profile, or cookie.
-              </p>
-            </Section>
-
-            <Section title="What we store on your device">
-              <p className="mb-3">
-                The extension uses <code>chrome.storage.local</code> to save your preferences so
-                they persist across sessions. Stored locally only:
-              </p>
-              <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                <li>Default corridor and payout method</li>
-                <li>Optional API base URL override</li>
-                <li>Onboarding-completed flag</li>
-              </ul>
-              <p className="mt-4">
-                None of this data leaves your device. Clearing your browser storage or
-                uninstalling the extension removes it entirely.
-              </p>
-            </Section>
-
-            <Section title="What we do not collect">
-              <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                <li>Names, emails, phone numbers, or contact information</li>
-                <li>Bank accounts, card numbers, or other payment details</li>
-                <li>Browsing history or page content from sites you visit</li>
-                <li>IP-based location or device fingerprints</li>
-                <li>Third-party tracking or advertising identifiers</li>
-              </ul>
-            </Section>
-
-            <Section title="Third parties">
-              <p className="mb-3">
-                Rate data is fetched from each provider’s public quote endpoint (Wise, Remitly,
-                Xoom, MoneyGram, Western Union and others) via our server. No third-party
-                analytics, advertising, or tracking SDK is bundled with the extension.
-              </p>
-              <p>
-                Server-side we use Sentry for crash reporting on the comparison API. Sentry
-                receives stack traces and request metadata for failed requests — not quote
-                parameters and not any user identifier.
-              </p>
-            </Section>
-
-            <Section title="Permissions we request">
-              <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-                <li>
-                  <strong>storage</strong> — save your preferences on your device
-                </li>
-                <li>
-                  <strong>sidePanel</strong> — open the comparison side panel when you click the
-                  extension icon
-                </li>
-                <li>
-                  <strong>alarms</strong> — schedule the quote refresh timer
-                </li>
-                <li>
-                  <strong>notifications</strong> — (future) notify you when a rate alert
-                  triggers
-                </li>
-              </ul>
-              <p className="mt-4">
-                The extension does not request access to your browsing history, open tabs, or
-                content on any third-party website.
-              </p>
-            </Section>
-
-            <Section title="Children’s privacy">
-              The extension is not directed at children under 13 and does not knowingly collect
-              data from them.
-            </Section>
-
-            <Section title="Changes to this policy">
-              If we change the data practices of the extension, we will update this page and
-              bump the <code>Last updated</code> date. Material changes will also be noted in
-              the next extension release’s changelog.
-            </Section>
-
-            <Section title="Contact">
-              Questions? Email{' '}
-              <a className="text-coral underline" href="mailto:privacy@remittancebuddy.com">
-                privacy@remittancebuddy.com
-              </a>{' '}
-              or open an issue on our GitHub repository.
-            </Section>
-          </div>
-
-          <div className="mt-16 pt-8 border-t border-border">
-            <Link
-              href="/"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ← Back to home
-            </Link>
-          </div>
+      <article className="container max-w-3xl pb-24 pt-40">
+        <p className="text-coral text-sm">Chrome extension · comparison mode v0.3.0</p>
+        <h1 className="font-display mt-5 text-5xl">Extension privacy</h1>
+        <p className="text-muted-foreground mt-6 text-sm">Last updated: 3 October 2026</p>
+        <div className="mt-10 space-y-8 text-base leading-relaxed">
+          <section>
+            <h2 className="mb-3 text-2xl">What the extension does</h2>
+            <p>
+              The popup and side panel compare reference transfer amounts for the Philippines. They
+              do not initiate transfers, take payments, ask for banking credentials, or require an
+              account. Final offers and payout availability must be checked with the provider.
+            </p>
+          </section>
+          <section>
+            <h2 className="mb-3 text-2xl">Quote requests</h2>
+            <p>
+              When you request a comparison, the extension sends the amount, source and destination
+              currencies, selected corridor and preferred payout method to our API at
+              remitance-buddy.vercel.app. Our server requests comparison data from Wise. Hosting
+              infrastructure receives ordinary connection information such as your IP address. The
+              server uses Sentry for errors; reports may include request metadata, corridor and
+              amount. We do not claim that a network request is anonymous or that server logs cannot
+              contain this information.
+            </p>
+          </section>
+          <section>
+            <h2 className="mb-3 text-2xl">Local preferences</h2>
+            <p>
+              Your default corridor, payout preference and interface preference are stored in
+              Chrome’s local extension storage. The amount is also kept in temporary browser-session storage so the popup and panel can use the same comparison. The current comparison mode does not collect or
+              upload click histories, chat messages or authentication information. Earlier versions
+              may have stored account sessions or click history; upgrading does not erase that older
+              local data. You can remove the extension and its stored data through Chrome.
+            </p>
+          </section>
+          <section>
+            <h2 className="mb-3 text-2xl">Provider links</h2>
+            <p>
+              Choosing a provider opens its website, where that provider’s privacy policy applies.
+              Current links are ordinary provider links. No approved affiliate relationship or
+              commission is claimed. Any future tracking or affiliate behavior requires updated
+              disclosure before release.
+            </p>
+          </section>
+          <section>
+            <h2 className="mb-3 text-2xl">Permissions</h2>
+            <ul className="list-disc space-y-2 pl-6">
+              <li>Storage: remember your preferences on this device</li>
+              <li>Side panel: show the expanded comparison</li>
+              <li>Access to remitance-buddy.vercel.app: retrieve comparison results</li>
+            </ul>
+            <p className="mt-3">
+              The extension does not request browsing history, page content, access to all websites,
+              background alarms or notifications. The legacy account/chat code is not included in
+              the current comparison entry points.
+            </p>
+          </section>
+          <section>
+            <h2 className="mb-3 text-2xl">Questions and changes</h2>
+            <p>
+              For product questions, use the{' '}
+              <a
+                className="underline"
+                href="https://github.com/jujulaville8-droid/remittance-buddy/issues"
+              >
+                project issue tracker
+              </a>
+              . Do not post personal or financial details in public issues. Changes to the
+              extension’s behavior will be reflected here before the corresponding release.
+            </p>
+          </section>
         </div>
+        <Link className="mt-12 inline-block underline" href="/compare">
+          Back to comparison
+        </Link>
       </article>
       <Footer />
     </main>
-  )
-}
-
-function Section({ title, children }: { readonly title: string; readonly children: React.ReactNode }) {
-  return (
-    <section>
-      <h2 className="font-display text-2xl text-foreground mb-4">{title}</h2>
-      <div className="text-foreground/80">{children}</div>
-    </section>
   )
 }

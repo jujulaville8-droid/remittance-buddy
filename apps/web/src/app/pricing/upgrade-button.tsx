@@ -46,7 +46,7 @@ export function UpgradeButton() {
   if (active) {
     return (
       <div className="flex items-center justify-center gap-2 w-full h-11 rounded-full bg-teal text-white font-semibold">
-        <Sparkles className="h-4 w-4" /> You're on Plus
+        <Sparkles className="h-4 w-4" /> You’re on Plus
       </div>
     )
   }
