@@ -7,6 +7,7 @@ import { type LiveQuote } from './useLiveQuotes'
 import {
   comparisonQueryKey,
   quoteMatchesRequest,
+  useComparisonClock,
   useReferenceComparison,
 } from './useReferenceComparison'
 import styles from './ClearCanvas.module.css'
@@ -330,7 +331,7 @@ function QueryResults({
     payoutMethod: payout.id,
   })
   const [sort, setSort] = useState<Sort>('amount')
-  const [now, setNow] = useState(() => Date.now())
+  const now = useComparisonClock()
   const lastRefresh = useRef(refresh)
   const refetch = useRef(result.refetch)
   const headingId = useId()
@@ -343,10 +344,6 @@ function QueryResults({
       refetch.current()
     }
   }, [refresh])
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 60_000)
-    return () => clearInterval(timer)
-  }, [])
 
   const matching = matchingQuotes(result.quotes, corridor, amount)
   const quotes = result.error

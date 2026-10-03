@@ -76,6 +76,7 @@ vi.mock('react', () => ({
 
 import {
   comparisonQueryKey,
+  useComparisonClock,
   useReferenceComparison,
 } from '@/components/landing/useReferenceComparison'
 
@@ -147,6 +148,35 @@ afterEach(() => {
 })
 
 describe('actual quote hook + same-query refresh lifecycle', () => {
+  it('samples the current clock on a request-completion render before the next minute tick', () => {
+    const start = new Date('2026-10-03T17:22:00Z')
+    vi.setSystemTime(start)
+    runtime.begin()
+    // Deterministic hook runner.
+    expect(useComparisonClock()).toBe(start.getTime())
+    runtime.commit()
+    vi.setSystemTime(new Date(start.getTime() + 5_000))
+    runtime.begin()
+    // Simulate a render caused by a completed request.
+    expect(useComparisonClock()).toBe(start.getTime() + 5_000)
+    runtime.commit()
+  })
+  it('advances the idle comparison clock and clears its timer on unmount', async () => {
+    const start = new Date('2026-10-03T17:22:00Z')
+    vi.setSystemTime(start)
+    runtime.begin()
+    // Deterministic hook runner.
+    useComparisonClock()
+    runtime.commit()
+    expect(vi.getTimerCount()).toBe(1)
+    await vi.advanceTimersByTimeAsync(60_000)
+    runtime.begin()
+    // Deterministic hook runner.
+    expect(useComparisonClock()).toBe(start.getTime() + 60_000)
+    runtime.commit()
+    runtime.unmount()
+    expect(vi.getTimerCount()).toBe(0)
+  })
   it('retains settled values while the fetching hook clears its quotes on refetch', async () => {
     render()
     expect(latest.loading).toBe(true)

@@ -1,7 +1,19 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLiveQuotes, type LiveQuote, type UseLiveQuotesArgs } from './useLiveQuotes'
+
+/** Sample the clock on every render, including a newly completed request.
+ * The timer only ensures that displayed ages also advance while idle.
+ */
+export function useComparisonClock() {
+  const [, tick] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => tick((value) => value + 1), 60_000)
+    return () => clearInterval(timer)
+  }, [])
+  return Date.now()
+}
 
 export function comparisonQueryKey(args: UseLiveQuotesArgs) {
   return JSON.stringify([
